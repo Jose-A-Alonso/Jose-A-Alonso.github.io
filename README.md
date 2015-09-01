@@ -1,2 +1,3 @@
 # Jose-A-Alonso.github.io
-Proyecto de *Página personal*
+
+Inicio del proyecto de *Página personal*
