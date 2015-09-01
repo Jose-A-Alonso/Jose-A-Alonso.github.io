@@ -1,0 +1,59 @@
+html, body, form, fieldset, legend
+{
+    margin: 0;
+    padding: 0;
+    float: none;
+}
+
+/* a{ color:#F1F2C0; 
+      text-decoration: none; 
+      font-size: 1.1em; 
+      margin: 0.6em; 
+      display: block} */
+
+body
+{
+    color: #000;
+    background: #9ECFE7;
+    font-family: sans-serif;
+    font-size: 1em;
+}
+
+#container
+{
+    background: #9ECFE7;
+}
+
+#menu
+{
+    /* background: #9ECFE7; */
+    display: none;
+}
+
+
+#content
+{
+    background: #B7E7FF;
+    border-top: solid black 0.1em;
+    font-size: 0.9em;
+    padding: 0.8em;
+    margin: 0;
+    float: none;
+}
+
+#menu ul
+{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+}
+
+#extras
+{
+    border-top: solid black 0.1em;
+    font-size: 0.9em;
+    padding: 0.8em;
+    background: #9ECFE7;
+}
+
