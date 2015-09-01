@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 6: Funciones recursivas</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 6: Funciones recursivas</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#recursión-numérica"><span class="toc-section-number">1</span> Recursión numérica</a></li>
+<li><a href="#recusión-sobre-lista"><span class="toc-section-number">2</span> Recusión sobre lista</a></li>
+<li><a href="#recursión-sobre-varios-argumentos"><span class="toc-section-number">3</span> Recursión sobre varios argumentos</a></li>
+<li><a href="#recursión-múltiple"><span class="toc-section-number">4</span> Recursión múltiple</a></li>
+<li><a href="#recursión-mutua"><span class="toc-section-number">5</span> Recursión mutua</a></li>
+<li><a href="#heurísticas-para-las-definiciones-recursivas"><span class="toc-section-number">6</span> Heurísticas para las definiciones recursivas</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">7</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usarán las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Char</span>  </code></pre></div>
+<h1 id="recursión-numérica"><span class="header-section-number">1</span> Recursión numérica</h1>
+<p><strong>Recursión numérica: El factorial</strong></p>
+<ul>
+<li>La función factorial:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">factorial ::</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span>
+factorial <span class="dv">0</span> <span class="fu">=</span> <span class="dv">1</span>
+factorial n <span class="fu">=</span> n <span class="fu">*</span> factorial (n<span class="fu">-</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>factorial 3 
+= 3 * (factorial 2)
+= 3 * (2 * (factorial 1)) 
+= 3 * (2 * (1 * (factorial 0))) 
+= 3 * (2 * (1 * 1))
+= 3 * (2 * 1)
+= 3 * 2
+= 6 </code></pre>
+<p><strong>Recursión numérica: El producto</strong></p>
+<ul>
+<li>Definición recursiva del producto:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">por ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+m <span class="ot">`por`</span> <span class="dv">0</span>  <span class="fu">=</span> <span class="dv">0</span>
+m <span class="ot">`por`</span> n  <span class="fu">=</span> m <span class="fu">+</span> (m <span class="ot">`por`</span> (n<span class="fu">-</span><span class="dv">1</span>))</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>3 `por` 2 
+= 3 + (3 `por` 1)  
+= 3 + (3 + (3 `por` 0))  
+= 3 + (3 + 0)  
+= 3 + 3
+= 6  </code></pre>
+<h1 id="recusión-sobre-lista"><span class="header-section-number">2</span> Recusión sobre lista</h1>
+<p><strong>Recursión sobre listas: La función <code>product</code></strong></p>
+<ul>
+<li>Producto de una lista de números:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> a
+product []     <span class="fu">=</span> <span class="dv">1</span>
+product (n<span class="fu">:</span>ns) <span class="fu">=</span> n <span class="fu">*</span> product ns</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>product [7,5,2] 
+= 7 * (product [5,2])  
+= 7 * (5 * (product [2]))  
+= 7 * (5 * (2 * (product [])))  
+= 7 * (5 * (2 * 1))  
+= 7 * (5 * 2)  
+= 7 * 10
+= 70</code></pre>
+<p><strong>Recursión sobre listas: La función <code>length</code></strong></p>
+<ul>
+<li>Longitud de una lista:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">length<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+length []     <span class="fu">=</span> <span class="dv">0</span>
+length (_<span class="fu">:</span>xs) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> length xs</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>length [2,3,5] 
+= 1 + (length [3,5])  
+= 1 + (1 + (length [5]))  
+= 1 + (1 + (1 + (length [])))  
+= 1 + (1 + (1 + 0))  
+= 1 + (1 + 1)  
+= 1 + 2  
+= 3</code></pre>
+<p><strong>Recursión sobre listas: La función <code>reverse</code></strong></p>
+<ul>
+<li>Inversa de una lista:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">reverse<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]
+reverse []     <span class="fu">=</span> []
+reverse (x<span class="fu">:</span>xs) <span class="fu">=</span> reverse xs <span class="fu">++</span> [x]</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>reverse [2,5,3] 
+= (reverse [5,3]) ++ [2]  
+= ((reverse [3]) ++ [5]) ++ [2]  
+= (((reverse []) ++ [3]) ++ [5]) ++ [2]  
+= (([] ++ [3]) ++ [5]) ++ [2]  
+= ([3] ++ [5]) ++ [2]  
+= [3,5] ++ [2]  
+= [3,5,2]  </code></pre>
+<p><strong>Recursión sobre listas: <code>++</code></strong></p>
+<ul>
+<li>Concatenación de listas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+[]     <span class="fu">++</span> ys <span class="fu">=</span> ys
+(x<span class="fu">:</span>xs) <span class="fu">++</span> ys <span class="fu">=</span> x <span class="fu">:</span> (xs <span class="fu">++</span> ys)</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>[1,3,5] ++ [2,4] 
+= 1:([3,5] ++ [2,4])   
+= 1:(3:([5] ++ [2,4]))   
+= 1:(3:(5:([] ++ [2,4])))   
+= 1:(3:(5:[2,4]))   
+= 1:(3:[5,2,4])   
+= 1:[3,5,2,4]   
+= [1,3,5,2,4]   </code></pre>
+<p><strong>Recursión sobre listas: Inserción ordenada</strong></p>
+<ul>
+<li><code>(inserta e xs)</code> inserta el elemento <code>e</code> en la lista <code>xs</code> delante del primer elemento de <code>xs</code> mayor o igual que <code>e</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>inserta 5 [2,4,7,3,6,8,10] == [2,4,5,7,3,6,8,10]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+inserta e []                  <span class="fu">=</span> [e]
+inserta e (x<span class="fu">:</span>xs) <span class="fu">|</span> e <span class="fu">&lt;=</span> x     <span class="fu">=</span> e <span class="fu">:</span> (x<span class="fu">:</span>xs) 
+                 <span class="fu">|</span> otherwise  <span class="fu">=</span> x <span class="fu">:</span> inserta e xs    </code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>inserta 4 [1,3,5,7] 
+= 1:(inserta 4 [3,5,7])   
+= 1:(3:(inserta 4 [5,7]))   
+= 1:(3:(4:(5:[7])))   
+= 1:(3:(4:[5,7]))   
+= [1,3,4,5,7]   </code></pre>
+<p><strong>Recursión sobre listas: Ordenación por inserción</strong></p>
+<ul>
+<li><code>(ordena_por_insercion xs)</code> es la lista <code>xs</code> ordenada mediante inserción, Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ordena_por_insercion [2,4,3,6,3] == [2,3,3,4,6]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ordena_por_insercion ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+ordena_por_insercion []     <span class="fu">=</span> []
+ordena_por_insercion (x<span class="fu">:</span>xs) <span class="fu">=</span> 
+    inserta x (ordena_por_insercion xs)   </code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>  ordena_por_insercion [7,9,6] = 
+= inserta 7 (inserta 9 (inserta 6 []))
+= inserta 7 (inserta 9 [6])
+= inserta 7 [6,9]
+= [6,7,9]</code></pre>
+<h1 id="recursión-sobre-varios-argumentos"><span class="header-section-number">3</span> Recursión sobre varios argumentos</h1>
+<p><strong>Recursión sobre varios argumentos: La función <code>zip</code></strong></p>
+<ul>
+<li>Emparejamiento de elementos (la función <code>zip</code>):</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">zip<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [b] <span class="ot">-&gt;</span> [(a, b)]
+zip []     _      <span class="fu">=</span> []
+zip _      []     <span class="fu">=</span> []
+zip (x<span class="fu">:</span>xs) (y<span class="fu">:</span>ys) <span class="fu">=</span> (x,y) <span class="fu">:</span> zip xs ys</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>zip [1,3,5] [2,4,6,8]
+= (1,2) : (zip [3,5] [4,6,8])  
+= (1,2) : ((3,4) : (zip [5] [6,8]))  
+= (1,2) : ((3,4) : ((5,6) : (zip [] [8])))  
+= (1,2) : ((3,4) : ((5,6) : []))  
+= [(1,2),(3,4),(5,6)]</code></pre>
+<p><strong>Recursión sobre varios argumentos: La función <code>drop</code></strong></p>
+<ul>
+<li>Eliminación de elementos iniciales:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> xs     <span class="fu">=</span> xs
+drop n []     <span class="fu">=</span> []
+drop n (x<span class="fu">:</span>xs) <span class="fu">=</span> drop (n<span class="fu">-</span><span class="dv">1</span>) xs</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>drop 2 [5,7,9,4]       |        drop 5 [1,4]  
+= drop 1 [7,9,4]       |        = drop 4 [4]    
+= drop 0 [9,4]         |        = drop 1 []     
+= [9,4]                |        = []            </code></pre>
+<h1 id="recursión-múltiple"><span class="header-section-number">4</span> Recursión múltiple</h1>
+<p><strong>Recursión múltiple: La función de Fibonacci</strong></p>
+<ul>
+<li><p>La sucesión de Fibonacci es: 0,1,1,2,3,5,8,13,21,. Sus dos primeros términos son 0 y 1 y los restantes se obtienen sumando los dos anteriores.</p></li>
+<li><p><code>(fibonacci n)</code> es el <code>n</code>-ésimo término de la sucesión de Fibonacci. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>fibonacci 8  ==  21  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fibonacci ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+fibonacci <span class="dv">0</span> <span class="fu">=</span> <span class="dv">0</span>
+fibonacci <span class="dv">1</span> <span class="fu">=</span> <span class="dv">1</span>
+fibonacci n <span class="fu">=</span> fibonacci (n<span class="fu">-</span><span class="dv">2</span>) <span class="fu">+</span> fibonacci (n<span class="fu">-</span><span class="dv">1</span>)</code></pre></div>
+<p><strong>Recursión múltiple: Ordenación rápida</strong></p>
+<ul>
+<li>Algoritmo de ordenación rápida:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ordena ::</span> (<span class="dt">Ord</span> a) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+ordena [] <span class="fu">=</span> []
+ordena (x<span class="fu">:</span>xs) <span class="fu">=</span> 
+    (ordena menores) <span class="fu">++</span> [x] <span class="fu">++</span> (ordena mayores)
+    <span class="kw">where</span> menores <span class="fu">=</span> [a <span class="fu">|</span> a <span class="ot">&lt;-</span> xs, a <span class="fu">&lt;=</span> x]
+          mayores <span class="fu">=</span> [b <span class="fu">|</span> b <span class="ot">&lt;-</span> xs, b <span class="fu">&gt;</span> x]</code></pre></div>
+<h1 id="recursión-mutua"><span class="header-section-number">5</span> Recursión mutua</h1>
+<p><strong>Recursión mutua: Par e impar</strong></p>
+<ul>
+<li>Par e impar por recursión mutua:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">par ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+par <span class="dv">0</span> <span class="fu">=</span> <span class="dt">True</span>
+par n <span class="fu">=</span> impar (n<span class="fu">-</span><span class="dv">1</span>)
+
+<span class="ot">impar ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+impar <span class="dv">0</span> <span class="fu">=</span> <span class="dt">False</span>
+impar n <span class="fu">=</span> par (n<span class="fu">-</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>impar 3               |         par 3
+= par 2               |         = impar 2  
+= impar 1             |         = par 1
+= par 0               |         = impar 0  
+= True                |         = False</code></pre>
+<p><strong>Recursión mutua: Posiciones pares e impares</strong></p>
+<ul>
+<li><p><code>(pares xs)</code> son los elementos de <code>xs</code> que ocupan posiciones pares.</p></li>
+<li><p><code>(impares xs)</code> son los elementos de <code>xs</code> que ocupan posiciones impares.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">pares ::</span> [a] <span class="ot">-&gt;</span> [a]
+pares []     <span class="fu">=</span> []
+pares (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="fu">:</span> impares xs
+
+<span class="ot">impares ::</span> [a] <span class="ot">-&gt;</span> [a]
+impares []     <span class="fu">=</span> []
+impares (_<span class="fu">:</span>xs) <span class="fu">=</span> pares xs</code></pre></div>
+<ul>
+<li><p>Cálculo:</p>
+<pre class="sesion"><code>pares [1,3,5,7]
+= 1:(impares [3,5,7])  
+= 1:(pares [5,7])  
+= 1:(5:(impares [7]))  
+= 1:(5:[])
+= [1,5]  </code></pre></li>
+</ul>
+<h1 id="heurísticas-para-las-definiciones-recursivas"><span class="header-section-number">6</span> Heurísticas para las definiciones recursivas</h1>
+<p><strong>Aplicación del método: La función <code>product</code></strong></p>
+<ul>
+<li>Paso 1: Definir el tipo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>  </code></pre></div>
+<ul>
+<li>Paso 2: Enumerar los casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>  
+product []     <span class="fu">=</span>
+product (n<span class="fu">:</span>ns) <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 3: Definir los casos simples:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>  
+product []     <span class="fu">=</span> <span class="dv">1</span>
+product (n<span class="fu">:</span>ns) <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 4: Definir los otros casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>  
+product []     <span class="fu">=</span> <span class="dv">1</span>
+product (n<span class="fu">:</span>ns) <span class="fu">=</span> n <span class="fu">*</span> product ns</code></pre></div>
+<ul>
+<li>Paso 5: Generalizar y simplificar:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">product<span class="ot"> ::</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> a
+product []     <span class="fu">=</span> <span class="dv">1</span>
+product (n<span class="fu">:</span>ns) <span class="fu">=</span> n <span class="fu">*</span> product ns</code></pre></div>
+<p><strong>Aplicación del método: La función <code>drop</code></strong></p>
+<ul>
+<li>Paso 1: Definir el tipo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</code></pre></div>
+<ul>
+<li>Paso 2: Enumerar los casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> []     <span class="fu">=</span>
+drop <span class="dv">0</span> (x<span class="fu">:</span>xs) <span class="fu">=</span>
+drop n []     <span class="fu">=</span>
+drop n (x<span class="fu">:</span>xs) <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 3: Definir los casos simples:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> []     <span class="fu">=</span> []
+drop <span class="dv">0</span> (x<span class="fu">:</span>xs) <span class="fu">=</span> x<span class="fu">:</span>xs
+drop n []     <span class="fu">=</span> []
+drop n (x<span class="fu">:</span>xs) <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 4: Definir los otros casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> []     <span class="fu">=</span> []
+drop <span class="dv">0</span> (x<span class="fu">:</span>xs) <span class="fu">=</span> x<span class="fu">:</span>xs
+drop n []     <span class="fu">=</span> []
+drop n (x<span class="fu">:</span>xs) <span class="fu">=</span> drop n xs</code></pre></div>
+<ul>
+<li>Paso 5: Generalizar y simplificar:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">drop<span class="ot"> ::</span> <span class="dt">Integral</span> b <span class="ot">=&gt;</span> b <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> xs     <span class="fu">=</span> xs
+drop n []     <span class="fu">=</span> []
+drop n (_<span class="fu">:</span>xs) <span class="fu">=</span> drop n xs</code></pre></div>
+<p><strong>Aplicación del método: La función <code>init</code></strong></p>
+<ul>
+<li><p><code>init</code> elimina el último elemento de una lista no vacía.</p></li>
+<li><p>Paso 1: Definir el tipo:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">init<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]</code></pre></div>
+<ul>
+<li>Paso 2: Enumerar los casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">init<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]
+init (x<span class="fu">:</span>xs) <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 3: Definir los casos simples:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">init<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]
+init (x<span class="fu">:</span>xs) <span class="fu">|</span> null xs   <span class="fu">=</span> []
+            <span class="fu">|</span> otherwise <span class="fu">=</span></code></pre></div>
+<ul>
+<li>Paso 4: Definir los otros casos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">init<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]
+init (x<span class="fu">:</span>xs) <span class="fu">|</span> null xs   <span class="fu">=</span> []
+            <span class="fu">|</span> otherwise <span class="fu">=</span> x <span class="fu">:</span> init xs</code></pre></div>
+<ul>
+<li>Paso 5: Generalizar y simplificar:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">init<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> [a]
+init [_]    <span class="fu">=</span> []
+init (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="fu">:</span> init xs</code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">7</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 3: Números.</li>
+<li>Cap. 4: Listas.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 6: Recursive functions.</li>
+</ul></li>
+<li>B. O'Sullivan, D. Stewart y J. Goerzen. <em>Real World Haskell</em>. O'Reilly, 2008.
+<ul>
+<li>Cap. 2: Types and Functions.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 2: Introducción a Haskell.</li>
+<li>Cap. 6: Programación con listas.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 4: Designing and writing programs.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

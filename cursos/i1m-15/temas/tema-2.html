@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 2: Introducción a la programación con Haskell</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 2: Introducción a la programación con Haskell</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#el-sistema-ghc"><span class="toc-section-number">1</span> El sistema GHC</a></li>
+<li><a href="#iniciación-a-ghc"><span class="toc-section-number">2</span> Iniciación a GHC</a><ul>
+<li><a href="#inicio-de-sesión-con-ghci"><span class="toc-section-number">2.1</span> Inicio de sesión con GHCi</a></li>
+<li><a href="#cálculo-aritmético"><span class="toc-section-number">2.2</span> Cálculo aritmético</a></li>
+<li><a href="#cálculo-con-listas"><span class="toc-section-number">2.3</span> Cálculo con listas</a></li>
+<li><a href="#cálculos-con-errores"><span class="toc-section-number">2.4</span> Cálculos con errores</a></li>
+</ul></li>
+<li><a href="#aplicación-de-funciones"><span class="toc-section-number">3</span> Aplicación de funciones</a><ul>
+<li><a href="#aplicación-de-funciones-en-matemáticas-y-en-haskell"><span class="toc-section-number">3.1</span> Aplicación de funciones en matemáticas y en Haskell</a></li>
+<li><a href="#prioridad-de-la-aplicación-de-funciones"><span class="toc-section-number">3.2</span> Prioridad de la aplicación de funciones</a></li>
+</ul></li>
+<li><a href="#guiones-haskell"><span class="toc-section-number">4</span> Guiones Haskell</a><ul>
+<li><a href="#el-primer-guión-haskell"><span class="toc-section-number">4.1</span> El primer guión Haskell</a></li>
+<li><a href="#nombres-de-funciones"><span class="toc-section-number">4.2</span> Nombres de funciones</a></li>
+<li><a href="#la-regla-de-la-indentación"><span class="toc-section-number">4.3</span> La regla de la indentación</a></li>
+<li><a href="#comentarios-en-haskell"><span class="toc-section-number">4.4</span> Comentarios en Haskell</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">5</span> Bibliografía</a></li>
+</ul>
+</nav>
+<h1 id="el-sistema-ghc"><span class="header-section-number">1</span> El sistema GHC</h1>
+<ul>
+<li>Los programa funcionales pueden evaluarse manualmente (como en el tema anterior).</li>
+<li>Los <strong>lenguajes funcionales</strong> evalúan automáticamente los programas funcionales.</li>
+<li><strong>Haskell</strong> es un lenguaje funcional.</li>
+<li><strong>GHC</strong> (Glasgow Haskell Compiler) es el intérprete de Haskell que usaremos en el curso.</li>
+</ul>
+<h1 id="iniciación-a-ghc"><span class="header-section-number">2</span> Iniciación a GHC</h1>
+<h2 id="inicio-de-sesión-con-ghci"><span class="header-section-number">2.1</span> Inicio de sesión con GHCi</h2>
+<ul>
+<li>Inicio mediante <code>ghci</code></li>
+</ul>
+<pre class="sesion"><code>I1M&gt; ghci
+GHCi, version 6.10.3: http://www.haskell.org/ghc/  :? for help
+ghci&gt;</code></pre>
+<ul>
+<li><p>La llamada es <code>ghci&gt;</code></p></li>
+<li><p>Indica que ha cargado las definiciones básicas que forman el preludio y el sistema está listo para leer una expresión, evaluarla y escribir su resultado.</p></li>
+</ul>
+<h2 id="cálculo-aritmético"><span class="header-section-number">2.2</span> Cálculo aritmético</h2>
+<p><strong>Operaciones aritméticas</strong></p>
+<ul>
+<li>Operaciones aritméticas en Haskell:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; 2+3
+5
+ghci&gt; 2-3
+-1
+ghci&gt; 2*3
+6
+ghci&gt; 7 `div` 2
+3
+ghci&gt; 2^3
+8</code></pre>
+<p><strong>Precedencia y asociatividad</strong></p>
+<ul>
+<li>Precedencia:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; 2*10^3
+2000
+ghci&gt; 2+3*4
+14</code></pre>
+<ul>
+<li>Asociacitividad:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; 2^3^4
+2417851639229258349412352
+ghci&gt; 2^(3^4)
+2417851639229258349412352
+ghci&gt; 2-3-4
+-5
+ghci&gt; (2-3)-4
+-5</code></pre>
+<h2 id="cálculo-con-listas"><span class="header-section-number">2.3</span> Cálculo con listas</h2>
+<p><strong>Seleccionar y eliminar</strong></p>
+<ul>
+<li>Seleccionar el primer elemento de una lista no vacía:</li>
+</ul>
+<pre class="sesion"><code>head [1,2,3,4,5]  ==  1</code></pre>
+<ul>
+<li>Eliminar el primer elemento de una lista no vacía:</li>
+</ul>
+<pre class="sesion"><code>tail [1,2,3,4,5]  ==  [2,3,4,5]  </code></pre>
+<ul>
+<li>Seleccionar el n-ésimo elemento de una lista (empezando en 0):</li>
+</ul>
+<pre class="sesion"><code>[1,2,3,4,5] !! 2  ==  3</code></pre>
+<ul>
+<li>Seleccionar los n primeros elementos de una lista:</li>
+</ul>
+<pre class="sesion"><code>take 3 [1,2,3,4,5]  ==  [1,2,3]</code></pre>
+<ul>
+<li>Eliminar los <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=n" alt="n" title="n" /> primeros elementos de una lista:</li>
+</ul>
+<pre class="sesion"><code>drop 3 [1,2,3,4,5]  ==  [4,5]</code></pre>
+<ul>
+<li>Calcular la longitud de una lista:</li>
+</ul>
+<pre class="sesion"><code>length [1,2,3,4,5]  ==  5</code></pre>
+<ul>
+<li>Calcular la suma de una lista de números:</li>
+</ul>
+<pre class="sesion"><code>sum [1,2,3,4,5]  ==  15</code></pre>
+<ul>
+<li>Calcular el producto de una lista de números:</li>
+</ul>
+<pre class="sesion"><code>product [1,2,3,4,5]  ==  120</code></pre>
+<ul>
+<li>Concatenar dos listas:</li>
+</ul>
+<pre class="sesion"><code>[1,2,3] ++ [4,5]  ==  [1,2,3,4,5]</code></pre>
+<ul>
+<li>Invertir una lista:</li>
+</ul>
+<pre class="sesion"><code>reverse [1,2,3,4,5] ==  [5,4,3,2,1]</code></pre>
+<h2 id="cálculos-con-errores"><span class="header-section-number">2.4</span> Cálculos con errores</h2>
+<p><strong>Ejemplos de cálculos con errores</strong></p>
+<pre class="sesion"><code>ghci&gt; 1 `div` 0
+*** Exception: divide by zero
+ghci&gt; head []
+*** Exception: Prelude.head: empty list
+ghci&gt; tail []
+*** Exception: Prelude.tail: empty list
+ghci&gt; [2,3] !! 5
+*** Exception: Prelude.(!!): index too large</code></pre>
+<h1 id="aplicación-de-funciones"><span class="header-section-number">3</span> Aplicación de funciones</h1>
+<h2 id="aplicación-de-funciones-en-matemáticas-y-en-haskell"><span class="header-section-number">3.1</span> Aplicación de funciones en matemáticas y en Haskell</h2>
+<ul>
+<li>Notación para funciones en matemáticas:
+<ul>
+<li>En matemáticas, la aplicación de funciones se representa usando paréntesis y la multiplicación usando yuxtaposición o espacios</li>
+<li>Ejemplo: <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28a%2Cb%29%20%2B%20c%20d" alt="f(a,b) + c d" title="f(a,b) + c d" /> representa la suma del valor de <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f" alt="f" title="f" /> aplicado a <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=a" alt="a" title="a" /> y <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=b" alt="b" title="b" /> más el producto de <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=c" alt="c" title="c" /> por <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=d" alt="d" title="d" />.</li>
+</ul></li>
+<li>Notación para funciones en Haskell:
+<ul>
+<li>En Haskell, la aplicación de funciones se representa usando espacios y la multiplicación usando <code>*</code></li>
+<li>Ejemplo: <code>f a b + c*d</code> representa la suma del valor de <code>f</code> aplicado a <code>a</code> y <code>b</code> más el producto de <code>c</code> por <code>d</code>.</li>
+</ul></li>
+</ul>
+<h2 id="prioridad-de-la-aplicación-de-funciones"><span class="header-section-number">3.2</span> Prioridad de la aplicación de funciones</h2>
+<ul>
+<li>En Haskell, la aplicación de funciones tiene mayor prioridad que los restantes operadores. Por ejemplo, la expresión Haskell <code>f a + b</code> representa la expresión matemática <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28a%29%2Bb" alt="f(a)+b" title="f(a)+b" />.</li>
+<li>Ejemplos de expresiones Haskell y matemáticas:</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Matemáticas</th>
+<th style="text-align: left;">Haskell</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28x%29" alt="f(x)" title="f(x)" /></td>
+<td style="text-align: left;"><code>f x</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28x%2Cy%29" alt="f(x,y)" title="f(x,y)" /></td>
+<td style="text-align: left;"><code>f x y</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28g%28x%29%29" alt="f(g(x))" title="f(g(x))" /></td>
+<td style="text-align: left;"><code>f (g x)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28x%2Cg%28y%29%29" alt="f(x,g(y))" title="f(x,g(y))" /></td>
+<td style="text-align: left;"><code>f x (g y)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=f%28x%29g%28y%29" alt="f(x)g(y)" title="f(x)g(y)" /></td>
+<td style="text-align: left;"><code>f x * g y</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="guiones-haskell"><span class="header-section-number">4</span> Guiones Haskell</h1>
+<ul>
+<li>En Haskell los usuarios pueden definir funciones.</li>
+<li>Las nuevas definiciones se definen en guiones, que son ficheros de textos compuestos por una sucesión de definiciones.</li>
+<li>Se acostumbra a identificar los guiones de Haskell mediante el sufijo <code>.hs</code></li>
+</ul>
+<h2 id="el-primer-guión-haskell"><span class="header-section-number">4.1</span> El primer guión Haskell</h2>
+<ul>
+<li>Iniciar emacs y abrir dos ventanas: <code>C-x 2</code></li>
+<li>En la primera ventana ejecutar Haskell: <code>M-x run-haskell</code></li>
+<li>Cambiar a la otra ventana: <code>C-x o</code></li>
+<li>Iniciar el guión: <code>C-x C-f ejemplo.hs</code></li>
+<li>Escribir en el guión las siguientes definiciones</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">doble x     <span class="fu">=</span> x<span class="fu">+</span>x
+cuadruple x <span class="fu">=</span> doble (doble x)</code></pre></div>
+<ul>
+<li>Grabar el guión: <code>C-x C-s</code></li>
+<li>Cargar el guión en Haskell: <code>C-c C-l</code></li>
+<li>Evaluar ejemplos:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; cuadruple 10
+40
+ghci&gt; take (doble 2) [1,2,3,4,5,6]
+[1,2,3,4]</code></pre>
+<ul>
+<li>Volver al guión: <code>C-x o</code></li>
+<li>Añadir al guión las siguientes definiciones:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">factorial n <span class="fu">=</span> product [<span class="dv">1</span><span class="fu">..</span>n]
+media ns    <span class="fu">=</span> sum ns <span class="ot">`div`</span> length ns</code></pre></div>
+<ul>
+<li>Grabar el guión: <code>C-x s</code></li>
+<li>Cargar el guión en Haskell: <code>C-c C-l</code></li>
+<li>Evaluar ejemplos:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; factorial (doble 2)
+24
+ghci&gt; doble (media [1,5,3])
+6</code></pre>
+<h2 id="nombres-de-funciones"><span class="header-section-number">4.2</span> Nombres de funciones</h2>
+<p><strong>Nombres de funciones</strong></p>
+<ul>
+<li>Los nombres de funciones tienen que empezar por una letra en minúscula. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>sumaCuadrado, suma_cuadrado, `suma</code></pre>
+<ul>
+<li>Las palabras reservadas de Haskell no pueden usarse en los nombres de funciones. Algunas palabras reservadas son</li>
+</ul>
+<pre class="sesion"><code>case  class   data     default  deriving  do      else
+if    import  in       infix    infixl    infixr  instance
+let   module  newtype  of       then      type    where</code></pre>
+<ul>
+<li>Se acostumbra escribir los argumentos que son listas usando <code>s</code> como sufijo de su nombre. Por ejemplo,
+<ul>
+<li><code>ns</code> representa una lista de números,</li>
+<li><code>xs</code> representa una lista de elementos,</li>
+<li><code>css</code> representa una lista de listas de caracteres.</li>
+</ul></li>
+</ul>
+<h2 id="la-regla-de-la-indentación"><span class="header-section-number">4.3</span> La regla de la indentación</h2>
+<ul>
+<li>En Haskell la disposición del texto del programa (la <em>indentación</em>) delimita las definiciones mediante la siguiente regla:
+<ul>
+<li>Una definición acaba con el primer trozo de código con un margen izquierdo menor o igual que el del comienzo de la definición actual.</li>
+</ul></li>
+<li>Ejemplo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">a <span class="fu">=</span> b <span class="fu">+</span> c
+    <span class="kw">where</span>
+      b <span class="fu">=</span> <span class="dv">1</span>
+      c <span class="fu">=</span> <span class="dv">2</span>
+d <span class="fu">=</span> a <span class="fu">*</span> <span class="dv">2</span></code></pre></div>
+<ul>
+<li>Consejos:
+<ul>
+<li>Comenzar las definiciones de las funciones en la primera columna.</li>
+<li>Usar el tabulador en emacs para determinar el sangrado en las definiciones.</li>
+</ul></li>
+</ul>
+<h2 id="comentarios-en-haskell"><span class="header-section-number">4.4</span> Comentarios en Haskell</h2>
+<ul>
+<li>En los guiones Haskell pueden incluirse comentarios.</li>
+<li>Un <strong>comentario simple</strong> comienza con <code>--</code> y se extiende hasta el final de la línea.</li>
+<li>Ejemplo de comentario simple:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">-- (factorial2 n) es el factorial del número n.</span>
+factorial2 n <span class="fu">=</span> product [<span class="dv">1</span><span class="fu">..</span>n]</code></pre></div>
+<ul>
+<li>Un <em>comentario anidado</em> comienza con <code>{-</code> y termina en <code>-}</code></li>
+<li>Ejemplo de comentario anidado:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="co">{- (factorial3 n) es el factorial del número n. </span>
+<span class="co">   Por ejemplo, factorial 3  ==  6 -}</span>
+factorial3 n <span class="fu">=</span> product [<span class="dv">1</span><span class="fu">..</span>n]</code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">5</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 1: Conceptos fundamentales.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 2: First steps.</li>
+</ul></li>
+<li>B. O'Sullivan, D. Stewart y J. Goerzen. <em>Real World Haskell</em>. O'Reilly, 2008.
+<ul>
+<li>Cap. 1: Getting Started.</li>
+</ul></li>
+<li><p>B. Pope y A. van IJzendoorn. <em>A Tour of the Haskell Prelude (basic functions)</em>.</p></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 2: Introducción a Haskell.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 2: Getting started with Haskell and Hugs.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 25: Programación de dibujos con Gloss</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 25: Programación de dibujos con Gloss</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#introducción"><span class="toc-section-number">1</span> Introducción</a></li>
+<li><a href="#instalación-de-gloss"><span class="toc-section-number">2</span> Instalación de Gloss</a></li>
+<li><a href="#representación-de-dibujos"><span class="toc-section-number">3</span> Representación de dibujos</a></li>
+<li><a href="#el-tda-de-los-dibujos"><span class="toc-section-number">4</span> El TDA de los dibujos</a><ul>
+<li><a href="#elementos-básicos-del-tda-de-los-dibujos"><span class="toc-section-number">4.1</span> Elementos básicos del TDA de los dibujos</a></li>
+<li><a href="#ejemplo-de-líneas"><span class="toc-section-number">4.2</span> Ejemplo de líneas</a></li>
+<li><a href="#ejemplo-de-poligono"><span class="toc-section-number">4.3</span> Ejemplo de poligono</a></li>
+<li><a href="#ejemplo-de-texto"><span class="toc-section-number">4.4</span> Ejemplo de texto</a></li>
+</ul></li>
+<li><a href="#ampliaciones-del-tda-de-dibujos"><span class="toc-section-number">5</span> Ampliaciones del TDA de dibujos</a><ul>
+<li><a href="#ampliación-del-tda-para-incluir-listas-de-dibujos"><span class="toc-section-number">5.1</span> Ampliación del TDA para incluir listas de dibujos</a></li>
+<li><a href="#ampliación-del-tda-para-incluir-transformaciones"><span class="toc-section-number">5.2</span> Ampliación del TDA para incluir transformaciones</a></li>
+<li><a href="#ampliación-del-tda-para-incluir-colores"><span class="toc-section-number">5.3</span> Ampliación del TDA para incluir colores</a></li>
+</ul></li>
+<li><a href="#capas-de-dibujos"><span class="toc-section-number">6</span> Capas de dibujos</a></li>
+<li><a href="#dibujos-predefinidos-en-graphics.gloss.data.picture"><span class="toc-section-number">7</span> Dibujos predefinidos en <a href="http://bit.ly/Qxsq3g">Graphics.Gloss.Data.Picture</a></a><ul>
+<li><a href="#círculos"><span class="toc-section-number">7.1</span> Círculos</a></li>
+<li><a href="#arcos-circulares"><span class="toc-section-number">7.2</span> Arcos circulares</a></li>
+<li><a href="#bucles"><span class="toc-section-number">7.3</span> Bucles</a></li>
+<li><a href="#rectángulos"><span class="toc-section-number">7.4</span> Rectángulos</a></li>
+</ul></li>
+<li><a href="#dibujos-con-listas-de-comprensión"><span class="toc-section-number">8</span> Dibujos con listas de comprensión</a><ul>
+<li><a href="#círculos-concéntricos"><span class="toc-section-number">8.1</span> Círculos concéntricos</a></li>
+<li><a href="#círculos-trasladados"><span class="toc-section-number">8.2</span> Círculos trasladados</a></li>
+<li><a href="#circulos-trasladados-y-ampliados"><span class="toc-section-number">8.3</span> Circulos trasladados y ampliados</a></li>
+<li><a href="#rectángulos-girados"><span class="toc-section-number">8.4</span> Rectángulos girados</a></li>
+<li><a href="#rectángulos-girados-y-trasladados"><span class="toc-section-number">8.5</span> Rectángulos girados y trasladados</a></li>
+<li><a href="#círculos-en-cuadrado"><span class="toc-section-number">8.6</span> Círculos en cuadrado</a></li>
+<li><a href="#círculos-en-estrella"><span class="toc-section-number">8.7</span> Círculos en estrella</a></li>
+<li><a href="#círculos-expandiéndose"><span class="toc-section-number">8.8</span> Círculos expandiéndose</a></li>
+</ul></li>
+<li><a href="#gráficas-de-funciones"><span class="toc-section-number">9</span> Gráficas de funciones</a></li>
+<li><a href="#dibujos-programados-diseño-descendente"><span class="toc-section-number">10</span> Dibujos programados (diseño descendente)</a><ul>
+<li><a href="#elefante"><span class="toc-section-number">10.1</span> Elefante</a></li>
+<li><a href="#plato-de-comida"><span class="toc-section-number">10.2</span> Plato de comida</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="introducción"><span class="header-section-number">1</span> Introducción</h1>
+<ul>
+<li><p>En este tema se estudia una <strong>librería de dibujos</strong> en Haskell.</p></li>
+<li><p>La librería es Graphics.Gloss.</p></li>
+<li><p>Nos centraremos en el uso de los <strong>tipos de datos algebraicos</strong>.</p></li>
+<li>Aspectos importantes:
+<ul>
+<li>¿Cómo <em>representar</em> los dibujos en Haskell?</li>
+<li>¿Cómo <em>mostrar</em> dichos dibujos?</li>
+</ul></li>
+<li><p>Sólo consideraremos el primer aspecto.</p></li>
+</ul>
+<h1 id="instalación-de-gloss"><span class="header-section-number">2</span> Instalación de Gloss</h1>
+<ul>
+<li>En una terminal ejecutar</li>
+</ul>
+<pre class="sesion"><code>&gt; cabal update
+&gt; cabal install gloss</code></pre>
+<h1 id="representación-de-dibujos"><span class="header-section-number">3</span> Representación de dibujos</h1>
+<ul>
+<li>Representación de <strong>puntos</strong>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Point</span> <span class="fu">=</span> (<span class="dt">Float</span>, <span class="dt">Float</span>)</code></pre></div>
+<ul>
+<li>Elementos de los dibujos:
+<ul>
+<li><strong>líneas</strong>: sucesiones de puntos que representan los extremos,</li>
+<li><strong>polígonos</strong>: sucesiones de puntos que representan los vértices.</li>
+<li><strong>textos</strong>: cadenas (escritas en el origen (centro de la ventana)).</li>
+</ul></li>
+<li>Representación de <strong>caminos</strong>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Path</span> <span class="fu">=</span> [<span class="dt">Point</span>]</code></pre></div>
+<h1 id="el-tda-de-los-dibujos"><span class="header-section-number">4</span> El TDA de los dibujos</h1>
+<h2 id="elementos-básicos-del-tda-de-los-dibujos"><span class="header-section-number">4.1</span> Elementos básicos del TDA de los dibujos</h2>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Picture</span> <span class="fu">=</span> <span class="dt">Line</span>    <span class="dt">Path</span>
+             <span class="fu">|</span> <span class="dt">Polygon</span> <span class="dt">Path</span>
+             <span class="fu">|</span> <span class="dt">Text</span>    <span class="dt">String</span></code></pre></div>
+<h2 id="ejemplo-de-líneas"><span class="header-section-number">4.2</span> Ejemplo de líneas</h2>
+<ul>
+<li>Fichero <a href="tema-25/codigo/lineas.hs">lineas.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">300</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white cuadrado
+    
+<span class="ot">cuadrado ::</span> <span class="dt">Picture</span> 
+cuadrado <span class="fu">=</span> <span class="dt">Line</span> [(<span class="dv">72</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">72</span>)]</code></pre></div>
+<ul>
+<li>Ejecución</li>
+</ul>
+<pre class="sesion"><code>&gt; runhaskell lineas.hs</code></pre>
+<ul>
+<li>Resultado</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/lineas.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Comentarios:
+<ul>
+<li><code>(InWindow t (b,a) (x,y))</code> es una ventana de título t, base b y altura a con el vértice superior izquierdo en el punto (x,y).</li>
+<li><code>(display v c d)</code> dibuja en la ventana v, con color de fondo c, el dibujo d.</li>
+<li>El dibujo puede desplazarse con el ratón.</li>
+</ul></li>
+</ul>
+<h2 id="ejemplo-de-poligono"><span class="header-section-number">4.3</span> Ejemplo de poligono</h2>
+<ul>
+<li>Fichero <a href="tema-25/codigo/poligono.hs">poligono.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">300</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white cuadrado
+    
+<span class="ot">cuadrado ::</span> <span class="dt">Picture</span> 
+cuadrado <span class="fu">=</span> <span class="dt">Polygon</span> [(<span class="dv">72</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">72</span>)]</code></pre></div>
+<ul>
+<li>Ejecución</li>
+</ul>
+<pre class="sesion"><code>&gt; runhaskell poligono.hs</code></pre>
+<ul>
+<li>Resultado</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/poligono.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="ejemplo-de-texto"><span class="header-section-number">4.4</span> Ejemplo de texto</h2>
+<ul>
+<li>Fichero <a href="tema-25/codigo/texto.hs">texto.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">800</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white texto
+    
+<span class="ot">texto ::</span> <span class="dt">Picture</span>
+texto <span class="fu">=</span> <span class="dt">Text</span> <span class="st">&quot;Figura&quot;</span></code></pre></div>
+<ul>
+<li>Ejecución</li>
+</ul>
+<pre class="sesion"><code>&gt; runhaskell texto.hs</code></pre>
+<ul>
+<li>Resultado</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/texto.png" alt="" />
+</figure>
+</blockquote>
+<h1 id="ampliaciones-del-tda-de-dibujos"><span class="header-section-number">5</span> Ampliaciones del TDA de dibujos</h1>
+<h2 id="ampliación-del-tda-para-incluir-listas-de-dibujos"><span class="header-section-number">5.1</span> Ampliación del TDA para incluir listas de dibujos</h2>
+<ul>
+<li>Ampliación</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Picture</span> <span class="fu">=</span> <span class="fu">...</span>
+             <span class="fu">|</span> <span class="dt">Pictures</span> [<span class="dt">Picture</span>]</code></pre></div>
+<ul>
+<li>Ejemplo <a href="tema-25/codigo/dosCuadrados.hs">dosCuadrados.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> <span class="dt">Pictures</span> [cuadrado1, cuadrado2]
+    
+<span class="ot">cuadrado1 ::</span> <span class="dt">Picture</span>
+cuadrado1 <span class="fu">=</span> <span class="dt">Line</span> [(<span class="dv">72</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">72</span>)]
+    
+<span class="ot">cuadrado2 ::</span> <span class="dt">Picture</span>
+cuadrado2 <span class="fu">=</span> <span class="dt">Line</span> [(<span class="dv">0</span>,<span class="dv">0</span>),(<span class="dv">100</span>,<span class="dv">0</span>),(<span class="dv">100</span>,<span class="dv">100</span>),(<span class="dv">0</span>,<span class="dv">100</span>),(<span class="dv">0</span>,<span class="dv">0</span>)]</code></pre></div>
+<ul>
+<li>Ejecución</li>
+</ul>
+<pre class="sesion"><code>&gt; runhaskell dosCuadrados.hs</code></pre>
+<ul>
+<li>Resultado</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/dosCuadrados.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="ampliación-del-tda-para-incluir-transformaciones"><span class="header-section-number">5.2</span> Ampliación del TDA para incluir transformaciones</h2>
+<ul>
+<li>Ampliación</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Picture</span> <span class="fu">=</span> <span class="fu">...</span>
+             <span class="fu">|</span> <span class="dt">Translate</span> <span class="dt">Float</span> <span class="dt">Float</span>   <span class="dt">Picture</span>
+             <span class="fu">|</span> <span class="dt">Rotate</span>    <span class="dt">Float</span> <span class="dt">Picture</span>
+             <span class="fu">|</span> <span class="dt">Scale</span>     <span class="dt">Float</span> <span class="dt">Float</span>   <span class="dt">Picture</span></code></pre></div>
+<pre><code>+ `Translate` distancia-x distancia-y
++ `Rotate` grados en sentido horario alrededor del origen
++ `Scale` factor-x factor-y</code></pre>
+<ul>
+<li>Se pueden componer transformaciones. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Translate</span> <span class="dv">0</span> <span class="dv">200</span> (<span class="dt">Rotate</span> <span class="dv">20</span> (<span class="dt">Scale</span> <span class="fl">0.5</span> <span class="fl">0.3</span> algo))</code></pre></div>
+<ul>
+<li>Se pueden eliminar paréntesis usando el operador <code>$</code>. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Translate</span> <span class="dv">0</span> <span class="dv">200</span> <span class="fu">$</span> <span class="dt">Rotate</span> <span class="dv">20</span> <span class="fu">$</span> <span class="dt">Scale</span> <span class="fl">0.5</span> <span class="fl">0.3</span> algo</code></pre></div>
+<ul>
+<li>Ejemplo de transformaciones: <a href="tema-25/codigo/transformaciones.hs">transformaciones.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">300</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> <span class="dt">Pictures</span> [cuadrado, titulo]
+    
+<span class="ot">cuadrado ::</span> <span class="dt">Picture</span>
+cuadrado <span class="fu">=</span> <span class="dt">Line</span> [(<span class="dv">72</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">72</span>)]
+    
+<span class="ot">titulo ::</span> <span class="dt">Picture</span>
+titulo <span class="fu">=</span> <span class="dt">Rotate</span> (<span class="fu">-</span><span class="dv">10</span>) <span class="fu">$</span>
+         <span class="dt">Translate</span> (<span class="fu">-</span><span class="dv">70</span>) <span class="dv">0</span> <span class="fu">$</span> 
+         <span class="dt">Scale</span> <span class="fl">0.2</span> <span class="fl">0.2</span> <span class="fu">$</span> 
+         <span class="dt">Text</span> <span class="st">&quot;Un cuadrado&quot;</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/transformaciones.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="ampliación-del-tda-para-incluir-colores"><span class="header-section-number">5.3</span> Ampliación del TDA para incluir colores</h2>
+<ul>
+<li>Ampliación</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Picture</span> <span class="fu">=</span> <span class="fu">...</span>
+             <span class="fu">|</span> <span class="dt">Color</span> <span class="dt">Color</span> <span class="dt">Picture</span></code></pre></div>
+<ul>
+<li><code>Color</code> es otro tipo de dato algebraico</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Color</span> <span class="fu">=</span> <span class="dt">RGBA</span> <span class="dt">Float</span> <span class="dt">Float</span> <span class="dt">Float</span> <span class="dt">Float</span></code></pre></div>
+<ul>
+<li><p>Los cuatros parámetros son valores entre 0 y 1, para los canales rojo, verde, azul y alfa, respectivamente.</p></li>
+<li><p>Algunos colores están predefinidos en <a href="http://bit.ly/QxrFr9">Graphics.Gloss.Data.Color</a>: red, green, blue, yellow, cyan, magenta, rose, violet, azure, aquamarine, chartreuse, orange, greyN, black, white.</p></li>
+<li><p>Ejemplo <a href="tema-25/codigo/dosCuadradosColoreados.hs">dosCuadradosColoreados.hs</a></p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">300</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> <span class="dt">Pictures</span> [cuadrado2, cuadrado1]
+    
+<span class="ot">cuadrado1 ::</span> <span class="dt">Picture</span>
+cuadrado1 <span class="fu">=</span> <span class="dt">Color</span> red <span class="fu">$</span> <span class="dt">Polygon</span> [(<span class="dv">72</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">72</span>),(<span class="dv">144</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">144</span>),(<span class="dv">72</span>,<span class="dv">72</span>)]</code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/dosCuadradosColoreados.png" alt="" />
+</figure>
+</blockquote>
+<h1 id="capas-de-dibujos"><span class="header-section-number">6</span> Capas de dibujos</h1>
+<ul>
+<li><p>El orden en una lista de dibujos es importante.</p></li>
+<li><p>El primer elemento de la lista es el primero que se dibuja, a continuación el segundo y así sucesivamente.</p></li>
+<li><p>La lista de los dibujos forman las capas del dibujo combinado:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Pictures</span> [capa1, capa2, capa3, <span class="fu">...</span>]</code></pre></div>
+<ul>
+<li>Ejemplo: En <a href="tema-25/codigo/dosCuadradosColoreados.hs">dosCuadradosColoreados.hs</a>, las capas eran</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Pictures</span> [cuadrado2, cuadrado1]</code></pre></div>
+<p class="indent">
+por eso se pintaba primero el verde y encima el rojo. Si se cambia el orden de las capas por
+</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="dt">Pictures</span> [cuadrado1, cuadrado2]</code></pre></div>
+<p class="indent">
+el dibujo que se obtiene es
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/dosCuadradosColoreados2.png" alt="" />
+</figure>
+</blockquote>
+<h1 id="dibujos-predefinidos-en-graphics.gloss.data.picture"><span class="header-section-number">7</span> Dibujos predefinidos en <a href="http://bit.ly/Qxsq3g">Graphics.Gloss.Data.Picture</a></h1>
+<h2 id="círculos"><span class="header-section-number">7.1</span> Círculos</h2>
+<ul>
+<li><code>(circle r)</code> es un círculo de radio r. Por ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">circle <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulo.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(circleSolid r)</code> es un círculo sólido de radio r. Por ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">circleSolid <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulo_solido.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(thickCircle r g)</code> es la corona circular de radio r y grosor r. Por ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">thickCircle <span class="dv">100</span> <span class="dv">30</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circuloGrueso1.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="arcos-circulares"><span class="header-section-number">7.2</span> Arcos circulares</h2>
+<ul>
+<li><code>(arc x y r)</code> es el arco de radio r entre los ángulos (en grados) x e y. Por ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">arc <span class="dv">0</span> <span class="dv">90</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/arco.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(arcSolid x y r)</code> es el arco sólido de radio r entre los ángulos (en grados) x e y. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">arcSolid <span class="dv">0</span> <span class="dv">90</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/arco_solido.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(thickArc x y r g)</code> es el arco de radio r entre los ángulos (en grados) x e y, de grosor g. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">thickArc <span class="dv">0</span> <span class="dv">90</span> <span class="dv">100</span> <span class="dv">50</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/arco_grueso.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(sectorWire x y r)</code> es el sector circular de radio r entre los ángulos (en grados) x e y; las líneas van del origen a los extremos del arco. Por ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sectorWire <span class="dv">0</span> <span class="dv">90</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/sector_circular.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="bucles"><span class="header-section-number">7.3</span> Bucles</h2>
+<ul>
+<li><code>(lineLoop ps)</code> es la línea que une los puntos de ps, cada uno con el siguiente y el último con el primero. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">lineLoop [(<span class="fu">-</span><span class="dv">123</span>,<span class="fu">-</span><span class="dv">99</span>),(<span class="dv">15</span>,<span class="dv">17</span>),(<span class="dv">107</span>,<span class="fu">-</span><span class="dv">73</span>)]</code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/bucle.png" alt="" />
+</figure>
+</blockquote>
+<h2 id="rectángulos"><span class="header-section-number">7.4</span> Rectángulos</h2>
+<ul>
+<li><code>(rectanglePath x y)</code> es la lista de los vértices del rectángulo de base x y altura y con centro en el origen. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> rectanglePath <span class="dv">200</span> <span class="dv">100</span>
+[(<span class="fu">-</span><span class="fl">100.0</span>,<span class="fu">-</span><span class="fl">50.0</span>),(<span class="fu">-</span><span class="fl">100.0</span>,<span class="fl">50.0</span>),(<span class="fl">100.0</span>,<span class="fl">50.0</span>),(<span class="fl">100.0</span>,<span class="fu">-</span><span class="fl">50.0</span>)]</code></pre></div>
+<ul>
+<li><code>(rectangleWire x y)</code> es el rectángulo de base x y altura y con centro en el origen. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">rectangleWire <span class="dv">200</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulo2.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(rectangleSolid x y)</code> es el rectángulo sólido de base x y altura y con centro en el origen. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">rectangleSolid <span class="dv">200</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulo_solido.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(rectangleUpperPath x y)</code> es la lista de los vértices del rectángulo de base x y altura y con centro en el origen, en el semiplano y &gt; 0. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">ghci<span class="fu">&gt;</span> rectangleUpperPath <span class="dv">200</span> <span class="dv">100</span>
+[(<span class="fu">-</span><span class="fl">100.0</span>,<span class="fl">0.0</span>),(<span class="fu">-</span><span class="fl">100.0</span>,<span class="fl">100.0</span>),(<span class="fl">100.0</span>,<span class="fl">100.0</span>),(<span class="fl">100.0</span>,<span class="fl">0.0</span>)]</code></pre></div>
+<ul>
+<li><code>(rectangleUpperWire x y)</code> es el rectángulo de base x y altura y con centro en el origen en el semiplano y &gt; 0. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">rectangleUpperWire <span class="dv">200</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulo_positivo.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li><code>(rectangleUpperSolid x y)</code> es el rectángulo sólido de base x y altura y con centro en el origen en el semiplano y &gt; 0. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">rectangleUpperSolid <span class="dv">200</span> <span class="dv">100</span></code></pre></div>
+<p class="indent">
+genera
+</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulo_positivo_solido.png" alt="" />
+</figure>
+</blockquote>
+<h1 id="dibujos-con-listas-de-comprensión"><span class="header-section-number">8</span> Dibujos con listas de comprensión</h1>
+<h2 id="círculos-concéntricos"><span class="header-section-number">8.1</span> Círculos concéntricos</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_concentricos.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_concentricos.hs">circulos_concentricos.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">300</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [ circle x <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">10</span>,<span class="dv">20</span><span class="fu">..</span><span class="dv">100</span>] ]</code></pre></div>
+<h2 id="círculos-trasladados"><span class="header-section-number">8.2</span> Círculos trasladados</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_trasladados.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_trasladados.hs">circulos_trasladados.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [translate x <span class="dv">0</span> (circle <span class="dv">80</span>) <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="fu">-</span><span class="dv">100</span>,<span class="fu">-</span><span class="dv">60</span><span class="fu">..</span><span class="dv">100</span>]]</code></pre></div>
+<h2 id="circulos-trasladados-y-ampliados"><span class="header-section-number">8.3</span> Circulos trasladados y ampliados</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_trasladados_ampliados.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_trasladados_ampliados.hs">circulos_trasladados_ampliados.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [translate x <span class="dv">0</span> (circle x) <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">10</span>,<span class="dv">20</span><span class="fu">..</span><span class="dv">100</span>]]</code></pre></div>
+<h2 id="rectángulos-girados"><span class="header-section-number">8.4</span> Rectángulos girados</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulos_girados.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/rectangulos_girados.hs">rectangulos_girados.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [rotate x (rectangleWire <span class="dv">200</span> <span class="dv">200</span>) <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">0</span>,<span class="dv">10</span><span class="fu">..</span><span class="dv">90</span>]]</code></pre></div>
+<h2 id="rectángulos-girados-y-trasladados"><span class="header-section-number">8.5</span> Rectángulos girados y trasladados</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/rectangulos_girados_y_trasladados.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/rectangulos_girados_y_trasladados.hs">rectangulos_girados_y_trasladados.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [translate x <span class="dv">0</span> (rotate x (rectangleWire <span class="dv">200</span> <span class="dv">200</span>)) <span class="fu">|</span> 
+                   x <span class="ot">&lt;-</span> [<span class="fu">-</span><span class="dv">45</span>,<span class="fu">-</span><span class="dv">35</span><span class="fu">..</span><span class="dv">45</span>]]</code></pre></div>
+<h2 id="círculos-en-cuadrado"><span class="header-section-number">8.6</span> Círculos en cuadrado</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_en_cuadrado.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_en_cuadrado.hs">circulos_en_cuadrado.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [translate x y (circle <span class="dv">10</span>) <span class="fu">|</span> 
+                   x <span class="ot">&lt;-</span> [<span class="fu">-</span><span class="dv">200</span>,<span class="fu">-</span><span class="dv">100</span><span class="fu">..</span><span class="dv">200</span>],
+                   y <span class="ot">&lt;-</span> [<span class="fu">-</span><span class="dv">200</span>,<span class="fu">-</span><span class="dv">100</span><span class="fu">..</span><span class="dv">200</span>]]</code></pre></div>
+<h2 id="círculos-en-estrella"><span class="header-section-number">8.7</span> Círculos en estrella</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_en_estrella.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_en_estrella.hs">circulos_en_estrella.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [rotate angulo (translate x <span class="dv">0</span> (circle <span class="dv">10</span>))
+                  <span class="fu">|</span> x      <span class="ot">&lt;-</span> [<span class="dv">50</span>,<span class="dv">100</span><span class="fu">..</span><span class="dv">200</span>],
+                    angulo <span class="ot">&lt;-</span> [ <span class="dv">0</span>, <span class="dv">45</span><span class="fu">..</span><span class="dv">360</span>]]</code></pre></div>
+<h2 id="círculos-expandiéndose"><span class="header-section-number">8.8</span> Círculos expandiéndose</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/circulos_expandiendose.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/circulos_expandiendose.hs">circulos_expandiendose.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> pictures [rotate angulo (translate (<span class="dv">5</span><span class="fu">*</span>x) <span class="dv">0</span> (circle x))
+                  <span class="fu">|</span> x      <span class="ot">&lt;-</span> [<span class="dv">10</span>,<span class="dv">20</span><span class="fu">..</span> <span class="dv">40</span>],
+                    angulo <span class="ot">&lt;-</span> [ <span class="dv">0</span>,<span class="dv">45</span><span class="fu">..</span><span class="dv">360</span>]]</code></pre></div>
+<h1 id="gráficas-de-funciones"><span class="header-section-number">9</span> Gráficas de funciones</h1>
+<p>El programa para dibujar la siguiente parábola (<img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=y%20%3D%20x%5E2" alt="y = x^2" title="y = x^2" />):</p>
+<blockquote>
+<figure>
+<img src="tema-25/fig/parabola.png" alt="" />
+</figure>
+</blockquote>
+<p>es <a href="tema-25/codigo/parabola.hs">parabola.hs</a></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main  ::</span> <span class="dt">IO</span> ()
+main  <span class="fu">=</span>  display (<span class="dt">InWindow</span> <span class="st">&quot;y = x^2&quot;</span> (<span class="dv">500</span>,<span class="dv">500</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span> 
+dibujo <span class="fu">=</span> <span class="dt">Color</span> red (<span class="dt">Translate</span> <span class="dv">0</span> (<span class="fu">-</span><span class="dv">200</span>) parabola)
+    
+<span class="ot">parabola ::</span> <span class="dt">Picture</span>
+parabola <span class="fu">=</span> <span class="dt">Line</span> (map puntosParabola [<span class="fu">-</span><span class="dv">200</span>, <span class="fu">-</span><span class="dv">190</span> <span class="fu">..</span> <span class="dv">200</span>]) 
+    <span class="kw">where</span> puntosParabola x <span class="fu">=</span> (x, x<span class="fu">^</span><span class="dv">2</span><span class="fu">/</span><span class="dv">100</span>)</code></pre></div>
+<h1 id="dibujos-programados-diseño-descendente"><span class="header-section-number">10</span> Dibujos programados (diseño descendente)</h1>
+<ul>
+<li>Los siguiente dibujos se diseñan de manera descendente: se inicia con el marco y se le va añadiendo elementos.</li>
+</ul>
+<h2 id="elefante"><span class="header-section-number">10.1</span> Elefante</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/elefante.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/elefante.hs">elefante.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+        
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">300</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> elefante
+    
+elefante <span class="fu">=</span> 
+  pictures 
+   [rotate <span class="dv">20</span> (scale <span class="dv">3</span> <span class="dv">2</span> (translate <span class="dv">30</span> <span class="dv">40</span> (circleSolid <span class="dv">25</span>))),  <span class="co">-- cabeza</span>
+    translate <span class="dv">150</span> (<span class="fu">-</span><span class="dv">20</span>) (rectangleSolid <span class="dv">40</span> <span class="dv">80</span>),                <span class="co">-- trompa</span>
+    translate (<span class="fu">-</span><span class="dv">10</span>) <span class="dv">40</span> (scale <span class="fl">1.5</span> <span class="dv">1</span> (circleSolid <span class="dv">80</span>)),         <span class="co">-- cuerpo</span>
+    translate <span class="dv">50</span> (<span class="fu">-</span><span class="dv">50</span>)(rectangleSolid <span class="dv">40</span> <span class="dv">70</span>),                  <span class="co">-- pata delantera</span>
+    translate (<span class="fu">-</span><span class="dv">60</span>) (<span class="fu">-</span><span class="dv">50</span>) (rectangleSolid <span class="dv">40</span> <span class="dv">70</span>),              <span class="co">-- pata trasera</span>
+    translate (<span class="fu">-</span><span class="dv">140</span>) <span class="dv">50</span> (rotate (<span class="fu">-</span><span class="dv">100</span>) (rectangleSolid <span class="dv">10</span> <span class="dv">40</span>)) <span class="co">-- cola</span>
+   ]</code></pre></div>
+<h2 id="plato-de-comida"><span class="header-section-number">10.2</span> Plato de comida</h2>
+<ul>
+<li>Dibujo</li>
+</ul>
+<blockquote>
+<figure>
+<img src="tema-25/fig/plato.png" alt="" />
+</figure>
+</blockquote>
+<ul>
+<li>Programa <a href="tema-25/codigo/plato.hs">plato.hs</a></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Graphics.Gloss</span>
+    
+<span class="ot">main ::</span> <span class="dt">IO</span> ()
+main <span class="fu">=</span> display (<span class="dt">InWindow</span> <span class="st">&quot;Dibujo&quot;</span> (<span class="dv">500</span>,<span class="dv">500</span>) (<span class="dv">20</span>,<span class="dv">20</span>)) white dibujo
+    
+<span class="ot">dibujo ::</span> <span class="dt">Picture</span>
+dibujo <span class="fu">=</span> plato_con_comida
+    
+plato_con_comida <span class="fu">=</span> 
+  pictures [ mesa,
+             plato,
+             comida,
+             translate ( <span class="dv">200</span>) <span class="dv">0</span> tenedor,
+             translate (<span class="fu">-</span><span class="dv">200</span>) <span class="dv">0</span> cuchillo ]
+    
+mesa <span class="fu">=</span> color marron (rectangleSolid <span class="dv">500</span> <span class="dv">500</span>)
+plato <span class="fu">=</span> 
+  pictures [ color gris      (circleSolid <span class="dv">175</span>),
+             color grisClaro (circleSolid <span class="dv">150</span>) ]
+    
+comida <span class="fu">=</span> 
+  pictures [ translate (<span class="fu">-</span><span class="dv">50</span>) ( <span class="dv">50</span>) (rotate   <span class="dv">45</span>  zanahoria),
+             translate (<span class="fu">-</span><span class="dv">20</span>) (<span class="fu">-</span><span class="dv">40</span>) (rotate   <span class="dv">20</span>  brocoli),
+             translate ( <span class="dv">60</span>) (<span class="fu">-</span><span class="dv">30</span>) (rotate (<span class="fu">-</span><span class="dv">10</span>) brocoli) ]
+    
+zanahoria <span class="fu">=</span> 
+  color orange 
+        (polygon [(<span class="fu">-</span><span class="dv">5</span>,<span class="fu">-</span><span class="dv">40</span>),(<span class="fu">-</span><span class="dv">20</span>,<span class="dv">40</span>),(<span class="dv">20</span>,<span class="dv">40</span>),(<span class="dv">5</span>,<span class="fu">-</span><span class="dv">40</span>) ])
+    
+brocoli <span class="fu">=</span> 
+  color (dark green) 
+        (pictures [ translate (  <span class="dv">0</span>) (<span class="fu">-</span><span class="dv">15</span>) (rectangleSolid <span class="dv">30</span> <span class="dv">50</span>), <span class="co">-- base</span>
+                    translate (<span class="fu">-</span><span class="dv">15</span>) (  <span class="dv">0</span>) (circleSolid <span class="dv">25</span>),       <span class="co">-- flor</span>
+                    translate ( <span class="dv">15</span>) (  <span class="dv">0</span>) (circleSolid <span class="dv">25</span>),       <span class="co">-- flor</span>
+                    translate (  <span class="dv">0</span>) ( <span class="dv">15</span>) (circleSolid <span class="dv">25</span>)        <span class="co">-- flor</span>
+                  ])
+    
+tenedor <span class="fu">=</span> 
+  color grisClaro 
+        (pictures [rectangleSolid <span class="dv">10</span> <span class="dv">250</span>,                        <span class="co">-- mango</span>
+                   translate (  <span class="dv">0</span>) ( <span class="dv">80</span>) (rectangleSolid <span class="dv">40</span> <span class="dv">10</span>), <span class="co">-- base</span>
+                   translate (<span class="fu">-</span><span class="dv">15</span>) (<span class="dv">100</span>) (rectangleSolid <span class="dv">10</span> <span class="dv">45</span>), <span class="co">-- diente izquierdo</span>
+                   translate ( <span class="dv">15</span>) (<span class="dv">100</span>) (rectangleSolid <span class="dv">10</span> <span class="dv">45</span>)  <span class="co">-- diente derecho</span>
+                  ])
+    
+cuchillo <span class="fu">=</span> 
+  color grisClaro 
+        (pictures [translate <span class="dv">0</span> (<span class="fu">-</span><span class="dv">25</span>) (rectangleSolid <span class="dv">30</span> <span class="dv">200</span>),    <span class="co">-- mango</span>
+                   polygon [ (<span class="fu">-</span><span class="dv">15</span>,  <span class="dv">75</span>),
+                             ( <span class="fu">-</span><span class="dv">5</span>, <span class="dv">105</span>),
+                             ( <span class="dv">15</span>, <span class="dv">125</span>),
+                             ( <span class="dv">15</span>,  <span class="dv">75</span>) ]                        <span class="co">-- hoja</span>
+                  ])
+    
+<span class="co">-- Algunos colores usados en el dibujo:</span>
+marron    <span class="fu">=</span> dark orange
+grisClaro <span class="fu">=</span> dark white
+gris      <span class="fu">=</span> dark grisClaro</code></pre></div>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

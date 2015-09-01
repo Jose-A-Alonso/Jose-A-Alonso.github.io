@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 23: Técnicas de diseño descendente de algoritmos</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 23: Técnicas de diseño descendente de algoritmos</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#la-técnica-de-divide-y-vencerás"><span class="toc-section-number">1</span> La técnica de divide y vencerás</a><ul>
+<li><a href="#la-ordenación-por-mezcla-como-ejemplo-de-dyv"><span class="toc-section-number">1.1</span> La ordenación por mezcla como ejemplo de DyV</a></li>
+<li><a href="#la-ordenación-rápida-como-ejemplo-de-dyv"><span class="toc-section-number">1.2</span> La ordenación rápida como ejemplo de DyV</a></li>
+</ul></li>
+<li><a href="#búsqueda-en-espacios-de-estados"><span class="toc-section-number">2</span> Búsqueda en espacios de estados</a><ul>
+<li><a href="#el-patrón-de-búsqueda-en-espacios-de-estados"><span class="toc-section-number">2.1</span> El patrón de búsqueda en espacios de estados</a></li>
+<li><a href="#el-problema-de-las-n-reinas"><span class="toc-section-number">2.2</span> El problema de las n reinas</a></li>
+<li><a href="#el-problema-de-la-mochila"><span class="toc-section-number">2.3</span> El problema de la mochila</a></li>
+</ul></li>
+<li><a href="#búsqueda-por-primero-el-mejor"><span class="toc-section-number">3</span> Búsqueda por primero el mejor</a><ul>
+<li><a href="#el-patrón-de-búsqueda-por-primero-el-mejor"><span class="toc-section-number">3.1</span> El patrón de búsqueda por primero el mejor</a></li>
+<li><a href="#el-problema-del-8-puzzle"><span class="toc-section-number">3.2</span> El problema del 8 puzzle</a></li>
+</ul></li>
+<li><a href="#búsqueda-en-escalada"><span class="toc-section-number">4</span> Búsqueda en escalada</a><ul>
+<li><a href="#el-patrón-de-búsqueda-en-escalada"><span class="toc-section-number">4.1</span> El patrón de búsqueda en escalada</a></li>
+<li><a href="#el-problema-del-cambio-de-monedas-por-escalada"><span class="toc-section-number">4.2</span> El problema del cambio de monedas por escalada</a></li>
+<li><a href="#el-algoritmo-de-prim-del-árbol-de-expansión-mínimo-por-escalada"><span class="toc-section-number">4.3</span> El algoritmo de Prim del árbol de expansión mínimo por escalada</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="la-técnica-de-divide-y-vencerás"><span class="header-section-number">1</span> La técnica de divide y vencerás</h1>
+<ul>
+<li>La técnica <em>divide y vencerás</em> consta de los siguientes pasos:
+<ul>
+<li><em>Dividir</em> el problema en subproblemas menores.</li>
+<li><em>Resolver</em> por separado cada uno de los subproblemas:
+<ul>
+<li>si los subproblemas son complejos, usar la misma técnica recursivamente;</li>
+<li>si son simples, resolverlos directamente.</li>
+</ul></li>
+<li><em>Combinar</em> todas las soluciones de los subproblemas en una solución simple.</li>
+</ul></li>
+<li><code>(divideVenceras ind resuelve divide combina pbInicial)</code> resuelve el problema <code>pbInicial</code> mediante la técnica de divide y vencerás, donde
+<ul>
+<li><code>(ind pb)</code> se verifica si el problema <code>pb</code> es indivisible,</li>
+<li><code>(resuelve pb)</code> es la solución del problema indivisible <code>pb</code>,</li>
+<li><code>(divide pb)</code> es la lista de subproblemas de <code>pb</code>,</li>
+<li><code>(combina pb ss)</code> es la combinación de las soluciones <code>ss</code> de los subproblemas del problema <code>pb</code> y</li>
+<li><code>pbInicial</code> es el problema inicial.</li>
+</ul></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">DivideVenceras</span> (divideVenceras) <span class="kw">where</span>
+
+<span class="ot">divideVenceras ::</span> (p <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> (p <span class="ot">-&gt;</span> s) <span class="ot">-&gt;</span> (p <span class="ot">-&gt;</span> [p])      
+                  <span class="ot">-&gt;</span> (p <span class="ot">-&gt;</span> [s] <span class="ot">-&gt;</span> s) <span class="ot">-&gt;</span> p <span class="ot">-&gt;</span> s
+divideVenceras ind resuelve divide combina pbInicial <span class="fu">=</span>
+    dv&#39; pbInicial <span class="kw">where</span> 
+    dv&#39; pb
+        <span class="fu">|</span> ind pb    <span class="fu">=</span> resuelve pb
+        <span class="fu">|</span> otherwise <span class="fu">=</span> combina pb [dv&#39; sp <span class="fu">|</span> sp <span class="ot">&lt;-</span> divide pb]</code></pre></div>
+<h2 id="la-ordenación-por-mezcla-como-ejemplo-de-dyv"><span class="header-section-number">1.1</span> La ordenación por mezcla como ejemplo de DyV</h2>
+<ul>
+<li><code>(ordenaPorMezcla xs)</code> es la lista obtenida ordenando <code>xs</code> por el procedimiento de ordenación por mezcla. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; ordenaPorMezcla [3,1,4,1,5,9,2,8]
+[1,1,2,3,4,5,8,9]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.DivideVenceras</span>
+
+<span class="ot">ordenaPorMezcla ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+ordenaPorMezcla xs <span class="fu">=</span> 
+    divideVenceras ind id divide combina xs
+    <span class="kw">where</span> 
+      ind xs            <span class="fu">=</span> length xs <span class="fu">&lt;=</span> <span class="dv">1</span>
+      divide xs         <span class="fu">=</span> [take n xs, drop n xs]
+                          <span class="kw">where</span> n <span class="fu">=</span> length xs <span class="ot">`div`</span> <span class="dv">2</span>
+      combina _ [l1,l2] <span class="fu">=</span> mezcla l1 l2</code></pre></div>
+<ul>
+<li><code>(mezcla xs ys)</code> es la lista obtenida mezclando <code>xs</code> e <code>ys</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>mezcla [1,3] [2,4,6]  ==  [1,2,3,4,6]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">mezcla ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+mezcla [] b <span class="fu">=</span> b
+mezcla a [] <span class="fu">=</span> a
+mezcla a<span class="fu">@</span>(x<span class="fu">:</span>xs) b<span class="fu">@</span>(y<span class="fu">:</span>ys) 
+    <span class="fu">|</span> x <span class="fu">&lt;=</span> y    <span class="fu">=</span> x <span class="fu">:</span> (mezcla xs b)
+    <span class="fu">|</span> otherwise <span class="fu">=</span> y <span class="fu">:</span> (mezcla a ys)</code></pre></div>
+<h2 id="la-ordenación-rápida-como-ejemplo-de-dyv"><span class="header-section-number">1.2</span> La ordenación rápida como ejemplo de DyV</h2>
+<ul>
+<li><code>(ordenaRapida xs)</code> es la lista obtenida ordenando <code>xs</code> por el procedimiento de ordenación rápida. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; ordenaRapida [3,1,4,1,5,9,2,8]
+[1,1,2,3,4,5,8,9]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.DivideVenceras</span>
+
+<span class="ot">ordenaRapida ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+ordenaRapida xs <span class="fu">=</span> 
+    divideVenceras ind id divide combina xs
+    <span class="kw">where</span> 
+      ind xs                <span class="fu">=</span> length xs <span class="fu">&lt;=</span> <span class="dv">1</span>
+      divide (x<span class="fu">:</span>xs)         <span class="fu">=</span> [[ y <span class="fu">|</span> y <span class="ot">&lt;-</span> xs, y <span class="fu">&lt;=</span> x],
+                               [ y <span class="fu">|</span> y <span class="ot">&lt;-</span> xs, y <span class="fu">&gt;</span> x]]
+      combina (x<span class="fu">:</span>_) [l1,l2] <span class="fu">=</span> l1 <span class="fu">++</span> [x] <span class="fu">++</span> l2</code></pre></div>
+<h1 id="búsqueda-en-espacios-de-estados"><span class="header-section-number">2</span> Búsqueda en espacios de estados</h1>
+<h2 id="el-patrón-de-búsqueda-en-espacios-de-estados"><span class="header-section-number">2.1</span> El patrón de búsqueda en espacios de estados</h2>
+<p><strong>Descripción de los problemas de espacios de estados</strong></p>
+<p>Las características de los problemas de espacios de estados son:</p>
+<ul>
+<li><p>un conjunto de las posibles situaciones o <em>nodos</em> que constituye el <em>espacio de estados</em> (estos son las potenciales soluciones que se necesitan explorar),</p></li>
+<li><p>un conjunto de movimientos de un nodo a otros nodos, llamados los <em>sucesores</em> del nodo,</p></li>
+<li><p>un <em>nodo inicial</em> y</p></li>
+<li><p>un <em>nodo objetivo</em> que es la solución.</p></li>
+</ul>
+<p>Se supone que el grafo implícito de espacios de estados es acíclico.</p>
+<p><strong>El patrón de búsqueda en espacios de estados</strong></p>
+<ul>
+<li><code>(buscaEE s o e)</code> es la lista de soluciones del problema de espacio de estado definido por la función sucesores (<code>s</code>), el objetivo (<code>o</code>) y estado inicial (<code>e</code>).</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">BusquedaEnEspaciosDeEstados</span> (buscaEE) <span class="kw">where</span>
+<span class="kw">import </span><span class="dt">I1M.Pila</span>
+
+<span class="ot">buscaEE::</span> (<span class="dt">Eq</span> nodo) <span class="ot">=&gt;</span> (nodo <span class="ot">-&gt;</span> [nodo])  <span class="ot">-&gt;</span> (nodo <span class="ot">-&gt;</span> <span class="dt">Bool</span>) 
+                       <span class="ot">-&gt;</span> nodo <span class="ot">-&gt;</span> [nodo]
+buscaEE sucesores esFinal x <span class="fu">=</span> busca&#39; (apila x vacia) 
+ <span class="kw">where</span> busca&#39; p  
+    <span class="fu">|</span> esVacia p        <span class="fu">=</span> [] 
+    <span class="fu">|</span> esFinal (cima p) <span class="fu">=</span> cima p <span class="fu">:</span> busca&#39; (desapila p)
+    <span class="fu">|</span> otherwise        <span class="fu">=</span> busca&#39; (foldr apila (desapila p) 
+                                       (sucesores x))
+                         <span class="kw">where</span> x <span class="fu">=</span> cima p</code></pre></div>
+<h2 id="el-problema-de-las-n-reinas"><span class="header-section-number">2.2</span> El problema de las n reinas</h2>
+<ul>
+<li><p>El problema de las n reinas consiste en colocar n reinas en un tablero cuadrado de dimensiones n por n de forma que no se encuentren más de una en la misma línea: horizontal, vertical o diagonal.</p></li>
+<li><p>Se resolverá mediante búsqueda en espacio de estados</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.BusquedaEnEspaciosDeEstados</span>  </code></pre></div>
+<ul>
+<li>Las posiciones de las reinas en el tablero se representan por su columna y su fila.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Columna</span> <span class="fu">=</span> <span class="dt">Int</span>
+<span class="kw">type</span> <span class="dt">Fila</span>    <span class="fu">=</span> <span class="dt">Int</span></code></pre></div>
+<ul>
+<li>Una solución de las n reinas es una lista de posiciones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">SolNR</span> <span class="fu">=</span> [(<span class="dt">Columna</span>,<span class="dt">Fila</span>)]</code></pre></div>
+<ul>
+<li><code>(valida sp p)</code> se verifica si la posición <code>p</code> es válida respecto de la solución parcial <code>sp</code>; es decir, la reina en la posición <code>p</code> no amenaza a ninguna de las reinas de la <code>sp</code> (se supone que están en distintas columnas). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valida [(1,1)] (2,2)  ==  False
+valida [(1,1)] (2,3)  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valida ::</span> <span class="dt">SolNR</span> <span class="ot">-&gt;</span> (<span class="dt">Columna</span>,<span class="dt">Fila</span>) <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida solp (c,r) <span class="fu">=</span> and [test s <span class="fu">|</span> s <span class="ot">&lt;-</span> solp]
+    <span class="kw">where</span> test (c&#39;,r&#39;) <span class="fu">=</span> and [c&#39;<span class="fu">+</span>r&#39;<span class="fu">/=</span>c<span class="fu">+</span>r,
+                              c&#39;<span class="fu">-</span>r&#39;<span class="fu">/=</span>c<span class="fu">-</span>r,
+                              r&#39;<span class="fu">/=</span>r]</code></pre></div>
+<ul>
+<li>Los nodos del problema de las n reinas son ternas formadas por la columna de la siguiente reina, el número de columnas del tablero y la solución parcial de las reinas colocadas anteriormente.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">NodoNR</span> <span class="fu">=</span> (<span class="dt">Columna</span>,<span class="dt">Columna</span>,<span class="dt">SolNR</span>)</code></pre></div>
+<ul>
+<li><code>(sucesoresNR e)</code> es la lista de los sucesores del estado <code>e</code> en el problema de las n reinas. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sucesoresNR (1,4,[])
+[(2,4,[(1,1)]),(2,4,[(1,2)]),(2,4,[(1,3)]),(2,4,[(1,4)])]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sucesoresNR ::</span> <span class="dt">NodoNR</span> <span class="ot">-&gt;</span> [<span class="dt">NodoNR</span>]
+sucesoresNR (c,n,solp)
+    <span class="fu">=</span> [(c<span class="fu">+</span><span class="dv">1</span>,n,solp<span class="fu">++</span>[(c,r)]) <span class="fu">|</span> r <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>n], 
+                               valida solp (c,r)]</code></pre></div>
+<ul>
+<li><code>(esFinalNR e)</code> se verifica si <code>e</code> es un estado final del problema de las n reinas.</li>
+</ul>
+<pre class="sesion"><code>esFinalNR :: NodoNR -&gt; Bool
+esFinalNR (c,n,solp) = c &gt; n</code></pre>
+<p><strong>Solución del problema de las n reinas por EE</strong></p>
+<ul>
+<li><code>(buscaEE_NR n)</code> es la primera solución del problema de las n reinas, por búsqueda en espacio de estados. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; buscaEE_NR 8
+[(1,1),(2,5),(3,8),(4,6),(5,3),(6,7),(7,2),(8,4)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">buscaEE_NR ::</span> <span class="dt">Columna</span> <span class="ot">-&gt;</span> <span class="dt">SolNR</span>
+buscaEE_NR n <span class="fu">=</span> s
+    <span class="kw">where</span> ((_,_,s)<span class="fu">:</span>_) <span class="fu">=</span> buscaEE sucesoresNR 
+                                esFinalNR 
+                                (<span class="dv">1</span>,n,[])</code></pre></div>
+<ul>
+<li><code>(nSolucionesNR n)</code> es el número de soluciones del problema de las n reinas, por búsqueda en espacio de estados. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>nSolucionesNR 8  ==  92</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">nSolucionesNR ::</span> <span class="dt">Columna</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+nSolucionesNR n <span class="fu">=</span> 
+    length (buscaEE sucesoresNR 
+                    esFinalNR 
+                    (<span class="dv">1</span>,n,[]))</code></pre></div>
+<h2 id="el-problema-de-la-mochila"><span class="header-section-number">2.3</span> El problema de la mochila</h2>
+<ul>
+<li><p>Se tiene una mochila de capacidad de peso p y una lista de n objetos para colocar en la mochila. Cada objeto i tiene un peso w(i) y un valor v(i). Considerando la posibilidad de colocar el mismo objeto varias veces en la mochila, el problema consiste en determinar la forma de colocar los objetos en la mochila sin sobrepasar la capacidad de la mochila colocando el máximo valor posible.</p></li>
+<li><p>Se resolverá mediante búsqueda en espacio de estados</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.BusquedaEnEspaciosDeEstados</span>
+<span class="kw">import </span><span class="dt">Data.List</span> (sort)</code></pre></div>
+<ul>
+<li>Los pesos son número enteros.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Peso</span> <span class="fu">=</span> <span class="dt">Int</span></code></pre></div>
+<ul>
+<li>Los valores son números reales.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Valor</span> <span class="fu">=</span> <span class="dt">Float</span></code></pre></div>
+<ul>
+<li>Los objetos son pares formado por un peso y un valor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Objeto</span> <span class="fu">=</span> (<span class="dt">Peso</span>,<span class="dt">Valor</span>)</code></pre></div>
+<ul>
+<li>Una solución del problema de la mochila es una lista de objetos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">SolMoch</span> <span class="fu">=</span> [<span class="dt">Objeto</span>]</code></pre></div>
+<ul>
+<li>Los estados del problema de la mochila son 5-tuplas de la forma <code>(v,p,l,o,s)</code> donde
+<ul>
+<li><code>v</code> es el valor de los objetos colocados,</li>
+<li><code>p</code> es el peso de los objetos colocados,</li>
+<li><code>l</code> es el límite de la capacidad de la mochila,</li>
+<li><code>o</code> es la lista de los objetos colocados (ordenados de forma creciente según sus pesos) y</li>
+<li><code>s</code> es la solución parcial.</li>
+</ul></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">NodoMoch</span> <span class="fu">=</span> (<span class="dt">Valor</span>,<span class="dt">Peso</span>,<span class="dt">Peso</span>,[<span class="dt">Objeto</span>],<span class="dt">SolMoch</span>)</code></pre></div>
+<ul>
+<li><code>(sucesoresMoch e)</code> es la lista de los sucesores del estado <code>e</code> en el problema de la mochila.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sucesoresMoch ::</span> <span class="dt">NodoMoch</span> <span class="ot">-&gt;</span> [<span class="dt">NodoMoch</span>]
+sucesoresMoch (v,p,limite,objetos,solp)
+    <span class="fu">=</span> [( v<span class="fu">+</span>v&#39;,
+         p<span class="fu">+</span>p&#39;,
+         limite,
+         [o <span class="fu">|</span> o<span class="fu">@</span>(p&#39;&#39;,_) <span class="ot">&lt;-</span> objetos,(p&#39;&#39;<span class="fu">&gt;=</span>p&#39;)], 
+         (p&#39;,v&#39;)<span class="fu">:</span>solp )
+       <span class="fu">|</span> (p&#39;,v&#39;) <span class="ot">&lt;-</span> objetos, 
+         p<span class="fu">+</span>p&#39; <span class="fu">&lt;=</span> limite]</code></pre></div>
+<ul>
+<li><code>(esObjetivoMoch e)</code> se verifica si <code>e</code> es un estado final el problema de la mochila.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esObjetivoMoch ::</span> <span class="dt">NodoMoch</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esObjetivoMoch (_,p,limite,((p&#39;,_)<span class="fu">:</span>_),_) <span class="fu">=</span> 
+   p<span class="fu">+</span>p&#39;<span class="fu">&gt;</span>limite</code></pre></div>
+<p><strong>Solución del problema de la mochila por EE</strong></p>
+<ul>
+<li><code>(buscaEE_Mochila os l)</code> es la solución del problema de la mochila para la lista de objetos <code>os</code> y el límite de capacidad <code>l</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>&gt; buscaEE_Mochila [(2,3),(3,5),(4,6),(5,10)] 8
+([(5,10.0),(3,5.0)],15.0)
+&gt; buscaEE_Mochila [(2,3),(3,5),(5,6)] 10
+([(3,5.0),(3,5.0),(2,3.0),(2,3.0)],16.0)
+&gt; buscaEE_Mochila [(2,2.8),(3,4.4),(5,6.1)] 10
+([(3,4.4),(3,4.4),(2,2.8),(2,2.8)],14.4)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">buscaEE_Mochila ::</span> [<span class="dt">Objeto</span>] <span class="ot">-&gt;</span> <span class="dt">Peso</span> <span class="ot">-&gt;</span> (<span class="dt">SolMoch</span>,<span class="dt">Valor</span>)
+buscaEE_Mochila objetos limite <span class="fu">=</span> (sol,v) 
+    <span class="kw">where</span> 
+      (v,_,_,_,sol) <span class="fu">=</span> 
+          maximum (buscaEE sucesoresMoch 
+                           esObjetivoMoch  
+                           (<span class="dv">0</span>,<span class="dv">0</span>,limite,sort objetos,[]))</code></pre></div>
+<h1 id="búsqueda-por-primero-el-mejor"><span class="header-section-number">3</span> Búsqueda por primero el mejor</h1>
+<h2 id="el-patrón-de-búsqueda-por-primero-el-mejor"><span class="header-section-number">3.1</span> El patrón de búsqueda por primero el mejor</h2>
+<p><strong>El patrón de búsqueda por primero el mejor</strong></p>
+<ul>
+<li><code>(buscaPM s o e)</code> es la lista de soluciones del problema de espacio de estado definido por la función sucesores (<code>s</code>), el objetivo (<code>o</code>) y estado inicial (<code>e</code>), obtenidas buscando por primero el mejor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">BusquedaPrimeroElMejor</span> (buscaPM)  <span class="kw">where</span>
+<span class="kw">import </span><span class="dt">I1M.ColaDePrioridad</span>
+
+<span class="ot">buscaPM ::</span> (<span class="dt">Ord</span> nodo) <span class="ot">=&gt;</span> 
+           (nodo <span class="ot">-&gt;</span> [nodo])   <span class="co">-- sucesores</span>
+           <span class="ot">-&gt;</span> (nodo <span class="ot">-&gt;</span> <span class="dt">Bool</span>)  <span class="co">-- esFinal</span>
+           <span class="ot">-&gt;</span> nodo            <span class="co">-- nodo actual</span>
+           <span class="ot">-&gt;</span> [nodo]          <span class="co">-- solución</span>
+buscaPM sucesores esFinal x <span class="fu">=</span> busca&#39; (inserta x vacia)
+ <span class="kw">where</span>
+   busca&#39; c 
+    <span class="fu">|</span> esVacia c <span class="fu">=</span> []
+    <span class="fu">|</span> esFinal (primero c)  
+        <span class="fu">=</span> (primero c)<span class="fu">:</span>(busca&#39; (resto c))
+    <span class="fu">|</span> otherwise            
+        <span class="fu">=</span> busca&#39; (foldr inserta (resto c) (sucesores x))
+          <span class="kw">where</span> x <span class="fu">=</span> primero c</code></pre></div>
+<h2 id="el-problema-del-8-puzzle"><span class="header-section-number">3.2</span> El problema del 8 puzzle</h2>
+<p>Para el 8-puzzle se usa un cajón cuadrado en el que hay situados 8 bloques cuadrados. El cuadrado restante está sin rellenar. Cada bloque tiene un número. Un bloque adyacente al hueco puede deslizarse hacia él. El juego consiste en transformar la posición inicial en la posición final mediante el deslizamiento de los bloques. En particular, consideramos el estado inicial y final siguientes:</p>
+<pre class="sesion"><code>+---+---+---+                   +---+---+---+
+| 2 | 6 | 3 |                   | 1 | 2 | 3 | 
++---+---+---+                   +---+---+---+ 
+| 5 |   | 4 |                   | 8 |   | 4 | 
++---+---+---+                   +---+---+---+ 
+| 1 | 7 | 8 |                   | 7 | 6 | 5 | 
++---+---+---+                   +---+---+---+ 
+Estado inicial                  Estado final</code></pre>
+<ul>
+<li>Se resolverá mediante primero el mejor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.BusquedaPrimeroElMejor</span>
+<span class="kw">import </span><span class="dt">Data.Array</span></code></pre></div>
+<ul>
+<li><p>Una posición es un par de enteros.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Posicion</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)</code></pre></div></li>
+<li><p>Un tablero es un vector de posiciones, en el que el índice indica el elemento que ocupa la posición.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Tablero</span>  <span class="fu">=</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Posicion</span></code></pre></div>
+<ul>
+<li><code>inicial8P</code> es el estado inicial del 8 puzzle. En el ejemplo es</li>
+</ul>
+<pre class="sesion"><code>+---+---+---+
+| 2 | 6 | 3 | 
++---+---+---+ 
+| 5 |   | 4 | 
++---+---+---+ 
+| 1 | 7 | 8 | 
++---+---+---+ </code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inicial8P ::</span> <span class="dt">Tablero</span> 
+inicial8P <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">8</span>) [(<span class="dv">2</span>,(<span class="dv">1</span>,<span class="dv">3</span>)),(<span class="dv">6</span>,(<span class="dv">2</span>,<span class="dv">3</span>)),(<span class="dv">3</span>,(<span class="dv">3</span>,<span class="dv">3</span>)),
+                         (<span class="dv">5</span>,(<span class="dv">1</span>,<span class="dv">2</span>)),(<span class="dv">0</span>,(<span class="dv">2</span>,<span class="dv">2</span>)),(<span class="dv">4</span>,(<span class="dv">3</span>,<span class="dv">2</span>)),
+                         (<span class="dv">1</span>,(<span class="dv">1</span>,<span class="dv">1</span>)),(<span class="dv">7</span>,(<span class="dv">2</span>,<span class="dv">1</span>)),(<span class="dv">8</span>,(<span class="dv">3</span>,<span class="dv">1</span>))]</code></pre></div>
+<ul>
+<li><code>final8P</code> es el estado final del 8 puzzle. En el ejemplo es</li>
+</ul>
+<pre class="sesion"><code>+---+---+---+
+| 1 | 2 | 3 | 
++---+---+---+ 
+| 8 |   | 4 | 
++---+---+---+ 
+| 7 | 6 | 5 | 
++---+---+---+ </code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">final8P ::</span> <span class="dt">Tablero</span>
+final8P <span class="fu">=</span> array (<span class="dv">0</span>,<span class="dv">8</span>) [(<span class="dv">1</span>,(<span class="dv">1</span>,<span class="dv">3</span>)),(<span class="dv">2</span>,(<span class="dv">2</span>,<span class="dv">3</span>)),(<span class="dv">3</span>,(<span class="dv">3</span>,<span class="dv">3</span>)),
+                       (<span class="dv">8</span>,(<span class="dv">1</span>,<span class="dv">2</span>)),(<span class="dv">0</span>,(<span class="dv">2</span>,<span class="dv">2</span>)),(<span class="dv">4</span>,(<span class="dv">3</span>,<span class="dv">2</span>)),
+                       (<span class="dv">7</span>,(<span class="dv">1</span>,<span class="dv">1</span>)),(<span class="dv">6</span>,(<span class="dv">2</span>,<span class="dv">1</span>)),(<span class="dv">5</span>,(<span class="dv">3</span>,<span class="dv">1</span>))]</code></pre></div>
+<ul>
+<li><code>(distancia p1 p2)</code> es la distancia Manhatan entre las posiciones <code>p1</code> y <code>p2</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>distancia (2,7) (4,1)  ==  8</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">distancia ::</span> <span class="dt">Posicion</span> <span class="ot">-&gt;</span> <span class="dt">Posicion</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+distancia (x1,y1) (x2,y2) <span class="fu">=</span> abs (x1<span class="fu">-</span>x2) <span class="fu">+</span> abs (y1<span class="fu">-</span>y2)</code></pre></div>
+<ul>
+<li><code>(adyacente p1 p2)</code> se verifica si las posiciones <code>p1</code> y <code>p2</code> son adyacentes. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>adyacente (3,2) (3,1)  ==  True
+adyacente (3,2) (1,2)  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">adyacente ::</span> <span class="dt">Posicion</span> <span class="ot">-&gt;</span> <span class="dt">Posicion</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+adyacente p1 p2 <span class="fu">=</span> distancia p1 p2 <span class="fu">==</span> <span class="dv">1</span></code></pre></div>
+<ul>
+<li><code>(todosMovimientos t)</code> es la lista de los tableros obtenidos aplicándole al tablero <code>t</code> todos los posibles movimientos; es decir, intercambiando la posición del hueco con sus adyacentes.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">todosMovimientos ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> [<span class="dt">Tablero</span>]
+todosMovimientos t <span class="fu">=</span> 
+    [t<span class="fu">//</span>[(<span class="dv">0</span>,t<span class="fu">!</span>i),(i,t<span class="fu">!</span><span class="dv">0</span>)] <span class="fu">|</span> i<span class="ot">&lt;-</span>[<span class="dv">1</span><span class="fu">..</span><span class="dv">8</span>], 
+                            adyacente (t<span class="fu">!</span><span class="dv">0</span>) (t<span class="fu">!</span>i)] </code></pre></div>
+<ul>
+<li>Los nodos del espacio de estados son listas de tableros [t(n), ...,t(1)] tal que t(i) es un sucesor de t(i-1).</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Tableros</span> <span class="fu">=</span> <span class="dt">Est</span> [<span class="dt">Tablero</span>] <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li><code>(sucesores8P e)</code> es la lista de sucesores del estado <code>e</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sucesores8P ::</span> <span class="dt">Tableros</span> <span class="ot">-&gt;</span> [<span class="dt">Tableros</span>]
+sucesores8P (<span class="dt">Est</span>(n<span class="fu">@</span>(t<span class="fu">:</span>ts))) <span class="fu">=</span> 
+    [<span class="dt">Est</span> (t&#39;<span class="fu">:</span>n) <span class="fu">|</span> t&#39; <span class="ot">&lt;-</span> todosMovimientos t, 
+                  t&#39; <span class="ot">`notElem`</span> ts]</code></pre></div>
+<ul>
+<li><code>(esFinal8P n)</code> se verifica si <code>e</code> es un nodo final del 8 puzzle.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esFinal8P ::</span> <span class="dt">Tableros</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esFinal8P (<span class="dt">Est</span> (t<span class="fu">:</span>_)) <span class="fu">=</span> t <span class="fu">==</span> final8P</code></pre></div>
+<ul>
+<li><code>(heur1 t)</code> es la suma de la distancia Manhatan desde la posición de cada objeto del tablero <code>t</code> a su posición en el estado final. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>heur1 inicial8P  ==  12</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">heur1 ::</span> <span class="dt">Tablero</span>  <span class="ot">-&gt;</span> <span class="dt">Int</span>
+heur1 t <span class="fu">=</span> 
+    sum [distancia (t<span class="fu">!</span>i) (final8P<span class="fu">!</span>i) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="fu">..</span><span class="dv">8</span>]]</code></pre></div>
+<ul>
+<li>Dos estados se consideran iguales si tienen la misma heurística.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">Tableros</span>
+    <span class="kw">where</span> <span class="dt">Est</span>(t1<span class="fu">:</span>_) <span class="fu">==</span> <span class="dt">Est</span>(t2<span class="fu">:</span>_) <span class="fu">=</span> heur1 t1 <span class="fu">==</span> heur1 t2</code></pre></div>
+<ul>
+<li>Un estado es menor o igual que otro si tiene una heurística menor o igual.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Tableros</span> <span class="kw">where</span> 
+    <span class="dt">Est</span> (t1<span class="fu">:</span>_) <span class="fu">&lt;=</span> <span class="dt">Est</span> (t2<span class="fu">:</span>_) <span class="fu">=</span> heur1 t1 <span class="fu">&lt;=</span> heur1 t2</code></pre></div>
+<ul>
+<li><code>(buscaPM_8P)</code> es la lista de las soluciones del 8 puzzle por búsqueda primero el mejor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">buscaPM_8P <span class="fu">=</span> buscaPM sucesores8P      
+                     esFinal8P        
+                     (<span class="dt">Est</span> [inicial8P])</code></pre></div>
+<h1 id="búsqueda-en-escalada"><span class="header-section-number">4</span> Búsqueda en escalada</h1>
+<h2 id="el-patrón-de-búsqueda-en-escalada"><span class="header-section-number">4.1</span> El patrón de búsqueda en escalada</h2>
+<ul>
+<li><code>(buscaEscalada s o e)</code> es la lista de soluciones del problema de espacio de estado definido por la función sucesores (<code>s</code>), el objetivo (<code>o</code>) y estado inicial (<code>e</code>), obtenidas buscando por escalada.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">BusquedaEnEscalada</span> (buscaEscalada) <span class="kw">where</span>
+
+<span class="ot">buscaEscalada ::</span> <span class="dt">Ord</span> nodo <span class="ot">=&gt;</span> (nodo <span class="ot">-&gt;</span> [nodo]) 
+                 <span class="ot">-&gt;</span> (nodo <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> nodo <span class="ot">-&gt;</span> [nodo]
+buscaEscalada sucesores esFinal x <span class="fu">=</span> 
+    busca&#39; (inserta x vacia) <span class="kw">where</span>
+    busca&#39; c  
+        <span class="fu">|</span> esVacia c           <span class="fu">=</span> [] 
+        <span class="fu">|</span> esFinal (primero c) <span class="fu">=</span> [primero c]
+        <span class="fu">|</span> otherwise           <span class="fu">=</span> 
+            busca&#39; (foldr inserta vacia (sucesores x))
+            <span class="kw">where</span> x <span class="fu">=</span> primero c</code></pre></div>
+<h2 id="el-problema-del-cambio-de-monedas-por-escalada"><span class="header-section-number">4.2</span> El problema del cambio de monedas por escalada</h2>
+<ul>
+<li><p>El problema del cambio de monedas consiste en determinar cómo conseguir una cantidad usando el menor número de monedas disponibles.</p></li>
+<li><p>Se resolverá por búsqueda en escalada.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.BusquedaEnEscalada</span></code></pre></div>
+<ul>
+<li>Las monedas son números enteros.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Moneda</span> <span class="fu">=</span> <span class="dt">Int</span></code></pre></div>
+<ul>
+<li><code>monedas</code> es la lista del tipo de monedas disponibles. Se supone que hay un número infinito de monedas de cada tipo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">monedas ::</span> [<span class="dt">Moneda</span>]
+monedas <span class="fu">=</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">20</span>,<span class="dv">50</span>,<span class="dv">100</span>]</code></pre></div>
+<ul>
+<li>Las soluciones son listas de monedas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Soluciones</span> <span class="fu">=</span> [<span class="dt">Moneda</span>]</code></pre></div>
+<ul>
+<li>Los estados son pares formados por la cantidad que falta y la lista de monedas usadas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">NodoMonedas</span> <span class="fu">=</span> (<span class="dt">Int</span>, [<span class="dt">Moneda</span>])</code></pre></div>
+<ul>
+<li><code>(sucesoresMonedas e)</code> es la lista de los sucesores del estado <code>e</code> en el problema de las monedas. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sucesoresMonedas (199,[])
+[(198,[1]),(197,[2]),(194,[5]),(189,[10]),
+ (179,[20]),(149,[50]),(99,[100])]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sucesoresMonedas ::</span> <span class="dt">NodoMonedas</span> <span class="ot">-&gt;</span> [<span class="dt">NodoMonedas</span>]
+sucesoresMonedas (r,p) <span class="fu">=</span> 
+    [(r<span class="fu">-</span>c,c<span class="fu">:</span>p) <span class="fu">|</span> c <span class="ot">&lt;-</span> monedas, r<span class="fu">-</span>c <span class="fu">&gt;=</span> <span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>(esFinalMonedas e)</code> se verifica si <code>e</code> es un estado final del problema de las monedas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esFinalMonedas ::</span> <span class="dt">NodoMonedas</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esFinalMonedas (v,_) <span class="fu">=</span> v<span class="fu">==</span><span class="dv">0</span></code></pre></div>
+<ul>
+<li><code>(cambio n)</code> es la solución del problema de las monedas por búsqueda en escalada. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>cambio 199  ==  [2,2,5,20,20,50,100]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cambio ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Soluciones</span>
+cambio n <span class="fu">=</span> 
+    snd (head (buscaEscalada sucesoresMonedas 
+                             esFinalMonedas 
+                             (n,[])))</code></pre></div>
+<h2 id="el-algoritmo-de-prim-del-árbol-de-expansión-mínimo-por-escalada"><span class="header-section-number">4.3</span> El algoritmo de Prim del árbol de expansión mínimo por escalada</h2>
+<ul>
+<li>Se resolverá mediante búsqueda en escalada.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.BusquedaEnEscalada</span>
+<span class="kw">import </span><span class="dt">I1M.Grafo</span>
+<span class="kw">import </span><span class="dt">Data.Array</span>
+<span class="kw">import </span><span class="dt">Data.List</span></code></pre></div>
+<ul>
+<li>Ejemplo de grafo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">g1 ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>    
+g1 <span class="fu">=</span> creaGrafo <span class="dt">D</span> (<span class="dv">1</span>,<span class="dv">5</span>) [(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">12</span>),(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">34</span>),(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">78</span>),
+                        (<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">55</span>),(<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">32</span>),
+                        (<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">61</span>),(<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">44</span>),
+                        (<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">93</span>)]</code></pre></div>
+<ul>
+<li>Una arista esta formada dos nodos junto con su peso.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Arista</span> a b <span class="fu">=</span> (a,a,b)</code></pre></div>
+<ul>
+<li>Un nodo <code>(NodoAEM (p,t,r,aem))</code> está formado por
+<ul>
+<li>el peso <code>p</code> de la última arista añadida el árbol de expansión mínimo (<code>aem</code>),</li>
+<li>la lista <code>t</code> de nodos del grafo que están en el <code>aem</code>,</li>
+<li>la lista <code>r</code> de nodos del grafo que no están en el <code>aem</code> y</li>
+<li>el <code>aem</code>.</li>
+</ul></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">NodoAEM</span> a b <span class="fu">=</span> (b,[a],[a],[<span class="dt">Arista</span> a b])</code></pre></div>
+<ul>
+<li><code>(sucesoresAEM g n)</code> es la lista de los sucesores del nodo <code>n</code> en el grafo <code>g</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sucesoresAEM g1 (0,[1],[2..5],[])
+[(12,[2,1],[3,4,5],[(1,2,12)]),
+ (34,[3,1],[2,4,5],[(1,3,34)]),
+ (78,[5,1],[2,3,4],[(1,5,78)])]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sucesoresAEM ::</span> (<span class="dt">Ix</span> a,<span class="dt">Num</span> b) <span class="ot">=&gt;</span> (<span class="dt">Grafo</span> a b) <span class="ot">-&gt;</span> (<span class="dt">NodoAEM</span> a b)
+                           <span class="ot">-&gt;</span> [(<span class="dt">NodoAEM</span> a b)]
+sucesoresAEM g (_,t,r,aem) <span class="fu">=</span> 
+   [(peso x y g, (y<span class="fu">:</span>t), delete y r, (x,y,peso x y g)<span class="fu">:</span>aem)
+    <span class="fu">|</span> x <span class="ot">&lt;-</span> t , y <span class="ot">&lt;-</span> r, aristaEn g (x,y)]</code></pre></div>
+<ul>
+<li><code>(esFinalAEM n)</code> se verifica si <code>n</code> es un estado final; es decir, si no queda ningún elemento en la lista de nodos sin colocar en el árbol de expansión mínimo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">esFinalAEM (_,_,[],_) <span class="fu">=</span> <span class="dt">True</span>
+esFinalAEM _          <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><code>(prim g)</code> es el árbol de expansión mínimo del grafo <code>g</code>, por el algoritmo de Prim como búsqueda en escalada. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>prim g1 == [(2,4,55),(1,3,34),(2,5,32),(1,2,12)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">prim g <span class="fu">=</span> sol
+    <span class="kw">where</span> [(_,_,_,sol)] <span class="fu">=</span> buscaEscalada (sucesoresAEM g) 
+                                        esFinalAEM
+                                        (<span class="dv">0</span>,[n],ns,[])
+          (n<span class="fu">:</span>ns) <span class="fu">=</span> nodos g</code></pre></div>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

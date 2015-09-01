@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 11: Aplicaciones de programación funcional</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 11: Aplicaciones de programación funcional</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#el-juego-de-cifras-y-letras"><span class="toc-section-number">1</span> El juego de cifras y letras</a><ul>
+<li><a href="#introducción"><span class="toc-section-number">1.1</span> Introducción</a></li>
+<li><a href="#búsqueda-de-la-solución-por-fuerza-bruta"><span class="toc-section-number">1.2</span> Búsqueda de la solución por fuerza bruta</a></li>
+<li><a href="#búsqueda-combinando-generación-y-evaluación"><span class="toc-section-number">1.3</span> Búsqueda combinando generación y evaluación</a></li>
+<li><a href="#búsqueda-mejorada-mediante-propiedades-algebraicas"><span class="toc-section-number">1.4</span> Búsqueda mejorada mediante propiedades algebraicas</a></li>
+</ul></li>
+<li><a href="#el-problema-de-las-reinas"><span class="toc-section-number">2</span> El problema de las reinas</a></li>
+<li><a href="#números-de-hamming"><span class="toc-section-number">3</span> Números de Hamming</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">4</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usan las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.List</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck</span></code></pre></div>
+<h1 id="el-juego-de-cifras-y-letras"><span class="header-section-number">1</span> El juego de cifras y letras</h1>
+<h2 id="introducción"><span class="header-section-number">1.1</span> Introducción</h2>
+<p><strong>Presentación del juego</strong></p>
+<ul>
+<li><p><em>Cifras y letras</em> es un programa de Canal Sur que incluye un juego numérico.</p></li>
+<li><p>La esencia del juego es la siguiente: Dada una sucesión de números naturales y un número objetivo, intentar construir una expresión cuyo valor es el objetivo combinando los números de la sucesión usando suma, resta, multiplicación, división y paréntesis. Cada número de la sucesión puede usarse como máximo una vez. Además, todos los números, incluyendo los resultados intermedios tienen que ser enteros positivos (1,2,3,...).</p></li>
+<li>Ejemplos
+<ul>
+<li>Dada la sucesión 1, 3, 7, 10, 25, 50 y el objetivo 765, una solución es (1+50)*(25−10).</li>
+<li>Para el problema anterior, existen 780 soluciones.</li>
+<li>Con la sucesión anterior y el objetivo 831, no hay solución.</li>
+</ul></li>
+</ul>
+<p><strong>Formalización del problema: Operaciones</strong></p>
+<ul>
+<li>Las operaciones son sumar, restar, multiplicar o dividir.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Op</span> <span class="fu">=</span> <span class="dt">Sum</span> <span class="fu">|</span> <span class="dt">Res</span> <span class="fu">|</span> <span class="dt">Mul</span> <span class="fu">|</span> <span class="dt">Div</span>  
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Op</span> <span class="kw">where</span>
+   show <span class="dt">Sum</span> <span class="fu">=</span> <span class="st">&quot;+&quot;</span>
+   show <span class="dt">Res</span> <span class="fu">=</span> <span class="st">&quot;-&quot;</span>
+   show <span class="dt">Mul</span> <span class="fu">=</span> <span class="st">&quot;*&quot;</span>
+   show <span class="dt">Div</span> <span class="fu">=</span> <span class="st">&quot;/&quot;</span></code></pre></div>
+<ul>
+<li><code>ops</code> es la lista de las operaciones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ops ::</span> [<span class="dt">Op</span>]
+ops <span class="fu">=</span> [<span class="dt">Sum</span>,<span class="dt">Res</span>,<span class="dt">Mul</span>,<span class="dt">Div</span>]</code></pre></div>
+<p><strong>Operaciones válidas</strong></p>
+<ul>
+<li><code>(valida o x y)</code> se verifica si la operación <code>o</code> aplicada a los números naturales <code>x</code> e <code>y</code> da un número natural. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valida Res 5 3  ==  True
+valida Res 3 5  ==  False
+valida Div 6 3  ==  True
+valida Div 6 4  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valida ::</span> <span class="dt">Op</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida <span class="dt">Sum</span> _ _ <span class="fu">=</span> <span class="dt">True</span>
+valida <span class="dt">Res</span> x y <span class="fu">=</span> x <span class="fu">&gt;</span> y
+valida <span class="dt">Mul</span> _ _ <span class="fu">=</span> <span class="dt">True</span>
+valida <span class="dt">Div</span> x y <span class="fu">=</span> y <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> x <span class="ot">`mod`</span> y <span class="fu">==</span> <span class="dv">0</span></code></pre></div>
+<p><strong>Aplicación de operaciones</strong></p>
+<ul>
+<li><code>(aplica o x y)</code> es el resultado de aplicar la operación <code>o</code> a los números naturales <code>x</code> e <code>y</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>aplica Sum 2 3  ==  5
+aplica Div 6 3  ==  2</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">aplica ::</span> <span class="dt">Op</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+aplica <span class="dt">Sum</span> x y <span class="fu">=</span> x <span class="fu">+</span> y
+aplica <span class="dt">Res</span> x y <span class="fu">=</span> x <span class="fu">-</span> y
+aplica <span class="dt">Mul</span> x y <span class="fu">=</span> x <span class="fu">*</span> y
+aplica <span class="dt">Div</span> x y <span class="fu">=</span> x <span class="ot">`div`</span> y</code></pre></div>
+<p><strong>Expresiones</strong></p>
+<ul>
+<li>Las expresiones son números enteros o aplicaciones de operaciones a dos expresiones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Expr</span> <span class="fu">=</span> <span class="dt">Num</span> <span class="dt">Int</span> <span class="fu">|</span> <span class="dt">Apl</span> <span class="dt">Op</span> <span class="dt">Expr</span> <span class="dt">Expr</span>  
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Expr</span> <span class="kw">where</span>
+   show (<span class="dt">Num</span> n)     <span class="fu">=</span> show n
+   show (<span class="dt">Apl</span> o i d) <span class="fu">=</span> parentesis i <span class="fu">++</span> show o <span class="fu">++</span> parentesis d
+                      <span class="kw">where</span>
+                         parentesis (<span class="dt">Num</span> n) <span class="fu">=</span> show n
+                         parentesis e       <span class="fu">=</span> <span class="st">&quot;(&quot;</span> <span class="fu">++</span> show e <span class="fu">++</span> <span class="st">&quot;)&quot;</span></code></pre></div>
+<ul>
+<li>Ejemplo: Expresión correspondiente a (1+50)*(25−10)</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ejExpr ::</span> <span class="dt">Expr</span>
+ejExpr <span class="fu">=</span>  <span class="dt">Apl</span> <span class="dt">Mul</span> e1 e2
+    <span class="kw">where</span> e1 <span class="fu">=</span> <span class="dt">Apl</span> <span class="dt">Sum</span> (<span class="dt">Num</span> <span class="dv">1</span>) (<span class="dt">Num</span> <span class="dv">50</span>)
+          e2 <span class="fu">=</span> <span class="dt">Apl</span> <span class="dt">Res</span> (<span class="dt">Num</span> <span class="dv">25</span>) (<span class="dt">Num</span> <span class="dv">10</span>)</code></pre></div>
+<p><strong>Números de una expresión</strong></p>
+<ul>
+<li><code>(numeros e)</code> es la lista de los números que aparecen en la expresión <code>e</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; numeros (Apl Mul (Apl Sum (Num 2) (Num 3)) (Num 7))  
+[2,3,7]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">numeros ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+numeros (<span class="dt">Num</span> n)     <span class="fu">=</span> [n]
+numeros (<span class="dt">Apl</span> _ l r) <span class="fu">=</span> numeros l <span class="fu">++</span> numeros r</code></pre></div>
+<p><strong>Valor de una expresión</strong></p>
+<ul>
+<li><code>(valor e)</code> es la lista formada por el valor de la expresión <code>e</code> si todas las operaciones para calcular el valor de <code>e</code> son números positivos y la lista vacía en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor (Apl Mul (Apl Sum (Num 2) (Num 3)) (Num 7)) == [35]
+valor (Apl Res (Apl Sum (Num 2) (Num 3)) (Num 7)) == []
+valor (Apl Sum (Apl Res (Num 2) (Num 3)) (Num 7)) == []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+valor (<span class="dt">Num</span> n)     <span class="fu">=</span> [n <span class="fu">|</span> n <span class="fu">&gt;</span> <span class="dv">0</span>]
+valor (<span class="dt">Apl</span> o i d) <span class="fu">=</span> [aplica o x y <span class="fu">|</span> x <span class="ot">&lt;-</span> valor i
+                                  , y <span class="ot">&lt;-</span> valor d
+                                  , valida o x y]</code></pre></div>
+<p><strong>Funciones combinatorias: Sublistas</strong></p>
+<ul>
+<li><code>(sublistas xs)</code> es la lista de las sublistas de <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sublistas &quot;bc&quot;   
+[&quot;&quot;,&quot;c&quot;,&quot;b&quot;,&quot;bc&quot;]
+ghci&gt; sublistas &quot;abc&quot;  
+[&quot;&quot;,&quot;c&quot;,&quot;b&quot;,&quot;bc&quot;,&quot;a&quot;,&quot;ac&quot;,&quot;ab&quot;,&quot;abc&quot;]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sublistas ::</span> [a] <span class="ot">-&gt;</span> [[a]]
+sublistas []     <span class="fu">=</span> [[]]
+sublistas (x<span class="fu">:</span>xs) <span class="fu">=</span> yss <span class="fu">++</span> map (x<span class="fu">:</span>) yss
+    <span class="kw">where</span> yss <span class="fu">=</span> sublistas xs</code></pre></div>
+<p><strong>Funciones combinatoria: Intercalado</strong></p>
+<ul>
+<li><code>(intercala x ys)</code> es la lista de las listas obtenidas intercalando <code>x</code> entre los elementos de <code>ys</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>intercala &#39;x&#39; &quot;bc&quot;   ==  [&quot;xbc&quot;,&quot;bxc&quot;,&quot;bcx&quot;]
+intercala &#39;x&#39; &quot;abc&quot;  ==  [&quot;xabc&quot;,&quot;axbc&quot;,&quot;abxc&quot;,&quot;abcx&quot;]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">intercala ::</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [[a]]
+intercala x []     <span class="fu">=</span> [[x]]
+intercala x (y<span class="fu">:</span>ys) <span class="fu">=</span> 
+    (x<span class="fu">:</span>y<span class="fu">:</span>ys) <span class="fu">:</span> map (y<span class="fu">:</span>) (intercala x ys)</code></pre></div>
+<p><strong>Funciones combinatoria: Permutaciones</strong></p>
+<ul>
+<li><code>(permutaciones xs)</code> es la lista de las permutaciones de <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; permutaciones &quot;bc&quot;   
+[&quot;bc&quot;,&quot;cb&quot;]
+ghci&gt; permutaciones &quot;abc&quot;  
+[&quot;abc&quot;,&quot;bac&quot;,&quot;bca&quot;,&quot;acb&quot;,&quot;cab&quot;,&quot;cba&quot;]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">permutaciones ::</span> [a] <span class="ot">-&gt;</span> [[a]]
+permutaciones []     <span class="fu">=</span> [[]]
+permutaciones (x<span class="fu">:</span>xs) <span class="fu">=</span> 
+    concat (map (intercala x) (permutaciones xs))</code></pre></div>
+<p><strong>Funciones combinatoria: Elecciones</strong></p>
+<ul>
+<li><code>(elecciones xs)</code> es la lista formada por todas las sublistas de <code>xs</code> en cualquier orden. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; elecciones &quot;abc&quot;
+[&quot;&quot;,&quot;c&quot;,&quot;b&quot;,&quot;bc&quot;,&quot;cb&quot;,&quot;a&quot;,&quot;ac&quot;,&quot;ca&quot;,&quot;ab&quot;,&quot;ba&quot;,
+ &quot;abc&quot;,&quot;bac&quot;,&quot;bca&quot;,&quot;acb&quot;,&quot;cab&quot;,&quot;cba&quot;]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">elecciones ::</span> [a] <span class="ot">-&gt;</span> [[a]]
+elecciones xs <span class="fu">=</span> 
+    concat (map permutaciones (sublistas xs))</code></pre></div>
+<p><strong>Reconocimiento de las soluciones</strong></p>
+<ul>
+<li><code>(solucion e ns n)</code> se verifica si la expresión <code>e</code> es una solución para la sucesión <code>ns</code> y objetivo <code>n</code>; es decir. si los números de <code>e</code> es una posible elección de <code>ns</code> y el valor de <code>e</code> es <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>solucion ejExpr [1,3,7,10,25,50] 765  =&gt;  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">solucion ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+solucion e ns n <span class="fu">=</span> 
+    elem (numeros e) (elecciones ns) <span class="fu">&amp;&amp;</span> valor e <span class="fu">==</span> [n]</code></pre></div>
+<h2 id="búsqueda-de-la-solución-por-fuerza-bruta"><span class="header-section-number">1.2</span> Búsqueda de la solución por fuerza bruta</h2>
+<p><strong>Divisiones de una lista</strong></p>
+<ul>
+<li><code>(divisiones xs)</code> es la lista de las divisiones de <code>xs</code> en dos listas no vacías. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; divisiones &quot;bcd&quot;   
+[(&quot;b&quot;,&quot;cd&quot;),(&quot;bc&quot;,&quot;d&quot;)]
+ghci&gt; divisiones &quot;abcd&quot;  
+[(&quot;a&quot;,&quot;bcd&quot;),(&quot;ab&quot;,&quot;cd&quot;),(&quot;abc&quot;,&quot;d&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">divisiones ::</span> [a] <span class="ot">-&gt;</span> [([a],[a])]
+divisiones []     <span class="fu">=</span> []
+divisiones [_]    <span class="fu">=</span> []
+divisiones (x<span class="fu">:</span>xs) <span class="fu">=</span> 
+    ([x],xs) <span class="fu">:</span> [(x<span class="fu">:</span>is,ds) <span class="fu">|</span> (is,ds) <span class="ot">&lt;-</span> divisiones xs]</code></pre></div>
+<p><strong>Expresiones construibles</strong></p>
+<ul>
+<li><code>(expresiones ns)</code> es la lista de todas las expresiones construibles a partir de la lista de números <code>ns</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; expresiones [2,3,5]
+[2+(3+5),2-(3+5),2*(3+5),2/(3+5),2+(3-5),2-(3-5),
+ 2*(3-5),2/(3-5),2+(3*5),2-(3*5),2*(3*5),2/(3*5),
+ 2+(3/5),2-(3/5),2*(3/5),2/(3/5),(2+3)+5,(2+3)-5,
+ ...</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">expresiones ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Expr</span>]
+expresiones []  <span class="fu">=</span> []
+expresiones [n] <span class="fu">=</span> [<span class="dt">Num</span> n]
+expresiones ns  <span class="fu">=</span> [e <span class="fu">|</span> (is,ds) <span class="ot">&lt;-</span> divisiones ns
+                     , i       <span class="ot">&lt;-</span> expresiones is
+                     , d       <span class="ot">&lt;-</span> expresiones ds
+                     , e       <span class="ot">&lt;-</span> combina i d]</code></pre></div>
+<p><strong>Combinación de expresiones</strong></p>
+<ul>
+<li><code>(combina e1 e2)</code> es la lista de las expresiones obtenidas combinando las expresiones <code>e1</code> y <code>e2</code> con una operación. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; combina (Num 2) (Num 3)  
+[2+3,2-3,2*3,2/3]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">combina ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> [<span class="dt">Expr</span>]
+combina e1 e2 <span class="fu">=</span> [<span class="dt">Apl</span> o e1 e2 <span class="fu">|</span> o <span class="ot">&lt;-</span> ops]</code></pre></div>
+<p><strong>Búsqueda de las soluciones</strong></p>
+<ul>
+<li><code>(soluciones ns n)</code> es la lista de las soluciones para la sucesión <code>ns</code> y objetivo <code>n</code> calculadas por fuerza bruta. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; soluciones [1,3,7,10,25,50] 765
+[3*((7*(50-10))-25), ((7*(50-10))-25)*3, ...
+ghci&gt; length (soluciones [1,3,7,10,25,50] 765)
+780
+ghci&gt;
+length (soluciones [1,3,7,10,25,50] 831)
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">soluciones ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Expr</span>]
+soluciones ns n <span class="fu">=</span>  [e <span class="fu">|</span> ns&#39; <span class="ot">&lt;-</span> elecciones ns
+                      , e   <span class="ot">&lt;-</span> expresiones ns&#39;
+                      , valor e <span class="fu">==</span> [n]]</code></pre></div>
+<p><strong>Estadísticas de la búsqueda por fuerza bruta</strong></p>
+<ul>
+<li>Estadísticas:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; :set +s
+ghci&gt; head (soluciones [1,3,7,10,25,50] 765)
+3*((7*(50-10))-25)
+(8.47 secs, 400306836 bytes)
+ghci&gt; length (soluciones [1,3,7,10,25,50] 765)
+780
+(997.76 secs, 47074239120 bytes)
+ghci&gt; length (soluciones [1,3,7,10,25,50] 831)
+0
+(1019.13 secs, 47074535420 bytes)
+ghci&gt; :unset +s</code></pre>
+<h2 id="búsqueda-combinando-generación-y-evaluación"><span class="header-section-number">1.3</span> Búsqueda combinando generación y evaluación</h2>
+<p><strong>Resultados</strong></p>
+<ul>
+<li><code>Resultado</code> es el tipo de los pares formados por expresiones válidas y su valor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Resultado</span> <span class="fu">=</span> (<span class="dt">Expr</span>,<span class="dt">Int</span>)  </code></pre></div>
+<ul>
+<li><code>(resultados ns)</code> es la lista de todos los resultados construibles a partir de la lista de números <code>ns</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; resultados [2,3,5]
+[(2+(3+5),10), (2*(3+5),16), (2+(3*5),17), (2*(3*5),30), ((2+3)+5,10), 
+ ((2+3)*5,25), ((2+3)/5,1),  ((2*3)+5,11), ((2*3)-5,1),  ((2*3)*5,30)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">resultados ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Resultado</span>]
+resultados []  <span class="fu">=</span> []
+resultados [n] <span class="fu">=</span> [(<span class="dt">Num</span> n,n) <span class="fu">|</span> n <span class="fu">&gt;</span> <span class="dv">0</span>]
+resultados ns  <span class="fu">=</span> [res <span class="fu">|</span> (is,ds) <span class="ot">&lt;-</span> divisiones ns
+                      , ix      <span class="ot">&lt;-</span> resultados is
+                      , dy      <span class="ot">&lt;-</span> resultados ds
+                      , res     <span class="ot">&lt;-</span> combina&#39; ix dy]</code></pre></div>
+<p><strong>Combinación de resultados</strong></p>
+<ul>
+<li><code>(combina' r1 r2)</code> es la lista de los resultados obtenidos combinando los resultados <code>r1</code> y <code>r2</code> con una operación. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; combina&#39; (Num 2,2) (Num 3,3)  
+[(2+3,5),(2*3,6)]
+ghci&gt; combina&#39; (Num 3,3) (Num 2,2)  
+[(3+2,5),(3-2,1),(3*2,6)]
+ghci&gt; combina&#39; (Num 2,2) (Num 6,6)  
+[(2+6,8),(2*6,12)]
+ghci&gt; combina&#39; (Num 6,6) (Num 2,2)  
+[(6+2,8),(6-2,4),(6*2,12),(6/2,3)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">combina&#39; ::</span> <span class="dt">Resultado</span> <span class="ot">-&gt;</span> <span class="dt">Resultado</span> <span class="ot">-&gt;</span> [<span class="dt">Resultado</span>]
+combina&#39; (i,x) (d,y) <span class="fu">=</span>  
+    [(<span class="dt">Apl</span> o i d, aplica o x y) <span class="fu">|</span> o <span class="ot">&lt;-</span> ops
+                               , valida o x y] </code></pre></div>
+<p><strong>Búsqueda combinando generación y evaluación</strong></p>
+<ul>
+<li><code>(soluciones' ns n)</code> es la lista de las soluciones para la sucesión <code>ns</code> y objetivo <code>n</code> calculadas intercalando generación y evaluación. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; head (soluciones&#39; [1,3,7,10,25,50] 765)
+3*((7*(50-10))-25)
+ghci&gt; length (soluciones&#39; [1,3,7,10,25,50] 765)
+780
+ghci&gt; length (soluciones&#39; [1,3,7,10,25,50] 831)
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">soluciones&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Expr</span>]
+soluciones&#39; ns n <span class="fu">=</span> [e <span class="fu">|</span> ns&#39;   <span class="ot">&lt;-</span> elecciones ns
+                      , (e,m) <span class="ot">&lt;-</span> resultados ns&#39;
+                      , m <span class="fu">==</span> n]</code></pre></div>
+<p><strong>Estadísticas de la búsqueda combinada</strong></p>
+<ul>
+<li>Estadísticas:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; head (soluciones&#39; [1,3,7,10,25,50] 765)
+3*((7*(50-10))-25)
+(0.81 secs, 38804220 bytes)
+ghci&gt; length (soluciones&#39; [1,3,7,10,25,50] 765)
+780
+(60.73 secs, 2932314020 bytes)
+ghci&gt; length (soluciones&#39; [1,3,7,10,25,50] 831)
+0
+(61.68 secs, 2932303088 bytes)</code></pre>
+<h2 id="búsqueda-mejorada-mediante-propiedades-algebraicas"><span class="header-section-number">1.4</span> Búsqueda mejorada mediante propiedades algebraicas</h2>
+<p><strong>Aplicaciones válidas</strong></p>
+<ul>
+<li><code>(valida' o x y)</code> se verifica si la operación <code>o</code> aplicada a los números naturales <code>x</code> e <code>y</code> da un número natural, teniendo en cuenta las siguientes reducciones algebraicas</li>
+</ul>
+<pre class="sesion"><code>x + y = y + x
+x * y = y * x
+x * 1 = x
+1 * y = y
+x / 1 = x</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valida&#39; ::</span> <span class="dt">Op</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida&#39; <span class="dt">Sum</span> x y <span class="fu">=</span> x <span class="fu">&lt;=</span> y
+valida&#39; <span class="dt">Res</span> x y <span class="fu">=</span> x <span class="fu">&gt;</span> y
+valida&#39; <span class="dt">Mul</span> x y <span class="fu">=</span> x <span class="fu">/=</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> y <span class="fu">/=</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> x <span class="fu">&lt;=</span> y
+valida&#39; <span class="dt">Div</span> x y <span class="fu">=</span> y <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> y <span class="fu">/=</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> x <span class="ot">`mod`</span> y <span class="fu">==</span> <span class="dv">0</span></code></pre></div>
+<p><strong>Resultados válidos construibles</strong></p>
+<ul>
+<li><code>(resultados' ns)</code> es la lista de todos los resultados válidos construibles a partir de la lista de números <code>ns</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; resultados&#39; [5,3,2]
+[(5-(3-2),4),((5-3)+2,4),((5-3)*2,4),((5-3)/2,1)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">resultados&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Resultado</span>]
+resultados&#39; []  <span class="fu">=</span> []
+resultados&#39; [n] <span class="fu">=</span> [(<span class="dt">Num</span> n,n) <span class="fu">|</span> n <span class="fu">&gt;</span> <span class="dv">0</span>]
+resultados&#39; ns  <span class="fu">=</span> [res <span class="fu">|</span> (is,ds) <span class="ot">&lt;-</span> divisiones ns
+                       , ix      <span class="ot">&lt;-</span> resultados&#39; is
+                       , dy      <span class="ot">&lt;-</span> resultados&#39; ds
+                       , res     <span class="ot">&lt;-</span> combina&#39;&#39; ix dy]</code></pre></div>
+<p><strong>Combinación de resultados válidos</strong></p>
+<ul>
+<li><code>(combina'' r1 r2)</code> es la lista de los resultados válidos obtenidos combinando los resultados <code>r1</code> y <code>r2</code> con una operación. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>combina&#39;&#39; (Num 2,2) (Num 3,3)  =&gt;  [(2+3,5),(2*3,6)]
+combina&#39;&#39; (Num 3,3) (Num 2,2)  =&gt;  [(3-2,1)]
+combina&#39;&#39; (Num 2,2) (Num 6,6)  =&gt;  [(2+6,8),(2*6,12)]
+combina&#39;&#39; (Num 6,6) (Num 2,2)  =&gt;  [(6-2,4),(6/2,3)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">combina&#39;&#39; ::</span> <span class="dt">Resultado</span> <span class="ot">-&gt;</span> <span class="dt">Resultado</span> <span class="ot">-&gt;</span> [<span class="dt">Resultado</span>]
+combina&#39;&#39; (i,x) (d,y) <span class="fu">=</span> 
+    [(<span class="dt">Apl</span> o i d, aplica o x y) <span class="fu">|</span> o <span class="ot">&lt;-</span> ops
+                               , valida&#39; o x y]</code></pre></div>
+<p><strong>Búsqueda mejorada mediante propiedades algebraicas</strong></p>
+<ul>
+<li><code>(soluciones'' ns n)</code> es la lista de las soluciones para la sucesión <code>ns</code> y objetivo <code>n</code> calculadas intercalando generación y evaluación y usando las mejoras aritméticas. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; head (soluciones&#39;&#39; [1,3,7,10,25,50] 765)
+3*((7*(50-10))-25)
+ghci&gt; length (soluciones&#39;&#39; [1,3,7,10,25,50] 765)
+49
+ghci&gt; length (soluciones&#39;&#39; [1,3,7,10,25,50] 831)
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">soluciones&#39;&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Expr</span>]
+soluciones&#39;&#39; ns n <span class="fu">=</span> [e <span class="fu">|</span> ns&#39;   <span class="ot">&lt;-</span> elecciones ns
+                       , (e,m) <span class="ot">&lt;-</span> resultados&#39; ns&#39;
+                       , m <span class="fu">==</span> n]</code></pre></div>
+<p><strong>Estadísticas de la búsqueda mejorada</strong></p>
+<ul>
+<li>Estadísticas:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; head (soluciones&#39;&#39; [1,3,7,10,25,50] 765)
+3*((7*(50-10))-25)
+(0.40 secs, 16435156 bytes)
+ghci&gt; length (soluciones&#39;&#39; [1,3,7,10,25,50] 765)
+49
+(10.30 secs, 460253716 bytes)
+ghci&gt; length (soluciones&#39;&#39; [1,3,7,10,25,50] 831)
+0
+(10.26 secs, 460253908 bytes)§</code></pre>
+<p><strong>Comparación de las búsquedas</strong></p>
+<ul>
+<li><p><strong>Caso 1</strong>: Comparación de las búsquedad problema de dados [1,3,7,10,25,50] obtener 765.</p></li>
+<li><p>Búsqueda de la primera solución:</p></li>
+</ul>
+<pre class="sesion"><code>               +---------------------+
+               | segs. | bytes       |
++--------------+-------+-------------+ 
+| soluciones   | 8.47  | 400.306.836 |
+| soluciones&#39;  | 0.81  |  38.804.220 |
+| soluciones&#39;&#39; | 0.40  |  16.435.156 |
++--------------+-------+-------------+</code></pre>
+<ul>
+<li>Búsqueda de todas las soluciones:</li>
+</ul>
+<pre class="sesion"><code>               +--------+----------------+
+               | segs.  | bytes          |
++--------------+--------+----------------+ 
+| soluciones   | 997.76 | 47.074.239.120 |
+| soluciones&#39;  |  60.73 |  2.932.314.020 |
+| soluciones&#39;&#39; |  10.30 |    460.253.716 |
++--------------+--------+----------------+</code></pre>
+<ul>
+<li><strong>Caso 2</strong>: Comprobación de que dados [1,3,7,10,25,50] no puede obtenerse 831</li>
+</ul>
+<pre class="sesion"><code>                  +---------+----------------+
+                  | segs.   | bytes          |
+   +--------------+---------+----------------+ 
+   | soluciones   | 1019.13 | 47.074.535.420 |
+   | soluciones&#39;  |   61.68 |  2.932.303.088 |
+   | soluciones&#39;&#39; |   10.26 |    460.253.908 |
+   +--------------+---------+----------------+</code></pre>
+<h1 id="el-problema-de-las-reinas"><span class="header-section-number">2</span> El problema de las reinas</h1>
+<ul>
+<li><p>Enunciado: Colocar N reinas en un tablero rectangular de dimensiones N por N de forma que no se encuentren más de una en la misma línea: horizontal, vertical o diagonal.</p></li>
+<li><p>El tablero se representa por una lista de números que indican las filas donde se han colocado las reinas. Por ejemplo, <code>[3,5]</code> indica que se han colocado las reinas <code>(1,3)</code> y <code>(2,5)</code>.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Tablero</span> <span class="fu">=</span> [<span class="dt">Int</span>]</code></pre></div>
+<ul>
+<li><code>reinas n</code> es la lista de soluciones del problema de las N reinas. Por ejemplo, <code>reinas 4</code> == <code>[[3,1,4,2],[2,4,1,3]]</code>. La primera solución <code>[3,1,4,2]</code> se interpreta como</li>
+</ul>
+<pre class="sesion"><code>|---|---|---|---|
+|   | R |   |   |
+|---|---|---|---|
+|   |   |   | R |
+|---|---|---|---|
+| R |   |   |   |
+|---|---|---|---|
+|   |   | R |   |
+|---|---|---|---|</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">reinas ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Tablero</span>]
+reinas n <span class="fu">=</span> aux n
+    <span class="kw">where</span> aux <span class="dv">0</span> <span class="fu">=</span> [[]]
+          aux m <span class="fu">=</span> [r<span class="fu">:</span>rs <span class="fu">|</span> rs <span class="ot">&lt;-</span> aux (m<span class="fu">-</span><span class="dv">1</span>),
+                          r <span class="ot">&lt;-</span> ([<span class="dv">1</span><span class="fu">..</span>n] \\ rs),
+                          noAtaca r rs <span class="dv">1</span>]</code></pre></div>
+<ul>
+<li><code>noAtaca r rs d</code> se verifica si la reina <code>r</code> no ataca a ninguna de las de la lista <code>rs</code> donde la primera de la lista está a una distancia horizontal <code>d</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">noAtaca ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+noAtaca _ [] _ <span class="fu">=</span> <span class="dt">True</span>
+noAtaca r (a<span class="fu">:</span>rs) distH <span class="fu">=</span> abs(r<span class="fu">-</span>a) <span class="fu">/=</span> distH <span class="fu">&amp;&amp;</span>
+                         noAtaca r rs (distH<span class="fu">+</span><span class="dv">1</span>)</code></pre></div>
+<h1 id="números-de-hamming"><span class="header-section-number">3</span> Números de Hamming</h1>
+<ul>
+<li><p>Enunciado: Los números de Hamming forman una sucesión estrictamente creciente de números que cumplen las siguientes condiciones:</p></li>
+<li><p>El número 1 está en la sucesión.</p></li>
+<li><p>Si x está en la sucesión, entonces 2x, 3x y 5x también están.</p></li>
+<li><p>Ningún otro número está en la sucesión.</p></li>
+<li><p><code>hamming</code> es la sucesión de Hamming. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>take 12 hamming == [1,2,3,4,5,6,8,9,10,12,15,16]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">hamming ::</span> [<span class="dt">Int</span>]
+hamming <span class="fu">=</span> <span class="dv">1</span> <span class="fu">:</span> mezcla3 [<span class="dv">2</span><span class="fu">*</span>i <span class="fu">|</span> i <span class="ot">&lt;-</span> hamming]  
+                      [<span class="dv">3</span><span class="fu">*</span>i <span class="fu">|</span> i <span class="ot">&lt;-</span> hamming]  
+                      [<span class="dv">5</span><span class="fu">*</span>i <span class="fu">|</span> i <span class="ot">&lt;-</span> hamming]  </code></pre></div>
+<ul>
+<li><code>mezcla3 xs ys zs</code> es la lista obtenida mezclando las listas ordenadas <code>xs</code>, <code>ys</code> y <code>zs</code> y eliminando los elementos duplicados. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>Main&gt; mezcla3 [2,4,6,8,10] [3,6,9,12] [5,10]
+[2,3,4,5,6,8,9,10,12]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mezcla3 ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+mezcla3 xs ys zs <span class="fu">=</span> mezcla2 xs (mezcla2 ys zs)  </code></pre></div>
+<ul>
+<li><code>mezcla2 xs ys zs</code> es la lista obtenida mezclando las listas ordenadas <code>xs</code> e <code>ys</code> y eliminando los elementos duplicados. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>Main&gt; mezcla2 [2,4,6,8,10,12] [3,6,9,12]
+[2,3,4,6,8,9,10,12]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mezcla2 ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+mezcla2 p<span class="fu">@</span>(x<span class="fu">:</span>xs) q<span class="fu">@</span>(y<span class="fu">:</span>ys) <span class="fu">|</span> x <span class="fu">&lt;</span> y     <span class="fu">=</span> x<span class="fu">:</span>mezcla2 xs q
+                          <span class="fu">|</span> x <span class="fu">&gt;</span> y     <span class="fu">=</span> y<span class="fu">:</span>mezcla2 p  ys  
+                          <span class="fu">|</span> otherwise <span class="fu">=</span> x<span class="fu">:</span>mezcla2 xs ys
+mezcla2 []       ys                   <span class="fu">=</span> ys
+mezcla2 xs       []                   <span class="fu">=</span> xs</code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">4</span> Bibliografía</h1>
+<ul>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 11: The countdown problem.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 13: Puzzles y solitarios.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

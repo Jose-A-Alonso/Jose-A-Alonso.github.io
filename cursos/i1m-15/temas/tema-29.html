@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Los diccionarios en Haskell (Data.Map)</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Los diccionarios en Haskell (Data.Map)</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#introducción"><span class="toc-section-number">1</span> Introducción</a></li>
+<li><a href="#el-tipo-de-los-diccionarios"><span class="toc-section-number">2</span> El tipo de los diccionarios</a></li>
+<li><a href="#resumen-de-funciones-básicas"><span class="toc-section-number">3</span> Resumen de funciones básicas</a></li>
+<li><a href="#funciones-sobre-diccionarios"><span class="toc-section-number">4</span> Funciones sobre diccionarios</a></li>
+<li><a href="#referencia"><span class="toc-section-number">5</span> Referencia</a></li>
+</ul>
+</nav>
+<h1 id="introducción"><span class="header-section-number">1</span> Introducción</h1>
+<ul>
+<li><p>Los <em>diccionarios</em> (también llamados <em>listas de asociación</em>) son listas utilizadas para almacenar pares clave-valor donde el orden no importa.</p></li>
+<li><p>Por ejemplo, podemos tener un diccionario para almacenar números de teléfono, donde los números de telefono serían los valores y los nombres de la gente serían las claves.</p></li>
+<li><p>No nos importa el orden en el que estén almacenados, sólo queremos obtener el número correspondiente cada persona.</p></li>
+<li><p>En este manual se presentan ejemplos de las funciones de la librería de diccionarios <a href="http://bit.ly/1Hy0zoJ">Data.Map 0.5.5.1</a>.</p></li>
+<li><p>En los ejemplos se supone que se ha importado la siguiente librería</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; import Data.Map as M</code></pre>
+<ul>
+<li>Debido a que <code>Data.Map</code> exporta funciones que colisionan con las de <code>Prelude</code> y <code>Data.List</code>, se suele importar de forma cualificada.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import qualified</span> <span class="dt">Data.Map</span> <span class="kw">as</span> <span class="dt">Map</span></code></pre></div>
+<h1 id="el-tipo-de-los-diccionarios"><span class="header-section-number">2</span> El tipo de los diccionarios</h1>
+<ul>
+<li><code>(Map c a)</code> es el tipo de los diccionarios con las claves de tipo <code>c</code> y los valores de tipo <code>a</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; let d1 = fromList [(&quot;Ana&quot;,5),(&quot;Juan&quot;,7),(&quot;Eva&quot;,6)]
+ghci&gt; :t d1
+d1 :: Map [Char] Integer
+ghci&gt; let d2 = fromList [(&quot;Ana&quot;,5),(&quot;Eva&quot;,6),(&quot;Juan&quot;,7)]
+ghci&gt; d1 == d2
+True</code></pre>
+<h1 id="resumen-de-funciones-básicas"><span class="header-section-number">3</span> Resumen de funciones básicas</h1>
+<ul>
+<li><code>(fromList ps)</code> es el diccionario cuyos elementos es la lista de pares <code>ps</code>. Si la lista tiene más de un valor para una clave, sólo se conserva el último. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fromList [(5,&quot;a&quot;),(3,&quot;b&quot;),(5,&quot;c&quot;)]
+fromList [(3,&quot;b&quot;),(5,&quot;c&quot;)]
+ghci&gt; fromList [(5,&quot;a&quot;),(3,&quot;b&quot;),(5,&quot;c&quot;),(3,&quot;a&quot;)]
+fromList [(3,&quot;a&quot;),(5,&quot;c&quot;)]</code></pre>
+<ul>
+<li><code>empty</code> es el diccionario vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; empty
+fromList []</code></pre>
+<ul>
+<li><code>(insert k x d)</code> es el diccionario obtenido añadiéndole a <code>d</code> el par <code>(k,x)</code> y eliminando el valor de <code>k</code> en <code>d</code> en el caso de que existiera. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; insert 3 7 empty
+fromList [(3,7)]
+ghci&gt; insert 3 &#39;c&#39; (fromList [(4,&#39;a&#39;),(6,&#39;b&#39;),(8,&#39;e&#39;)])
+fromList [(3,&#39;c&#39;),(4,&#39;a&#39;),(6,&#39;b&#39;),(8,&#39;e&#39;)]
+ghci&gt; insert 6 &#39;c&#39; (fromList [(4,&#39;a&#39;),(6,&#39;b&#39;),(8,&#39;e&#39;)])
+fromList [(4,&#39;a&#39;),(6,&#39;c&#39;),(8,&#39;e&#39;)]</code></pre>
+<ul>
+<li><code>null d</code> se verifica si el diccionario <code>d</code> es vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; M.null (fromList [])
+True
+ghci&gt; M.null (fromList [(3,2)])
+False</code></pre>
+<ul>
+<li><code>(size d)</code> es el número de elementos del diccionario <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; size empty
+0
+ghci&gt; size (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;)])
+3
+ghci&gt; size (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;),(4,&#39;a&#39;)])
+3
+ghci&gt; size (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;),(4,&#39;c&#39;)])
+3</code></pre>
+<ul>
+<li><code>(singleton k x)</code> es el diccionario cuya única clave es <code>k</code> u su valor es <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; singleton &#39;d&#39; 4
+fromList [(&#39;d&#39;,4)]</code></pre>
+<ul>
+<li><code>(lookup x d)</code> es justo el valor del elemento del diccionario <code>d</code> cuya clave es <code>x</code>, si hay alguno y <code>Nothing</code>, en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; M.lookup 5 (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;)])
+Just &#39;b&#39;
+ghci&gt; M.lookup 7 (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;)])
+Nothing</code></pre>
+<ul>
+<li><code>(member x d)</code> se verifica si <code>x</code> es una clave del diccionario <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; member 5 (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;)])
+True
+ghci&gt; member 7 (fromList [(4,&#39;a&#39;),(5,&#39;b&#39;),(2,&#39;e&#39;)])
+False</code></pre>
+<ul>
+<li><code>(map f d)</code> aplica <code>f</code> a todos los valores de <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; M.map (+1) (fromList [(8,4),(3,8),(7,3),(6,7)])
+fromList [(3,9),(6,8),(7,4),(8,5)]</code></pre>
+<ul>
+<li><code>(filter p d)</code> es el diccionario formado por los elementos de <code>d</code> cuyo valor cumple el predicado <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; M.filter (&gt;5) (fromList [(&quot;b&quot;,4),(&quot;e&quot;,8),(&quot;d&quot;,3),(&quot;a&quot;,7)])
+fromList [(&quot;a&quot;,7),(&quot;e&quot;,8)]</code></pre>
+<ul>
+<li><code>(toList d)</code> es la lista ordenada de los elementos del diccionario <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; toList (fromList [(1,7),(3,5),(2,8)])
+[(1,7),(2,8),(3,5)]</code></pre>
+<ul>
+<li><code>(keys d)</code> es a lista ordenada de las claves del diccionario <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; keys (fromList [(1,7),(3,5),(2,8)])
+[1,2,3]</code></pre>
+<ul>
+<li><code>(elems d)</code> es a lista de los valores del diccionario <code>d</code> ordenados según sus claves. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; elems (fromList [(1,7),(3,5),(2,8)])
+[7,8,5]</code></pre>
+<ul>
+<li><code>(fromListWith f ps)</code> es el diccionario cuyos elementos es la lista de pares <code>ps</code> combinados con la operación <code>f</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fromListWith (++) [(5,&quot;a&quot;),(3,&quot;b&quot;),(5,&quot;c&quot;)]
+fromList [(3,&quot;b&quot;),(5,&quot;ca&quot;)]
+ghci&gt; fromListWith (++) [(5,&quot;a&quot;),(3,&quot;b&quot;),(5,&quot;c&quot;),(3,&quot;a&quot;)]
+fromList [(3,&quot;ab&quot;),(5,&quot;ca&quot;)]
+ghci&gt; fromListWith (-) [(5,4),(3,6),(5,2),(3,1)]
+fromList [(3,-5),(5,-2)]</code></pre>
+<ul>
+<li><code>(insertWith f k x d)</code> es el diccionario obtenido añadiéndole a <code>d</code> el par <code>(k,x)</code> si <code>k</code> no es una clave de <code>d</code> o el par <code>(k,f x y)</code> si el par <code>(k,y)</code> pertenece a <code>d</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; insertWith (++) 7 &quot;d&quot; (fromList [(5,&quot;a&quot;), (3,&quot;b&quot;)])
+fromList [(3,&quot;b&quot;),(5,&quot;a&quot;),(7,&quot;d&quot;)]
+ghci&gt; insertWith (++) 3 &quot;d&quot; (fromList [(5,&quot;a&quot;), (3,&quot;b&quot;)])
+fromList [(3,&quot;db&quot;),(5,&quot;a&quot;)]
+ghci&gt; insertWith (*) 3 2 (fromList [(5,6), (3,4)])
+fromList [(3,8),(5,6)]
+ghci&gt; insertWith (*) 3 2 empty
+fromList [(3,2)]</code></pre>
+<h1 id="funciones-sobre-diccionarios"><span class="header-section-number">4</span> Funciones sobre diccionarios</h1>
+<ul>
+<li><p>En <a href="http://bit.ly/1DsjKTs">Manual de la librería de diccionarios Data.Map</a> se describen las funciones de la librería mediante ejemplos.</p></li>
+<li><p>En <a href="http://bit.ly/1Hy0zoJ">Data.Map.Lazy</a> se describen las funciones de la librería junto con sus órdenes de complejidad.</p></li>
+</ul>
+<h1 id="referencia"><span class="header-section-number">5</span> Referencia</h1>
+<ul>
+<li>Apartado <a href="http://bit.ly/1IK30IJ">Data.Map</a> del libro <a href="http://bit.ly/1IK2ZEB">¡Aprende Haskell por el bien de todos!</a>.</li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

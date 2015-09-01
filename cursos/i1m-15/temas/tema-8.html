@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 8: Razonamiento sobre programas</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 8: Razonamiento sobre programas</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#razonamiento-ecuacional"><span class="toc-section-number">1</span> Razonamiento ecuacional</a><ul>
+<li><a href="#cálculo-con-longitud"><span class="toc-section-number">1.1</span> Cálculo con longitud</a></li>
+<li><a href="#propiedad-de-intercambia"><span class="toc-section-number">1.2</span> Propiedad de intercambia</a></li>
+<li><a href="#inversa-de-listas-unitarias"><span class="toc-section-number">1.3</span> Inversa de listas unitarias</a></li>
+<li><a href="#razonamiento-ecuacional-con-análisis-de-casos"><span class="toc-section-number">1.4</span> Razonamiento ecuacional con análisis de casos</a></li>
+</ul></li>
+<li><a href="#razonamiento-por-inducción-sobre-los-naturales"><span class="toc-section-number">2</span> Razonamiento por inducción sobre los naturales</a><ul>
+<li><a href="#esquema-de-inducción-sobre-los-naturales"><span class="toc-section-number">2.1</span> Esquema de inducción sobre los naturales</a></li>
+<li><a href="#ejemplo-de-inducción-sobre-los-naturales"><span class="toc-section-number">2.2</span> Ejemplo de inducción sobre los naturales</a></li>
+</ul></li>
+<li><a href="#razonamiento-por-inducción-sobre-listas"><span class="toc-section-number">3</span> Razonamiento por inducción sobre listas</a><ul>
+<li><a href="#esquema-de-inducción-sobre-listas"><span class="toc-section-number">3.1</span> Esquema de inducción sobre listas</a></li>
+<li><a href="#asociatividad-de"><span class="toc-section-number">3.2</span> Asociatividad de ++</a></li>
+<li><a href="#es-la-identidad-para-por-la-derecha"><span class="toc-section-number">3.3</span> [] es la identidad para ++ por la derecha</a></li>
+<li><a href="#relación-entre-length-y"><span class="toc-section-number">3.4</span> Relación entre length y ++</a></li>
+<li><a href="#relación-entre-take-y-drop"><span class="toc-section-number">3.5</span> Relación entre take y drop</a></li>
+<li><a href="#la-concatenación-de-listas-vacías-es-vacía"><span class="toc-section-number">3.6</span> La concatenación de listas vacías es vacía</a></li>
+</ul></li>
+<li><a href="#equivalencia-de-funciones"><span class="toc-section-number">4</span> Equivalencia de funciones</a></li>
+<li><a href="#propiedades-de-funciones-de-orden-superior"><span class="toc-section-number">5</span> Propiedades de funciones de orden superior</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">6</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librería auxiliares</strong></p>
+<ul>
+<li>En este tema se usarán las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck.Function</span></code></pre></div>
+<h1 id="razonamiento-ecuacional"><span class="header-section-number">1</span> Razonamiento ecuacional</h1>
+<h2 id="cálculo-con-longitud"><span class="header-section-number">1.1</span> Cálculo con longitud</h2>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">longitud []     <span class="fu">=</span> <span class="dv">0</span>                 <span class="co">-- longitud.1</span>
+longitud (_<span class="fu">:</span>xs) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> longitud xs   <span class="co">-- longitud.2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>longitud [2,3,1] = 3</code></p></li>
+<li><p>Demostración:</p></li>
+</ul>
+<pre class="sesion"><code>longitud [2,3,1]
+= 1 + longitud [2,3]          [por longitud.2]
+= 1 + (1 + longitud [3])      [por longitud.2]
+= 1 + (1 + (1 + longitud [])) [por longitud.2]
+= 1 + (1 + (1 + 0)            [por longitud.1]
+= 3</code></pre>
+<h2 id="propiedad-de-intercambia"><span class="header-section-number">1.2</span> Propiedad de intercambia</h2>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">intercambia ::</span> (a,b) <span class="ot">-&gt;</span> (b,a)
+intercambia (x,y) <span class="fu">=</span> (y,x)       <span class="co">-- intercambia</span></code></pre></div>
+<ul>
+<li>Propiedad:</li>
+</ul>
+<pre class="sesion"><code>intercambia (intercambia (x,y)) = (x,y)</code></pre>
+<ul>
+<li>Demostración:</li>
+</ul>
+<pre class="sesion"><code>intercambia (intercambia (x,y))
+= intercambia (y,x)      [por intercambia] 
+= (x,y)                  [por intercambia]</code></pre>
+<ul>
+<li>Propiedad en QuickCheck:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_intercambia ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_intercambia x y <span class="fu">=</span> 
+    intercambia (intercambia (x,y)) <span class="fu">==</span> (x,y)</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_intercambia
++++ OK, passed 100 tests.</code></pre>
+<h2 id="inversa-de-listas-unitarias"><span class="header-section-number">1.3</span> Inversa de listas unitarias</h2>
+<ul>
+<li>Inversa de una lista:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">inversa ::</span> [a] <span class="ot">-&gt;</span> [a]
+inversa []     <span class="fu">=</span> []                  <span class="co">-- inversa.1</span>
+inversa (x<span class="fu">:</span>xs) <span class="fu">=</span> inversa xs <span class="fu">++</span> [x]   <span class="co">-- inversa.2</span></code></pre></div>
+<ul>
+<li>Prop.: <code>inversa [x] = [x]</code></li>
+</ul>
+<pre class="sesion"><code>inversa [x] 
+= inversa (x:[])      [notación de lista] 
+= (inversa []) ++ [x] [inversa.2] 
+= [] ++ [x]           [inversa.1] 
+= [x]                 [def. de ++] </code></pre>
+<ul>
+<li>Propiedad en QuickCheck:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_inversa_unitaria ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inversa_unitaria x <span class="fu">=</span>
+    inversa [x] <span class="fu">==</span> [x]</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_inversa_unitaria
++++ OK, passed 100 tests.</code></pre>
+<h2 id="razonamiento-ecuacional-con-análisis-de-casos"><span class="header-section-number">1.4</span> Razonamiento ecuacional con análisis de casos</h2>
+<ul>
+<li>Negación lógica:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">not<span class="ot"> ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+not <span class="dt">False</span> <span class="fu">=</span> <span class="dt">True</span>
+not <span class="dt">True</span>  <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><p>Prop.: <code>not (not x) = x</code></p></li>
+<li><p>Demostración por casos: Caso 1: <code>x = True</code>:</p></li>
+</ul>
+<pre class="sesion"><code>not (not True) 
+= not False      [not.2] 
+= True           [not.1]</code></pre>
+<ul>
+<li>Demostración por casos: Caso 2: <code>x = False</code>:</li>
+</ul>
+<pre class="sesion"><code>not (not False) 
+= not True      [not.1] 
+= False         [not.2]  </code></pre>
+<ul>
+<li>Propiedad con QuickCheck:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_doble_negacion ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_doble_negacion x <span class="fu">=</span>
+  not (not x) <span class="fu">==</span> x</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_doble_negacion
++++ OK, passed 100 tests.</code></pre>
+<h1 id="razonamiento-por-inducción-sobre-los-naturales"><span class="header-section-number">2</span> Razonamiento por inducción sobre los naturales</h1>
+<h2 id="esquema-de-inducción-sobre-los-naturales"><span class="header-section-number">2.1</span> Esquema de inducción sobre los naturales</h2>
+<p>Para demostrar que todos los números naturales tienen una propiedad <code>P</code> basta probar:</p>
+<ul>
+<li>Caso base <code>n=0</code>: <code>P(0)</code>.</li>
+<li>Caso inductivo <code>n=(m+1)</code>: Suponiendo <code>P(m)</code> demostrar <code>P(m+1)</code>.</li>
+</ul>
+<p>En el caso inductivo, la propiedad <code>P(n)</code> se llama la hipótesis de inducción.</p>
+<h2 id="ejemplo-de-inducción-sobre-los-naturales"><span class="header-section-number">2.2</span> Ejemplo de inducción sobre los naturales</h2>
+<ul>
+<li><code>(replicate n x)</code> es la lista formda por <code>n</code> elementos iguales a <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>replicate 3 5  ==  [5,5,5]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">replicate<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [a]
+replicate <span class="dv">0</span> _ <span class="fu">=</span> []
+replicate n x <span class="fu">=</span> x <span class="fu">:</span> replicate (n<span class="fu">-</span><span class="dv">1</span>) x</code></pre></div>
+<ul>
+<li><p>Prop.: <code>length (replicate n x) = n</code></p></li>
+<li><p>Demostracion del caso base (<code>n=0</code>):</p></li>
+</ul>
+<pre class="sesion"><code>length (replicate 0 x) 
+= length []            [por replicate.1]
+= 0                    [por def. length]</code></pre>
+<ul>
+<li>Demostración del caso inductivo (<code>n=m+1</code>):</li>
+</ul>
+<pre class="sesion"><code>length (replicate (m+1) x) 
+= length (x:(replicate m x))  [por replicate.2] 
+= 1 + length (replicate m x)  [por def. length] 
+= 1 + m                       [por hip. ind.] 
+= m + 1                       [por conmutativa de +]</code></pre>
+<ul>
+<li>Especificación de la propiedad en QuickCheck:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_length_replicate ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_length_replicate n xs <span class="fu">=</span>
+    length (replicate m xs) <span class="fu">==</span> m
+    <span class="kw">where</span> m <span class="fu">=</span> abs n</code></pre></div>
+<ul>
+<li>Comprobación de la propiedad:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_length_replicate
+OK, passed 100 tests.</code></pre>
+<h1 id="razonamiento-por-inducción-sobre-listas"><span class="header-section-number">3</span> Razonamiento por inducción sobre listas</h1>
+<h2 id="esquema-de-inducción-sobre-listas"><span class="header-section-number">3.1</span> Esquema de inducción sobre listas</h2>
+<p>Para demostrar que todas las listas finitas tienen una propiedad <code>P</code> basta probar:</p>
+<ul>
+<li>Caso base <code>xs=[]</code>: <code>P([])</code>.</li>
+<li>Caso inductivo <code>xs=(y:ys)</code>: Suponiendo <code>P(ys)</code> demostrar <code>P(y:ys)</code>.</li>
+</ul>
+<p>En el caso inductivo, la propiedad <code>P(ys)</code> se llama la hipótesis de inducción.</p>
+<h2 id="asociatividad-de"><span class="header-section-number">3.2</span> Asociatividad de ++</h2>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+[]     <span class="fu">++</span> ys <span class="fu">=</span> ys             <span class="co">-- ++.1</span>
+(x<span class="fu">:</span>xs) <span class="fu">++</span> ys <span class="fu">=</span> x <span class="fu">:</span> (xs <span class="fu">++</span> ys) <span class="co">-- ++.2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>xs ++ (ys ++ zs)=(xs ++ ys) ++ zs</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_asociativa_conc ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_asociativa_conc xs ys zs <span class="fu">=</span> 
+    xs <span class="fu">++</span> (ys <span class="fu">++</span> zs)<span class="fu">==</span>(xs <span class="fu">++</span> ys) <span class="fu">++</span> zs</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_asociatividad_conc
+OK, passed 100 tests.</code></pre>
+<ul>
+<li><p>Demostración por inducción en <code>xs</code>:</p></li>
+<li><p>Caso base <code>xs=[]</code>: Reduciendo el lado izquierdo</p></li>
+</ul>
+<pre class="sesion"><code>xs ++ (ys ++ zs) 
+= [] ++ (ys ++ zs)   [por hipótesis] 
+= ys ++ zs           [por  ++ .1]
+= ([] ++ ys) ++ zs   [por  ++ .1]
+= (xs ++ ys) ++ zs   [por hipótesis] </code></pre>
+<ul>
+<li>Caso inductivo <code>xs = a:as</code>: Suponiendo la hipótesis de inducción<br />
+ <code>as ++ (ys ++ zs) = (as ++ ys) ++ zs</code><br />
+ hay que demostrar que<br />
+ <code>(a:as) ++ (ys ++ zs) = ((a:as) ++ ys) ++ zs</code></li>
+</ul>
+<pre class="sesion"><code>(a:as) ++ (ys ++ zs) 
+= a:(as ++ (ys ++ zs))  [por  ++ .2] 
+= a:((as ++ ys) ++ zs)  [por hip. ind.] 
+= (a:(as ++ ys)) ++ zs  [por ++.2] 
+= ((a:as) ++ ys) ++ zs  [por ++.2] </code></pre>
+<h2 id="es-la-identidad-para-por-la-derecha"><span class="header-section-number">3.3</span> [] es la identidad para ++ por la derecha</h2>
+<ul>
+<li><p>Propiedad: <code>xs ++ []=xs</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_identidad_concatenacion ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_identidad_concatenacion xs <span class="fu">=</span> xs <span class="fu">++</span> [] <span class="fu">==</span> xs  </code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_identidad_concatenacion
+OK, passed 100 tests.</code></pre>
+<ul>
+<li><p>Demostración por inducción en <code>xs</code>:</p></li>
+<li><p>Caso base <code>xs = []</code>:</p></li>
+</ul>
+<pre class="sesion"><code>xs ++ [] 
+= [] ++ [] 
+= []         [por ++.1] </code></pre>
+<ul>
+<li>Caso inductivo <code>xs = a:as</code>: Suponiendo la hipótesis de inducción<br />
+ <code>as ++ [] = as</code><br />
+ hay que demostrar que <code>(a:as) ++ []=(a:as)</code></li>
+</ul>
+<pre class="sesion"><code>(a:as) ++ [] 
+= a:(as ++ [])   [por ++.2] 
+= a:as           [por hip. ind.]</code></pre>
+<h2 id="relación-entre-length-y"><span class="header-section-number">3.4</span> Relación entre length y ++</h2>
+<ul>
+<li>Programas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">length<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+length []     <span class="fu">=</span> <span class="dv">0</span>                 <span class="co">-- length.1</span>
+length (x<span class="fu">:</span>xs) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> n_length xs   <span class="co">-- length.2</span>
+
+<span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+[]     <span class="fu">++</span> ys <span class="fu">=</span> ys                 <span class="co">-- ++.1</span>
+(x<span class="fu">:</span>xs) <span class="fu">++</span> ys <span class="fu">=</span> x <span class="fu">:</span> (xs <span class="fu">++</span> ys)     <span class="co">-- ++.2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>length(xs ++ ys) = (length xs)+(length ys)</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_length_append ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_length_append xs ys <span class="fu">=</span> 
+   length(xs <span class="fu">++</span> ys)<span class="fu">==</span>(length xs)<span class="fu">+</span>(length ys) </code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_length_append
+OK, passed 100 tests.</code></pre>
+<ul>
+<li><p>Demostración por inducción en <code>xs</code>:</p></li>
+<li><p>Caso base <code>xs = []</code>:</p></li>
+</ul>
+<pre class="sesion"><code>length([] ++ ys)
+= length ys                [por ++.1] 
+= 0+(length ys)            [por aritmética] 
+= (length [])+(length ys)  [por length.1]</code></pre>
+<ul>
+<li>Caso inductivo <code>xs = a:as</code>: Suponiendo la hipótesis de inducción<br />
+ <code>length(as ++ ys) = (length as)+(length ys)</code><br />
+ hay que demostrar que<br />
+ <code>length((a:as) ++ ys) = (length (a:as))+(length ys)</code></li>
+</ul>
+<pre class="sesion"><code>length((a:as) ++ ys)
+= length(a:(as ++ ys))              [por ++.2] 
+= 1 + length(as ++ ys)              [por length.2] 
+= 1 + ((length as) + (length ys))   [por hip. ind.] 
+= (1 + (length as)) + (length ys)   [por aritmética] 
+= (length (a:as)) + (length ys)     [por length.2]</code></pre>
+<h2 id="relación-entre-take-y-drop"><span class="header-section-number">3.5</span> Relación entre take y drop</h2>
+<ul>
+<li>Programas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">take<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+take <span class="dv">0</span> _       <span class="fu">=</span> []                  <span class="co">-- take.1</span>
+take _ []      <span class="fu">=</span> []                  <span class="co">-- take.2</span>
+take n (x<span class="fu">:</span>xs)  <span class="fu">=</span> x <span class="fu">:</span> take (n<span class="fu">-</span><span class="dv">1</span>) xs   <span class="co">-- take.3</span>
+
+drop<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+drop <span class="dv">0</span> xs      <span class="fu">=</span> xs                  <span class="co">-- drop.1</span>
+drop _ []      <span class="fu">=</span> []                  <span class="co">-- drop,2</span>
+drop n (_<span class="fu">:</span>xs)  <span class="fu">=</span> drop (n<span class="fu">-</span><span class="dv">1</span>) xs       <span class="co">-- drop.3</span>
+
+<span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+[]     <span class="fu">++</span> ys <span class="fu">=</span> ys                    <span class="co">-- ++.1</span>
+(x<span class="fu">:</span>xs) <span class="fu">++</span> ys <span class="fu">=</span> x <span class="fu">:</span> (xs <span class="fu">++</span> ys)        <span class="co">-- ++.2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>take n xs ++ drop n xs = xs</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_take_drop ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_take_drop n xs <span class="fu">=</span> 
+    n <span class="fu">&gt;=</span> <span class="dv">0</span> <span class="fu">==&gt;</span> take n xs <span class="fu">++</span> drop n xs <span class="fu">==</span> xs</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_take_drop
+OK, passed 100 tests.</code></pre>
+<ul>
+<li><p>Demostración por inducción en <code>n</code>:</p></li>
+<li><p>Caso base <code>n = 0</code>:</p></li>
+</ul>
+<pre class="sesion"><code>take 0 xs ++ drop 0 xs 
+= [] ++ xs              [por take.1 y drop.1] 
+= xs                    [por ++.1]</code></pre>
+<ul>
+<li><p>Caso inductivo <code>n = m+1</code>: Suponiendo la hipótesis de inducción 1<br />
+ <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%28%5Cforall%20xs%3A%3A%5Ba%5D%29" alt="(\forall xs::[a])" title="(\forall xs::[a])" /><code>take m xs ++ drop m xs = xs</code><br />
+ hay que demostrar que<br />
+ <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%28%5Cforall%20xs%3A%3A%5Ba%5D%29" alt="(\forall xs::[a])" title="(\forall xs::[a])" /><code>take (m+1) xs ++ drop (m+1) xs = xs</code></p></li>
+<li><p>Lo demostraremos por inducción en <code>xs</code>:</p></li>
+<li><p>Caso base <code>xs = []</code>:</p></li>
+</ul>
+<pre class="sesion"><code>take (m+1) [] ++ drop (m+1) [] 
+= [] ++ []                        [por take.2 y drop.2]
+= []                              [por ++.1]</code></pre>
+<ul>
+<li>Caso inductivo <code>xs = a:as</code>: Suponiendo la hip. de inducción 2<br />
+ <code>take (m+1) as ++ drop (m+1) as = as</code><br />
+ hay que demostrar que<br />
+ <code>take (m+1) (a:as) ++ drop (m+1) (a:as) = (a:as)</code></li>
+</ul>
+<pre class="sesion"><code>take (m+1) (a:as) ++ drop (m+1) (a:as) 
+= (a:(take m as)) ++ (drop m as)     [take.3 y drop.3] 
+= (a:((take m as) ++ (drop m as))    [por ++.2] 
+= a:as                               [por hip. de ind. 1]</code></pre>
+<h2 id="la-concatenación-de-listas-vacías-es-vacía"><span class="header-section-number">3.6</span> La concatenación de listas vacías es vacía</h2>
+<ul>
+<li>Programas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">null<span class="ot"> ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+null []           <span class="fu">=</span> <span class="dt">True</span>            <span class="co">-- null.1</span>
+null (_<span class="fu">:</span>_)        <span class="fu">=</span> <span class="dt">False</span>           <span class="co">-- null.2</span>
+
+<span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+[]     <span class="fu">++</span> ys      <span class="fu">=</span> ys              <span class="co">-- (++).1</span>
+(x<span class="fu">:</span>xs) <span class="fu">++</span> ys      <span class="fu">=</span> x <span class="fu">:</span> (xs <span class="fu">++</span> ys)  <span class="co">-- (++).2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>null xs = null (xs ++ xs)</code>.</p></li>
+<li><p>Demostración por inducción en <code>xs</code>:</p></li>
+<li><p>Caso 1: <code>xs = []</code>: Reduciendo ambos lados:</p></li>
+</ul>
+<pre class="sesion"><code>null xs 
+= null []          [por hipótesis] 
+= True             [por null.1] 
+
+null (xs ++ xs) 
+= null ([] ++ [])  [por hipótesis]
+= null []          [por (++).1]
+= True             [por null.1] </code></pre>
+<ul>
+<li>Caso <code>xs = y:ys</code>: Reduciendo ambos lados:</li>
+</ul>
+<pre class="sesion"><code>null xs 
+= null (y:ys)              [por hipótesis] 
+= False                    [por null.2
+
+null (xs ++ xs) 
+= null ((y:ys) ++ (y:ys))  [por hipótesis]
+= null (y:(ys ++ (y:ys))   [por (++).2]
+= False                    [por null.2</code></pre>
+<h1 id="equivalencia-de-funciones"><span class="header-section-number">4</span> Equivalencia de funciones</h1>
+<ul>
+<li>Programas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">inversa1,<span class="ot"> inversa2 ::</span> [a] <span class="ot">-&gt;</span> [a]
+inversa1 []     <span class="fu">=</span> []                                      <span class="co">-- inversa1.1</span>
+inversa1 (x<span class="fu">:</span>xs) <span class="fu">=</span> inversa1 xs <span class="fu">++</span> [x]                      <span class="co">-- inversa1.2</span>
+
+inversa2 xs <span class="fu">=</span> inversa2Aux xs []                           <span class="co">-- inversa2.1</span>
+    <span class="kw">where</span> inversa2Aux []     ys <span class="fu">=</span> ys                      <span class="co">-- inversa2Aux.1</span>
+          inversa2Aux (x<span class="fu">:</span>xs) ys <span class="fu">=</span> inversa2Aux xs (x<span class="fu">:</span>ys)   <span class="co">-- inversa2Aux.2</span></code></pre></div>
+<ul>
+<li><p>Propiedad: <code>inversa1 xs = inversa2 xs</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_equiv_inversa ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_equiv_inversa xs <span class="fu">=</span> inversa1 xs <span class="fu">==</span> inversa2 xs</code></pre></div>
+<ul>
+<li>Demostración: Es consecuencia del siguiente lema:<br />
+ <code>inversa1 xs ++ ys = inversa2Aux xs ys</code><br />
+ En efecto,</li>
+</ul>
+<pre class="sesion"><code>inversa1 xs 
+= inversa1 xs ++ []     [por identidad de ++] 
+= inversa2Aux xs ++ []  [por el lema] 
+= inversa2 xs           [por el inversa2.1] </code></pre>
+<ul>
+<li><p>Demostración del lema: Por inducción en <code>xs</code>:</p></li>
+<li><p>Caso base <code>xs = []</code>:</p></li>
+</ul>
+<pre class="sesion"><code>inversa1 [] ++ ys
+= [] ++ ys              [por inversa1.1] 
+= ys                    [por ++.1] 
+= inversa2Aux [] ys     [por inversa2Aux.1]</code></pre>
+<ul>
+<li>Caso inductivo <code>xs=(a:as)</code>: La hipótesis de inducción es<br />
+ <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%28%5Cforall%20ys%3A%3A%5Ba%5D%29" alt="(\forall ys::[a])" title="(\forall ys::[a])" /><code>inversa1 as ++ ys = inversa2Aux as ys</code><br />
+ Por tanto,</li>
+</ul>
+<pre class="sesion"><code>inversa1 (a:as) ++ ys
+= (inversa1 as ++ [a]) ++ ys    [por inversa1.2] 
+= (inversa1 as) ++ ([a] ++ ys)  [por asociativa de ++]
+= (inversa1 as) ++ (a:ys)       [por ley unitaria] 
+= (inversa2Aux as (a:ys)        [por hip. de inducción] 
+= inversa2Aux (a:as) ys         [por inversa2Aux.2]</code></pre>
+<h1 id="propiedades-de-funciones-de-orden-superior"><span class="header-section-number">5</span> Propiedades de funciones de orden superior</h1>
+<p><strong>Relación entre sum y map</strong></p>
+<ul>
+<li>La función <code>sum</code>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sum<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sum []     <span class="fu">=</span> <span class="dv">0</span>                
+sum (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="fu">+</span> sum xs       </code></pre></div>
+<ul>
+<li><p>Propiedad: <code>sum (map (2*) xs) = 2 * sum xs</code></p></li>
+<li><p>Especificación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_sum_map ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_sum_map xs <span class="fu">=</span> sum (map (<span class="dv">2</span><span class="fu">*</span>) xs) <span class="fu">==</span> <span class="dv">2</span> <span class="fu">*</span> sum xs</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_sum_map
++++ OK, passed 100 tests.</code></pre>
+<ul>
+<li><p>Demostración de la propiedad por inducción en <code>xs</code></p></li>
+<li><p>Caso <code>[]</code>:</p></li>
+</ul>
+<pre class="sesion"><code>sum (map (2*) xs)  
+= sum (map (2*) [])  [por hipótesis] 
+= sum []             [por map.1] 
+= 0                  [por sum.1] 
+= 2 * 0              [por aritmética] 
+= 2 * sum []         [por sum.1] 
+= 2 * sum xs         [por hipótesis] </code></pre>
+<ul>
+<li>Caso <code>xs = y:ys</code>: Entonces,</li>
+</ul>
+<pre class="sesion"><code>sum (map (2*) xs)  
+= sum (map (2*) (y:ys))         [por hipótesis]  
+= sum ((2*) y : (map (2*) ys))  [por map.2]  
+= (2*) y + (sum (map (2*) ys))  [por sum.2]  
+= (2*) y + (2 * sum ys)         [por hip. de inducción]  
+= (2 * y) + (2 * sum ys)        [por (2*)] 
+= 2 * (y + sum ys)              [por aritmética] 
+= 2 * sum (y:ys)                [por sum.2] 
+= 2 * sum xs                    [por hipótesis]</code></pre>
+<p><strong>Comprobación de propiedades con argumentos funcionales</strong></p>
+<ul>
+<li>La aplicación de una función a los elementos de una lista conserva su longitud:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_map_length (<span class="dt">Fun</span> _ f) xs <span class="fu">=</span>
+    length (map f xs) <span class="fu">==</span> length xs</code></pre></div>
+<ul>
+<li>En el inicio del fichero hay que escribir</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck.Function</span></code></pre></div>
+<ul>
+<li><p>Comprobación</p>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_map_length
++++ OK, passed 100 tests.</code></pre></li>
+</ul>
+<h1 id="bibliografía"><span class="header-section-number">6</span> Bibliografía</h1>
+<ul>
+<li><p>H.C. Cunningham. <em>Notes on Functional Programming with Haskell</em>.</p></li>
+<li><p>J. Fokker. <em>Programación funcional</em>.</p></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 13: Reasoning about programs.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 6: Programación con listas.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 8: Reasoning about programs.</li>
+</ul></li>
+<li><p>E.P. Wentworth. <em>Introduction to funcional programming</em>.</p></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

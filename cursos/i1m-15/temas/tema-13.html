@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 13: Programas interactivos</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 13: Programas interactivos</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#programas-interactivos"><span class="toc-section-number">1</span> Programas interactivos</a></li>
+<li><a href="#el-tipo-de-las-acciones-de-entradasalida"><span class="toc-section-number">2</span> El tipo de las acciones de entrada/salida</a></li>
+<li><a href="#acciones-básicas"><span class="toc-section-number">3</span> Acciones básicas</a></li>
+<li><a href="#secuenciación"><span class="toc-section-number">4</span> Secuenciación</a></li>
+<li><a href="#primitivas-derivadas"><span class="toc-section-number">5</span> Primitivas derivadas</a></li>
+<li><a href="#ejemplos-de-programas-interactivos"><span class="toc-section-number">6</span> Ejemplos de programas interactivos</a><ul>
+<li><a href="#juego-de-adivinación-interactivo"><span class="toc-section-number">6.1</span> Juego de adivinación interactivo</a></li>
+<li><a href="#calculadora-aritmética"><span class="toc-section-number">6.2</span> Calculadora aritmética</a></li>
+<li><a href="#el-juego-de-la-vida"><span class="toc-section-number">6.3</span> El juego de la vida</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">7</span> Bibliografía</a></li>
+</ul>
+</nav>
+<!--
+> import Test.QuickCheck
+> import System.IO
+> import Data.List (nub)
+> import Analizador
+> import System.Random (randomRIO)
+-->
+<h1 id="programas-interactivos"><span class="header-section-number">1</span> Programas interactivos</h1>
+<ul>
+<li><p>Los programas por lote no interactúan con los usuarios durante su ejecución.</p></li>
+<li><p>Los programas interactivos durante su ejecución pueden leer datos del teclado y escribir resultados en la pantalla.</p></li>
+<li>Problema:
+<ul>
+<li>Los programas interactivos tienen efectos laterales.</li>
+<li>Los programa Haskell no tiene efectos laterales.</li>
+</ul></li>
+</ul>
+<p><strong>Ejemplo de programa interactivo</strong></p>
+<ul>
+<li><p>Especificación: El programa pide una cadena y dice el número de caracteres que tiene.</p></li>
+<li><p>Ejemplo de sesión:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; longitudCadena
+Escribe una cadena: &quot;Hoy es lunes&quot;
+La cadena tiene 14 caracteres</code></pre>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">longitudCadena ::</span> <span class="dt">IO</span> ()
+longitudCadena <span class="fu">=</span> <span class="kw">do</span>
+  putStr <span class="st">&quot;Escribe una cadena: &quot;</span>
+  xs <span class="ot">&lt;-</span> getLine
+  putStr <span class="st">&quot;La cadena tiene &quot;</span>
+  putStr (show (length xs))
+  putStrLn <span class="st">&quot; caracteres&quot;</span></code></pre></div>
+<h1 id="el-tipo-de-las-acciones-de-entradasalida"><span class="header-section-number">2</span> El tipo de las acciones de entrada/salida</h1>
+<ul>
+<li><p>En Haskell se pueden escribir programas interactivos usando tipos que distingan las expresiones puras de las <em>acciones</em> impuras que tienen efectos laterales.</p></li>
+<li><p><code>IO a</code> es el tipo de las acciones que devuelven un valor del tipo <code>a</code>.</p></li>
+<li>Ejemplos:
+<ul>
+<li><code>IO Char</code> es el tipo de las acciones que devuelven un carácter.</li>
+<li><code>IO ()</code> es el tipo de las acciones que no devuelven ningún valor.</li>
+</ul></li>
+</ul>
+<h1 id="acciones-básicas"><span class="header-section-number">3</span> Acciones básicas</h1>
+<ul>
+<li><p><code>getChar :: IO Char</code><br />
+ La acción <code>getChar</code> lee un carácter del teclado, lo muestra en la pantalla y lo devuelve como valor.</p></li>
+<li><p><code>putChar :: c -&gt; IO ()</code><br />
+ La acción <code>putChar c</code> escribe el carácter <code>c</code> en la pantalla y no devuelve ningún valor.</p></li>
+<li><p><code>return a -&gt; IO a</code><br />
+ La acción <code>return c</code> devuelve el valor <code>c</code> sin ninguna interacción.</p></li>
+<li><p>Ejemplo:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; putChar &#39;b&#39;
+bghci&gt; it
+()</code></pre>
+<h1 id="secuenciación"><span class="header-section-number">4</span> Secuenciación</h1>
+<ul>
+<li><p>Una sucesión de acciones puede combinarse en una acción compuesta mediante expresiones <code>do</code>.</p></li>
+<li><p>Ejemplo: El procedimiento <code>ejSecuenciacion</code> lee dos caracteres y devuelve el par formado por ellos. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; ejSecuenciacion
+b f
+(&#39;b&#39;,&#39;f&#39;)</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ejSecuenciacion ::</span> <span class="dt">IO</span> (<span class="dt">Char</span>,<span class="dt">Char</span>)
+ejSecuenciacion <span class="fu">=</span> <span class="kw">do</span>
+   x <span class="ot">&lt;-</span> getChar
+   getChar
+   y <span class="ot">&lt;-</span> getChar
+   return (x,y)</code></pre></div>
+<h1 id="primitivas-derivadas"><span class="header-section-number">5</span> Primitivas derivadas</h1>
+<ul>
+<li>Lectura de cadenas del teclado:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">getLine<span class="ot"> ::</span> <span class="dt">IO</span> <span class="dt">String</span>
+getLine <span class="fu">=</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> getChar
+             <span class="kw">if</span> x <span class="fu">==</span> <span class="ch">&#39;\n&#39;</span> <span class="kw">then</span> return []
+                <span class="kw">else</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> getLine
+                        return (x<span class="fu">:</span>xs)</code></pre></div>
+<ul>
+<li>Escritura de cadenas en la pantalla:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">putStr<span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+putStr []     <span class="fu">=</span> return ()
+putStr (x<span class="fu">:</span>xs) <span class="fu">=</span> <span class="kw">do</span> putChar x
+                   putStr xs</code></pre></div>
+<ul>
+<li>Escritura de cadenas en la pantalla y salto de línea:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">putStrLn<span class="ot"> ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+putStrLn xs <span class="fu">=</span> <span class="kw">do</span> putStr xs
+                 putChar <span class="ch">&#39;\n&#39;</span></code></pre></div>
+<ul>
+<li>Ejecución de una lista de acciones. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sequence_ [putStrLn &quot;uno&quot;, putStrLn &quot;dos&quot;]
+uno
+dos
+ghci&gt; it
+()</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sequence_<span class="ot"> ::</span> [<span class="dt">IO</span> a] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+sequence_ []     <span class="fu">=</span> return ()
+sequence_ (a<span class="fu">:</span>as) <span class="fu">=</span> <span class="kw">do</span> a
+                      sequence_ as</code></pre></div>
+<p><strong>Ejemplo de programa con primitivas derivadas</strong></p>
+<ul>
+<li><p>Especificación: El programa pide una cadena y dice el número de caracteres que tiene.</p></li>
+<li><p>Ejemplo de sesión:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; longitudCadena
+Escribe una cadena: &quot;Hoy es lunes&quot;
+La cadena tiene 14 caracteres</code></pre>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">longitudCadena ::</span> <span class="dt">IO</span> ()
+longitudCadena <span class="fu">=</span> <span class="kw">do</span>
+   putStr <span class="st">&quot;Escribe una cadena: &quot;</span>
+   xs <span class="ot">&lt;-</span> getLine
+   putStr <span class="st">&quot;La cadena tiene &quot;</span>
+   putStr (show (length xs))
+   putStrLn <span class="st">&quot; caracteres&quot;</span></code></pre></div>
+<h1 id="ejemplos-de-programas-interactivos"><span class="header-section-number">6</span> Ejemplos de programas interactivos</h1>
+<h2 id="juego-de-adivinación-interactivo"><span class="header-section-number">6.1</span> Juego de adivinación interactivo</h2>
+<ul>
+<li><p>Descripción: El programa le pide al jugador humano que piense un número entre 1 y 100 y trata de adivinar el número que ha pensado planteándole conjeturas a las que el jugador humano responde con mayor, menor o exacto según que el número pensado sea mayor, menor o igual que el número conjeturado por la máquina.</p></li>
+<li><p>Ejemplo de sesión:</p></li>
+</ul>
+<pre class="sesion"><code>Main&gt; juego
+Piensa un numero entre el 1 y el 100.
+Es 50? [mayor/menor/exacto] mayor
+Es 75? [mayor/menor/exacto] menor
+Es 62? [mayor/menor/exacto] mayor
+Es 68? [mayor/menor/exacto] exacto
+Fin del juego</code></pre>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">juego ::</span> <span class="dt">IO</span> ()
+juego <span class="fu">=</span>
+    <span class="kw">do</span> putStrLn <span class="st">&quot;Piensa un numero entre el 1 y el 100.&quot;</span>
+       adivina <span class="dv">1</span> <span class="dv">100</span>
+       putStrLn <span class="st">&quot;Fin del juego&quot;</span>
+
+<span class="ot">adivina ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+adivina a b <span class="fu">=</span>
+    <span class="kw">do</span> putStr (<span class="st">&quot;Es &quot;</span> <span class="fu">++</span> show conjetura <span class="fu">++</span> <span class="st">&quot;? [mayor/menor/exacto] &quot;</span>)
+       s <span class="ot">&lt;-</span> getLine
+       <span class="kw">case</span> s <span class="kw">of</span>
+         <span class="st">&quot;mayor&quot;</span>  <span class="ot">-&gt;</span> adivina (conjetura<span class="fu">+</span><span class="dv">1</span>) b
+         <span class="st">&quot;menor&quot;</span>  <span class="ot">-&gt;</span> adivina a (conjetura<span class="fu">-</span><span class="dv">1</span>)
+         <span class="st">&quot;exacto&quot;</span> <span class="ot">-&gt;</span> return ()
+         _        <span class="ot">-&gt;</span> adivina a b
+    <span class="kw">where</span>
+      conjetura <span class="fu">=</span> (a<span class="fu">+</span>b) <span class="ot">`div`</span> <span class="dv">2</span></code></pre></div>
+<ul>
+<li><p>Descripción: En el segundo juego la máquina genera un número aleatorio entre 1 y 100 y le pide al jugador humano que adivine el número que ha pensado planteándole conjeturas a las que la máquina responde con mayor, menor o exacto según que el número pensado sea mayor, menor o igual que el número conjeturado por el jugador humano.</p></li>
+<li><p>Ejemplo de sesión:</p></li>
+</ul>
+<pre class="sesion"><code>Main&gt; juego2
+Tienes que adivinar un numero entre 1 y 100
+Escribe un numero: 50
+ es bajo.
+Escribe un numero: 75
+ es alto.
+Escribe un numero: 62
+ Exactamente</code></pre>
+<ul>
+<li>Se usa la librería de generación de números aleatorios:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">System.Random</span> (randomRIO)</code></pre></div>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">juego2 ::</span> <span class="dt">IO</span> ()
+juego2 <span class="fu">=</span> <span class="kw">do</span> n <span class="ot">&lt;-</span> randomRIO (<span class="dv">1</span><span class="ot">::</span><span class="dt">Int</span>,<span class="dv">100</span>)
+            putStrLn <span class="st">&quot;Tienes que adivinar un numero entre 1 y 100&quot;</span>
+            adivina&#39; n
+
+<span class="ot">adivina&#39; ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+adivina&#39; n <span class="fu">=</span> 
+    <span class="kw">do</span> putStr <span class="st">&quot;Escribe un numero: &quot;</span>
+       c <span class="ot">&lt;-</span> getLine
+       <span class="kw">let</span> x <span class="fu">=</span> read c 
+       <span class="kw">case</span> (compare x n) <span class="kw">of</span>
+         <span class="dt">LT</span> <span class="ot">-&gt;</span> <span class="kw">do</span> putStrLn <span class="st">&quot; es bajo.&quot;</span>
+                  adivina&#39; n
+         <span class="dt">GT</span> <span class="ot">-&gt;</span> <span class="kw">do</span> putStrLn <span class="st">&quot; es alto.&quot;</span>
+                  adivina&#39; n
+         <span class="dt">EQ</span> <span class="ot">-&gt;</span> putStrLn <span class="st">&quot; Exactamente&quot;</span></code></pre></div>
+<h2 id="calculadora-aritmética"><span class="header-section-number">6.2</span> Calculadora aritmética</h2>
+<p><strong>Acciones auxiliares</strong></p>
+<ul>
+<li>Importaciones</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">I1M.Analizador</span>
+<span class="kw">import </span><span class="dt">System.IO</span></code></pre></div>
+<ul>
+<li>Escritura de caracteres sin eco:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">getCh ::</span> <span class="dt">IO</span> <span class="dt">Char</span>
+getCh <span class="fu">=</span> <span class="kw">do</span> hSetEcho stdin <span class="dt">False</span>
+           c <span class="ot">&lt;-</span> getChar
+           hSetEcho stdin <span class="dt">True</span>
+           return c</code></pre></div>
+<ul>
+<li>Limpieza de la pantalla:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">limpiaPantalla ::</span> <span class="dt">IO</span> ()
+limpiaPantalla <span class="fu">=</span> putStr <span class="st">&quot;\ESC[2J&quot;</span></code></pre></div>
+<ul>
+<li>Escritura en una posición:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Pos</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+
+<span class="ot">irA ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+irA (x,y) <span class="fu">=</span> putStr (<span class="st">&quot;\ESC[&quot;</span> <span class="fu">++</span> 
+                    show y <span class="fu">++</span> <span class="st">&quot;;&quot;</span> <span class="fu">++</span> show x <span class="fu">++</span> 
+                    <span class="st">&quot;H&quot;</span>)
+
+<span class="ot">escribeEn ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+escribeEn p xs <span class="fu">=</span> <span class="kw">do</span> irA p
+                    putStr xs</code></pre></div>
+<ul>
+<li>En las funciones limpiaPantalla e irA se han usado <a href="http://bit.ly/1PtuTcm">códigos de escape ANSI</a>.</li>
+</ul>
+<p><strong>Calculadora</strong></p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">calculadora ::</span> <span class="dt">IO</span> ()
+calculadora <span class="fu">=</span> <span class="kw">do</span> limpiaPantalla
+                 escribeCalculadora
+                 limpiar
+
+<span class="ot">escribeCalculadora ::</span> <span class="dt">IO</span> ()
+escribeCalculadora <span class="fu">=</span>  
+    <span class="kw">do</span> limpiaPantalla
+       sequence_ [escribeEn (<span class="dv">1</span>,y) xs 
+                  <span class="fu">|</span> (y,xs) <span class="ot">&lt;-</span> zip [<span class="dv">1</span><span class="fu">..</span><span class="dv">13</span>] imagenCalculadora]
+       putStrLn <span class="st">&quot;&quot;</span>
+
+<span class="ot">imagenCalculadora ::</span> [<span class="dt">String</span>]
+imagenCalculadora <span class="fu">=</span> [<span class="st">&quot;+---------------+&quot;</span>,
+                     <span class="st">&quot;|               |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>,
+                     <span class="st">&quot;| q | c | d | = |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>,
+                     <span class="st">&quot;| 1 | 2 | 3 | + |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>,
+                     <span class="st">&quot;| 4 | 5 | 6 | - |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>,
+                     <span class="st">&quot;| 7 | 8 | 9 | * |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>,
+                     <span class="st">&quot;| 0 | ( | ) | / |&quot;</span>,
+                     <span class="st">&quot;+---+---+---+---+&quot;</span>]
+    </code></pre></div>
+<p>Los primeros cuatro botones permiten escribir las órdenes:</p>
+<ul>
+<li>q para salir ('quit'),</li>
+<li>c para limpiar la agenda ('clear'),</li>
+<li>d para borrar un carácter ('delete') y</li>
+<li>= para evaluar una expresión.</li>
+</ul>
+<p>Los restantes botones permiten escribir las expresiones.</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">limpiar ::</span> <span class="dt">IO</span> ()
+limpiar <span class="fu">=</span> calc <span class="st">&quot;&quot;</span>
+
+<span class="ot">calc ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+calc xs <span class="fu">=</span> <span class="kw">do</span> escribeEnPantalla xs 
+             c <span class="ot">&lt;-</span> getCh
+             <span class="kw">if</span> elem c botones 
+                <span class="kw">then</span> procesa c xs
+                <span class="kw">else</span> <span class="kw">do</span> calc xs
+
+escribeEnPantalla xs <span class="fu">=</span> 
+    <span class="kw">do</span> escribeEn (<span class="dv">3</span>,<span class="dv">2</span>) <span class="st">&quot;             &quot;</span>
+       escribeEn (<span class="dv">3</span>,<span class="dv">2</span>) (reverse (take <span class="dv">13</span> (reverse xs)))
+
+<span class="ot">botones ::</span> <span class="dt">String</span>
+botones <span class="fu">=</span> standard <span class="fu">++</span> extra
+    <span class="kw">where</span>
+      standard <span class="fu">=</span> <span class="st">&quot;qcd=123+456-789*0()/&quot;</span>
+      extra    <span class="fu">=</span> <span class="st">&quot;QCD \ESC\BS\DEL\n&quot;</span>
+
+<span class="ot">procesa ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+procesa c xs
+   <span class="fu">|</span> elem c <span class="st">&quot;qQ\ESC&quot;</span>    <span class="fu">=</span> salir
+   <span class="fu">|</span> elem c <span class="st">&quot;dD\BS\DEL&quot;</span> <span class="fu">=</span> borrar xs
+   <span class="fu">|</span> elem c <span class="st">&quot;=\n&quot;</span>       <span class="fu">=</span> evaluar xs
+   <span class="fu">|</span> elem c <span class="st">&quot;cC&quot;</span>        <span class="fu">=</span> limpiar
+   <span class="fu">|</span> otherwise          <span class="fu">=</span> agregar c xs
+
+<span class="ot">salir ::</span> <span class="dt">IO</span> ()
+salir <span class="fu">=</span> irA (<span class="dv">1</span>,<span class="dv">14</span>)
+
+<span class="ot">borrar ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+borrar <span class="st">&quot;&quot;</span> <span class="fu">=</span> calc <span class="st">&quot;&quot;</span>
+borrar xs <span class="fu">=</span> calc (init xs)
+
+<span class="ot">evaluar ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+evaluar xs <span class="fu">=</span> <span class="kw">case</span> analiza expr xs <span class="kw">of</span>
+             [(n,<span class="st">&quot;&quot;</span>)] <span class="ot">-&gt;</span> calc (show n)
+             _        <span class="ot">-&gt;</span> <span class="kw">do</span> calc xs
+
+<span class="ot">agregar ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+agregar c xs <span class="fu">=</span> calc (xs <span class="fu">++</span> [c])</code></pre></div>
+<h2 id="el-juego-de-la-vida"><span class="header-section-number">6.3</span> El juego de la vida</h2>
+<p><strong>Descripción del juego de la vida</strong></p>
+<ul>
+<li><p>El tablero del juego de la vida es una malla formada por cuadrados (&quot;células&quot;) que se pliega en todas las direcciones.</p></li>
+<li><p>Cada célula tiene 8 células vecinas, que son las que están próximas a ella, incluso en las diagonales.</p></li>
+<li><p>Las células tienen dos estados: están &quot;vivas&quot; o &quot;muertas&quot;.</p></li>
+<li><p>El estado del tablero evoluciona a lo largo de unidades de tiempo discretas.</p></li>
+<li>Las transiciones dependen del número de células vecinas vivas:
+<ul>
+<li>Una célula muerta con exactamente 3 células vecinas vivas &quot;nace&quot; (al turno siguiente estará viva).</li>
+<li>Una célula viva con 2 ó 3 células vecinas vivas sigue viva, en otro caso muere.</li>
+</ul></li>
+</ul>
+<p><strong>Funciones anteriores</strong></p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.List</span> (nub)
+
+<span class="kw">type</span> <span class="dt">Pos</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+
+<span class="ot">irA ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+irA (x,y) <span class="fu">=</span> putStr (<span class="st">&quot;\ESC[&quot;</span> <span class="fu">++</span> show y <span class="fu">++</span> <span class="st">&quot;;&quot;</span> <span class="fu">++</span> show x <span class="fu">++</span> <span class="st">&quot;H&quot;</span>)
+
+<span class="ot">escribeEn ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+escribeEn p xs <span class="fu">=</span> <span class="kw">do</span> irA p
+                    putStr xs
+
+<span class="ot">limpiaPantalla::</span> <span class="dt">IO</span> ()
+limpiaPantalla<span class="fu">=</span> putStr <span class="st">&quot;\ESC[2J&quot;</span></code></pre></div>
+<p><strong>El tablero del juego de la vida</strong></p>
+<ul>
+<li>Tablero:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Tablero</span> <span class="fu">=</span> [<span class="dt">Pos</span>]</code></pre></div>
+<ul>
+<li>Dimensiones:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ancho ::</span> <span class="dt">Int</span>
+ancho <span class="fu">=</span> <span class="dv">5</span>
+
+<span class="ot">alto ::</span> <span class="dt">Int</span>
+alto <span class="fu">=</span> <span class="dv">5</span></code></pre></div>
+<p><strong>El juego de la vida</strong></p>
+<ul>
+<li>Ejemplo de tablero:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ejTablero ::</span> <span class="dt">Tablero</span>
+ejTablero <span class="fu">=</span> [(<span class="dv">2</span>,<span class="dv">3</span>),(<span class="dv">3</span>,<span class="dv">4</span>),(<span class="dv">4</span>,<span class="dv">2</span>),(<span class="dv">4</span>,<span class="dv">3</span>),(<span class="dv">4</span>,<span class="dv">4</span>)]</code></pre></div>
+<ul>
+<li>Representación del tablero:</li>
+</ul>
+<pre class="sesion"><code> 1234
+1
+2   O
+3 O O
+4  OO</code></pre>
+<ul>
+<li><code>(vida n t)</code> simula el juego de la vida a partir del tablero <code>t</code> con un tiempo entre generaciones proporcional a <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>vida 100000 ejTablero  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">vida ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+vida n t <span class="fu">=</span> <span class="kw">do</span> limpiaPantalla
+              escribeTablero t
+              espera n
+              vida n (siguienteGeneracion t)</code></pre></div>
+<ul>
+<li>Escritura del tablero:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">escribeTablero ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+escribeTablero t <span class="fu">=</span> sequence_ [escribeEn p <span class="st">&quot;O&quot;</span> <span class="fu">|</span> p <span class="ot">&lt;-</span> t]</code></pre></div>
+<ul>
+<li>Espera entre generaciones:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">espera ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()
+espera n <span class="fu">=</span> sequence_ [return () <span class="fu">|</span> _ <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>n]]</code></pre></div>
+<ul>
+<li><code>siguienteGeneracion t)</code> es el tablero de la siguiente generación al tablero <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; siguienteGeneracion ejTablero  
+[(4,3),(3,4),(4,4),(3,2),(5,3)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">siguienteGeneracion ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">Tablero</span>
+siguienteGeneracion t <span class="fu">=</span> supervivientes t <span class="fu">++</span> nacimientos t</code></pre></div>
+<ul>
+<li><code>(supervivientes t)</code> es la listas de posiciones de <code>t</code> que sobreviven; i.e. posiciones con 2 ó 3 vecinos vivos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>supervivientes ejTablero  ==  [(4,3),(3,4),(4,4)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">supervivientes ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> [<span class="dt">Pos</span>]
+supervivientes t <span class="fu">=</span> [p <span class="fu">|</span> p <span class="ot">&lt;-</span> t, 
+                        elem (nVecinosVivos t p) [<span class="dv">2</span>,<span class="dv">3</span>]]</code></pre></div>
+<ul>
+<li><code>(nVecinosVivos t c)</code> es el número de vecinos vivos de la célula <code>c</code> en el tablero <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>nVecinosVivos ejTablero (3,3)  ==  5
+nVecinosVivos ejTablero (3,4)  ==  3</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">nVecinosVivos ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+nVecinosVivos t <span class="fu">=</span> length <span class="fu">.</span> filter (tieneVida t) <span class="fu">.</span> vecinos</code></pre></div>
+<ul>
+<li><code>(vecinos p)</code> es la lista de los vecinos de la célula en la posición <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>vecinos (2,3) == [(1,2),(2,2),(3,2),(1,3),(3,3),(1,4),(2,4),(3,4)]
+vecinos (1,2) == [(5,1),(1,1),(2,1),(5,2),(2,2),(5,3),(1,3),(2,3)]
+vecinos (5,2) == [(4,1),(5,1),(1,1),(4,2),(1,2),(4,3),(5,3),(1,3)]
+vecinos (2,1) == [(1,5),(2,5),(3,5),(1,1),(3,1),(1,2),(2,2),(3,2)]
+vecinos (2,5) == [(1,4),(2,4),(3,4),(1,5),(3,5),(1,1),(2,1),(3,1)]
+vecinos (1,1) == [(5,5),(1,5),(2,5),(5,1),(2,1),(5,2),(1,2),(2,2)]
+vecinos (5,5) == [(4,4),(5,4),(1,4),(4,5),(1,5),(4,1),(5,1),(1,1)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">vecinos ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> [<span class="dt">Pos</span>]
+vecinos (x,y) <span class="fu">=</span> map modular [(x<span class="fu">-</span><span class="dv">1</span>,y<span class="fu">-</span><span class="dv">1</span>), (x,y<span class="fu">-</span><span class="dv">1</span>), (x<span class="fu">+</span><span class="dv">1</span>,y<span class="fu">-</span><span class="dv">1</span>), 
+                             (x<span class="fu">-</span><span class="dv">1</span>,y),            (x<span class="fu">+</span><span class="dv">1</span>,y), 
+                             (x<span class="fu">-</span><span class="dv">1</span>,y<span class="fu">+</span><span class="dv">1</span>), (x,y<span class="fu">+</span><span class="dv">1</span>), (x<span class="fu">+</span><span class="dv">1</span>,y<span class="fu">+</span><span class="dv">1</span>)] </code></pre></div>
+<ul>
+<li><code>(modular p)</code> es la posición correspondiente a <code>p</code> en el tablero considerando los plegados. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>modular (6,3)  ==  (1,3)
+modular (0,3)  ==  (5,3)
+modular (3,6)  ==  (3,1)
+modular (3,0)  ==  (3,5)</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">modular ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span>
+modular (x,y) <span class="fu">=</span> (<span class="dv">1</span> <span class="fu">+</span> (x<span class="fu">-</span><span class="dv">1</span>) <span class="ot">`mod`</span> ancho, 
+                 <span class="dv">1</span> <span class="fu">+</span> (y<span class="fu">-</span><span class="dv">1</span>) <span class="ot">`mod`</span> alto)</code></pre></div>
+<ul>
+<li><code>(tieneVida t p)</code> se verifica si la posición <code>p</code> del tablero <code>t</code> tiene vida. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>tieneVida ejTablero (1,1)  ==  False
+tieneVida ejTablero (2,3)  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">tieneVida ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+tieneVida t p <span class="fu">=</span> elem p t</code></pre></div>
+<ul>
+<li><code>(noTieneVida t p)</code> se verifica si la posición <code>p</code> del tablero <code>t</code> no tiene vida. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>noTieneVida ejTablero (1,1)  ==  True
+noTieneVida ejTablero (2,3)  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">noTieneVida ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+noTieneVida t p <span class="fu">=</span> not (tieneVida t p)</code></pre></div>
+<ul>
+<li><code>(nacimientos t)</code> es la lista de los nacimientos de tablero <code>t</code>; i.e. las posiciones sin vida con 3 vecinos vivos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>nacimientos ejTablero  ==  [(3,2),(5,3)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">nacimientos&#39; ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> [<span class="dt">Pos</span>]
+nacimientos&#39; t <span class="fu">=</span> [(x,y) <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>ancho],
+                          y <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>alto],
+                          noTieneVida t (x,y),
+                          nVecinosVivos t (x,y) <span class="fu">==</span> <span class="dv">3</span>]</code></pre></div>
+<ul>
+<li>Definición más eficiente de <code>nacimientos</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">nacimientos ::</span> <span class="dt">Tablero</span> <span class="ot">-&gt;</span> [<span class="dt">Pos</span>]
+nacimientos t <span class="fu">=</span> [p <span class="fu">|</span> p <span class="ot">&lt;-</span> nub (concatMap vecinos t),
+                     noTieneVida t p,
+                     nVecinosVivos t p <span class="fu">==</span> <span class="dv">3</span>]</code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">7</span> Bibliografía</h1>
+<ul>
+<li>H. Daumé III. <a href="http://www.cs.utah.edu/~hal/docs/daume02yaht.pdf">Yet Another Haskell Tutorial</a>, 2006.
+<ul>
+<li>Cap. 5: Basic Input/Output.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 9: Interactive programs.</li>
+</ul></li>
+<li>B. O’Sullivan, J. Goerzen y D. Stewart. <em>Real World Haskell</em>. O'Reilly, 2009.
+<ul>
+<li>Cap. 7: I/O.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 7: Entrada y salida.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 18: Programming with actions.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

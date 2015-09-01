@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 15: El TAD de las colas</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 15: El TAD de las colas</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-las-colas"><span class="toc-section-number">1</span> Especificación del TAD de las colas</a><ul>
+<li><a href="#signatura-del-tad-de-las-colas"><span class="toc-section-number">1.1</span> Signatura del TAD de las colas</a></li>
+<li><a href="#propiedades-del-tad-de-las-colas"><span class="toc-section-number">1.2</span> Propiedades del TAD de las colas</a></li>
+</ul></li>
+<li><a href="#implementaciones-del-tad-de-las-colas"><span class="toc-section-number">2</span> Implementaciones del TAD de las colas</a><ul>
+<li><a href="#implementación-de-las-colas-mediante-listas"><span class="toc-section-number">2.1</span> Implementación de las colas mediante listas</a></li>
+<li><a href="#implementación-de-las-colas-mediante-pares-de-listas"><span class="toc-section-number">2.2</span> Implementación de las colas mediante pares de listas</a></li>
+</ul></li>
+<li><a href="#comprobación-de-las-implementaciones-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de las implementaciones con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-colas"><span class="toc-section-number">3.2</span> Generador de colas</a></li>
+<li><a href="#especificación-de-las-propiedades-de-las-colas"><span class="toc-section-number">3.3</span> Especificación de las propiedades de las colas</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-las-colas"><span class="header-section-number">1</span> Especificación del TAD de las colas</h1>
+<h2 id="signatura-del-tad-de-las-colas"><span class="header-section-number">1.1</span> Signatura del TAD de las colas</h2>
+<p><strong>Descripción informal de las colas</strong></p>
+<ul>
+<li><p>Una <em>cola</em> es una estructura de datos, caracterizada por ser una secuencia de elementos en la que la operación de inserción se realiza por un extremo (el posterior o final) y la operación de extracción por el otro (el anterior o frente).</p></li>
+<li><p>Las colas también se llaman estructuras FIFO (del inglés First In First Out), debido a que el primer elemento en entrar será también el primero en salir.</p></li>
+<li><p>Analogía con las colas del cine.</p></li>
+</ul>
+<p><strong>Signatura del TAD colas</strong></p>
+<ul>
+<li>Signatura:</li>
+</ul>
+<pre class="sesion"><code>vacia   :: Cola a
+inserta :: a -&gt; Cola a -&gt; Cola a
+primero :: Cola a -&gt; a
+resto   :: Cola a -&gt; Cola a
+esVacia :: Cola a -&gt; Bool
+valida  :: Cola a -&gt; Bool</code></pre>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>vacia</code> es la cola vacía.</li>
+<li><code>(inserta x c)</code> es la cola obtenida añadiendo <code>x</code> al final de <code>c</code>.</li>
+<li><code>(primero c)</code> es el primero de la cola <code>c</code>.</li>
+<li><code>(resto c)</code> es la cola obtenida eliminando el primero de <code>c</code>.</li>
+<li><code>(esVacia c)</code> se verifica si <code>c</code> es la cola vacía.</li>
+<li><code>(valida c)</code> se verifica si <code>c</code> representa una cola válida.</li>
+</ul></li>
+</ul>
+<h2 id="propiedades-del-tad-de-las-colas"><span class="header-section-number">1.2</span> Propiedades del TAD de las colas</h2>
+<p><strong>Propiedades del TAD de las colas</strong></p>
+<ul>
+<li><p><code>primero (inserta x vacia) == x</code></p></li>
+<li><p>Si <code>c</code> es una cola no vacía, entonces <code>primero (inserta x c) == primero c</code>,</p></li>
+<li><p><code>resto (inserta x vacia) == vacia</code></p></li>
+<li><p>Si <code>c</code> es una cola no vacía, entonces <code>resto (inserta x c) == inserta x   (resto c)</code></p></li>
+<li><p><code>esVacia vacia</code></p></li>
+<li><p><code>not (esVacia (inserta x c))</code></p></li>
+</ul>
+<h1 id="implementaciones-del-tad-de-las-colas"><span class="header-section-number">2</span> Implementaciones del TAD de las colas</h1>
+<h2 id="implementación-de-las-colas-mediante-listas"><span class="header-section-number">2.1</span> Implementación de las colas mediante listas</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ColaConListas</span> 
+    (<span class="dt">Cola</span>,
+     vacia,   <span class="co">-- Cola a</span>
+     inserta, <span class="co">-- a -&gt; Cola a -&gt; Cola a</span>
+     primero, <span class="co">-- Cola a -&gt; a</span>
+     resto,   <span class="co">-- Cola a -&gt; Cola a</span>
+     esVacia, <span class="co">-- Cola a -&gt; Bool</span>
+     valida   <span class="co">-- Cola a -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Representación de las colas mediante listas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Cola</span> a <span class="fu">=</span> <span class="dt">C</span> [a] <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
+<ul>
+<li>Ejemplo de cola: <code>c1</code> es la cola obtenida añadiéndole a la cola vacía los números del 1 al 10. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+C [10,9,8,7,6,5,4,3,2,1]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">c1 <span class="fu">=</span> foldr inserta vacia [<span class="dv">1</span><span class="fu">..</span><span class="dv">10</span>]</code></pre></div>
+<ul>
+<li><code>vacia</code> es la cola vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; vacia
+C []</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacia ::</span> <span class="dt">Cola</span> a
+vacia <span class="fu">=</span> <span class="dt">C</span> []</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es la cola obtenida añadiendo <code>x</code> al final de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>inserta 12 c1  ==  C [10,9,8,7,6,5,4,3,2,1,12]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a
+inserta x (<span class="dt">C</span> c) <span class="fu">=</span> <span class="dt">C</span> (c <span class="fu">++</span> [x])</code></pre></div>
+<ul>
+<li><code>(primero c)</code> es el primer elemento de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primero c1  ==  10</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">primero ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> a
+primero (<span class="dt">C</span> (x<span class="fu">:</span>_)) <span class="fu">=</span> x
+primero (<span class="dt">C</span> [])    <span class="fu">=</span> error <span class="st">&quot;primero: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(resto c)</code> es la cola obtenida eliminando el primer elemento de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>resto c1  ==  C [9,8,7,6,5,4,3,2,1]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">resto ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a
+resto (<span class="dt">C</span> (_<span class="fu">:</span>xs)) <span class="fu">=</span> <span class="dt">C</span> xs
+resto (<span class="dt">C</span> [])     <span class="fu">=</span> error <span class="st">&quot;resto: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(esVacia c)</code> se verifica si <code>c</code> es la cola vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacia c1     ==  False
+esVacia vacia  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacia ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esVacia (<span class="dt">C</span> xs)  <span class="fu">=</span> null xs</code></pre></div>
+<ul>
+<li><code>(valida c)</code> se verifica si <code>c</code> representa una cola válida. Con esta representación, todas las colas son válidas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valida ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida c <span class="fu">=</span> <span class="dt">True</span></code></pre></div>
+<h2 id="implementación-de-las-colas-mediante-pares-de-listas"><span class="header-section-number">2.2</span> Implementación de las colas mediante pares de listas</h2>
+<p><strong>Las colas como pares de listas</strong></p>
+<ul>
+<li><p>En esta implementación, una cola <code>c</code> se representa mediante un par de listas <code>(xs,ys)</code> de modo que los elementos de <code>c</code> son, en ese orden, los elementos de la lista <code>xs++(reverse ys)</code>.</p></li>
+<li><p>Al dividir la lista en dos parte e invertir la segunda de ellas, esperamos hacer más eficiente las operaciones sobre las colas.</p></li>
+<li><p>Impondremos también una restricción adicional sobre la representación: las colas serán representadas mediante pares <code>(xs,ys)</code> tales que si <code>xs</code> es vacía, entonces <code>ys</code> será también vacía.</p></li>
+<li><p>Esta restricción ha de mantenerse por las operaciones que crean colas.</p></li>
+</ul>
+<p><strong>Implementación de las colas como pares de listas</strong></p>
+<ul>
+<li>Cabecera del módulo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ColaConDosListas</span>
+    (<span class="dt">Cola</span>,
+     vacia,   <span class="co">-- Cola a</span>
+     inserta, <span class="co">-- a -&gt; Cola a -&gt; Cola a</span>
+     primero, <span class="co">-- Cola a -&gt; a</span>
+     resto,   <span class="co">-- Cola a -&gt; Cola a</span>
+     esVacia, <span class="co">-- Cola a -&gt; Bool</span>
+     valida   <span class="co">-- Cola a -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Las colas como pares de listas</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Cola</span> a <span class="fu">=</span> <span class="dt">C</span> ([a],[a])</code></pre></div>
+<ul>
+<li><code>(valida c)</code> se verifica si la cola <code>c</code> es válida; es decir, si su primer elemento es vacío entonces también lo es el segundo. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valida (C ([2],[5]))  ==  True
+valida (C ([2],[]))   ==  True
+valida (C ([],[5]))   ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valida::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida (<span class="dt">C</span> (xs,ys)) <span class="fu">=</span> not (null xs) <span class="fu">||</span> null ys</code></pre></div>
+<ul>
+<li>Procedimiento de escritura de colas como pares de listas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Cola</span> a) <span class="kw">where</span>
+    showsPrec p (<span class="dt">C</span> (xs,ys)) cad
+        <span class="fu">=</span> showString <span class="st">&quot;C &quot;</span> (showList (xs <span class="fu">++</span> (reverse ys)) cad)</code></pre></div>
+<ul>
+<li>Ejemplo de cola: <code>c1</code> es la cola obtenida añadiéndole a la cola vacía los números del 1 al 10. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+C [10,9,8,7,6,5,4,3,2,1]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">c1 ::</span> <span class="dt">Cola</span> <span class="dt">Int</span>
+c1 <span class="fu">=</span> foldr inserta vacia [<span class="dv">1</span><span class="fu">..</span><span class="dv">10</span>]</code></pre></div>
+<ul>
+<li><code>vacia</code> es la cola vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+C [10,9,8,7,6,5,4,3,2,1]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacia ::</span> <span class="dt">Cola</span> a
+vacia  <span class="fu">=</span> <span class="dt">C</span> ([],[])</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es la cola obtenida añadiendo <code>x</code> al final de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>inserta 12 c1  ==  C [10,9,8,7,6,5,4,3,2,1,12]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a
+inserta y (<span class="dt">C</span> (xs,ys)) <span class="fu">=</span> <span class="dt">C</span> (normaliza (xs,y<span class="fu">:</span>ys))</code></pre></div>
+<ul>
+<li><code>(normaliza p)</code> es la cola obtenida al normalizar el par de listas <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>normaliza ([],[2,5,3])   ==  ([3,5,2],[])
+normaliza ([4],[2,5,3])  ==  ([4],[2,5,3])</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">normaliza ::</span> ([a],[a]) <span class="ot">-&gt;</span> ([a],[a])
+normaliza ([], ys) <span class="fu">=</span> (reverse ys, [])
+normaliza p        <span class="fu">=</span> p</code></pre></div>
+<ul>
+<li><code>(primero c)</code> es el primer elemento de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primero c1  ==  10</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">primero  ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> a
+primero (<span class="dt">C</span> (x<span class="fu">:</span>xs,ys)) <span class="fu">=</span> x
+primero _             <span class="fu">=</span> error <span class="st">&quot;primero: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(resto c)</code> es la cola obtenida eliminando el primer elemento de la cola <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>resto c1  ==  C [9,8,7,6,5,4,3,2,1]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">resto  ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Cola</span> a
+resto (<span class="dt">C</span> (x<span class="fu">:</span>xs,ys)) <span class="fu">=</span> <span class="dt">C</span> (normaliza (xs,ys))
+resto (<span class="dt">C</span> ([],[]))   <span class="fu">=</span> error <span class="st">&quot;resto: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(esVacia c)</code> se verifica si <code>c</code> es la cola vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacia c1     ==  False
+esVacia vacia  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacia ::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esVacia (<span class="dt">C</span> (xs,_)) <span class="fu">=</span> null xs</code></pre></div>
+<ul>
+<li><code>(elementos c)</code> es la lista de los elementos de la cola <code>c</code> en el orden de la cola. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>elementos (C ([3,2],[5,4,7]))  ==  [3,2,7,4,5]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elementos::</span> <span class="dt">Cola</span> a <span class="ot">-&gt;</span> [a]
+elementos (<span class="dt">C</span> (xs,ys)) <span class="fu">=</span> xs <span class="fu">++</span> (reverse ys)</code></pre></div>
+<ul>
+<li><code>(igualColas c1 c2)</code> se verifica si las colas <code>c1</code> y <code>c2</code> son iguales.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; igualColas (C ([3,2],[5,4,7])) (C ([3],[5,4,7,2]))   
+True
+ghci&gt; igualColas (C ([3,2],[5,4,7])) (C ([],[5,4,7,2,3]))  
+False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">igualColas c1 c2 <span class="fu">=</span> 
+    valida c1 <span class="fu">&amp;&amp;</span> valida c2 <span class="fu">&amp;&amp;</span> 
+    elementos c1 <span class="fu">==</span> elementos c2</code></pre></div>
+<ul>
+<li><p>Extensión de la igualdad a las colas:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Eq</span> (<span class="dt">Cola</span> a) <span class="kw">where</span>
+(<span class="fu">==</span>) <span class="fu">=</span> igualColas</code></pre></div></li>
+</ul>
+<h1 id="comprobación-de-las-implementaciones-con-quickcheck"><span class="header-section-number">3</span> Comprobación de las implementaciones con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<p><strong>Importación de librerías</strong></p>
+<ul>
+<li>Importación de la implementación de las colas que se desea comprobar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">ColaConListas</span>
+<span class="co">-- import ColaConDosListas</span></code></pre></div>
+<ul>
+<li>Importación de librerías auxiliares</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.List</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-colas"><span class="header-section-number">3.2</span> Generador de colas</h2>
+<ul>
+<li><code>genCola</code> es un generador de colas de enteros. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genCola
+C ([7,8,4,3,7],[5,3,3])
+C ([1],[13])
+...
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genCola ::</span> <span class="dt">Gen</span> (<span class="dt">Cola</span> <span class="dt">Int</span>)
+genCola <span class="fu">=</span> frequency [(<span class="dv">1</span>, return vacia),
+                     (<span class="dv">30</span>, <span class="kw">do</span> n <span class="ot">&lt;-</span> choose (<span class="dv">10</span>,<span class="dv">100</span>)
+                             xs <span class="ot">&lt;-</span> vectorOf n arbitrary
+                             return (creaCola xs))]
+          <span class="kw">where</span> creaCola <span class="fu">=</span> foldr inserta vacia
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">Cola</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genCola</code></pre></div>
+<p><strong>Corrección del generador de colas</strong></p>
+<ul>
+<li>Propiedad: Todo los elementos generados por <code>genCola</code> son colas válidas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_genCola_correcto ::</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_genCola_correcto c <span class="fu">=</span> valida c</code></pre></div>
+<ul>
+<li>Comprobación.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_genCola_correcto
++++ OK, passed 100 tests.</code></pre>
+<h2 id="especificación-de-las-propiedades-de-las-colas"><span class="header-section-number">3.3</span> Especificación de las propiedades de las colas</h2>
+<ul>
+<li>El primero de la cola obtenida añadiendo <code>x</code> a la cola vacía es <code>x</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_primero_inserta_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_primero_inserta_vacia x <span class="fu">=</span> 
+    primero (inserta x vacia) <span class="fu">==</span> x</code></pre></div>
+<ul>
+<li>Si una cola no está vacía, su primer elemento no varía al añadirle un elemento.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_primero_inserta_no_vacia ::</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                                 <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_primero_inserta_no_vacia c x y <span class="fu">=</span>
+    primero (inserta x c&#39;) <span class="fu">==</span> primero c&#39;
+    <span class="kw">where</span> c&#39; <span class="fu">=</span> inserta y vacia</code></pre></div>
+<ul>
+<li>El resto de la cola obtenida insertando un elemento en la cola vacía es la cola vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_inserta_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_resto_inserta_vacia x <span class="fu">=</span> 
+    resto (inserta x vacia) <span class="fu">==</span> vacia</code></pre></div>
+<ul>
+<li>Las operaciones de encolar y desencolar conmutan.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_inserta_en_no_vacia ::</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                                  <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_resto_inserta_en_no_vacia c x y <span class="fu">=</span>
+    resto (inserta x c&#39;) <span class="fu">==</span> inserta x (resto c&#39;)
+    <span class="kw">where</span> c&#39; <span class="fu">=</span> inserta y c</code></pre></div>
+<ul>
+<li><code>vacia</code> es una cola vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacia_es_vacia ::</span> <span class="dt">Bool</span>
+prop_vacia_es_vacia <span class="fu">=</span> 
+    esVacia vacia</code></pre></div>
+<ul>
+<li>La cola obtenida insertando un elemento no es vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_no_es_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_no_es_vacia x c <span class="fu">=</span> 
+    not (esVacia (inserta x c))</code></pre></div>
+<ul>
+<li>La cola vacía es válida.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_valida_vacia ::</span> <span class="dt">Bool</span>
+prop_valida_vacia <span class="fu">=</span> valida vacia</code></pre></div>
+<ul>
+<li>Al añadirle un elemento a una cola válida se obtiene otra válida.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_valida_inserta ::</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_valida_inserta c x <span class="fu">=</span>
+    valida c <span class="fu">==&gt;</span> valida (inserta x c)</code></pre></div>
+<ul>
+<li>El resto de una cola válida y no vacía es una cola válida.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_valida_resto ::</span> <span class="dt">Cola</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_valida_resto c <span class="fu">=</span>
+    valida c <span class="fu">&amp;&amp;</span> not (esVacia c) <span class="fu">==&gt;</span> valida (resto c)</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del TAD cola&quot;</span>
+        [testGroup <span class="st">&quot;Propiedades del TAD cola&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span> prop_primero_inserta_vacia,
+           testProperty <span class="st">&quot;P2&quot;</span> prop_primero_inserta_no_vacia,
+           testProperty <span class="st">&quot;P3&quot;</span> prop_resto_inserta_vacia,
+           testProperty <span class="st">&quot;P4&quot;</span> prop_resto_inserta_en_no_vacia,
+           testProperty <span class="st">&quot;P5&quot;</span> prop_vacia_es_vacia,
+           testProperty <span class="st">&quot;P6&quot;</span> prop_inserta_no_es_vacia,
+           testProperty <span class="st">&quot;P7&quot;</span> prop_valida_vacia,
+           testProperty <span class="st">&quot;P8&quot;</span> prop_valida_inserta,
+           testProperty <span class="st">&quot;P9&quot;</span> prop_valida_resto]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de las colas</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades
+Propiedades del TAD cola
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+  P7: [OK, passed 100 tests]
+  P8: [OK, passed 100 tests]
+  P9: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  9           9          
+ Failed  0           0          
+ Total   9           9     </code></pre>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

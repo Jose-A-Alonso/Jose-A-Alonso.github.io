@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 17: El TAD de los conjuntos</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 17: El TAD de los conjuntos</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-los-conjuntos"><span class="toc-section-number">1</span> Especificación del TAD de los conjuntos</a><ul>
+<li><a href="#signatura-del-tad-de-los-conjuntos"><span class="toc-section-number">1.1</span> Signatura del TAD de los conjuntos</a></li>
+<li><a href="#propiedades-del-tad-de-los-conjuntos"><span class="toc-section-number">1.2</span> Propiedades del TAD de los conjuntos</a></li>
+</ul></li>
+<li><a href="#implementaciones-del-tad-de-los-conjuntos"><span class="toc-section-number">2</span> Implementaciones del TAD de los conjuntos</a><ul>
+<li><a href="#los-conjuntos-como-listas-no-ordenadas-con-duplicados"><span class="toc-section-number">2.1</span> Los conjuntos como listas no ordenadas con duplicados</a></li>
+<li><a href="#los-conjuntos-como-listas-no-ordenadas-sin-duplicados"><span class="toc-section-number">2.2</span> Los conjuntos como listas no ordenadas sin duplicados</a></li>
+<li><a href="#los-conjuntos-como-listas-ordenadas-sin-duplicados"><span class="toc-section-number">2.3</span> Los conjuntos como listas ordenadas sin duplicados</a></li>
+<li><a href="#los-conjuntos-de-números-enteros-mediante-números-binarios"><span class="toc-section-number">2.4</span> Los conjuntos de números enteros mediante números binarios</a></li>
+</ul></li>
+<li><a href="#comprobación-de-las-implementaciones-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de las implementaciones con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-conjuntos"><span class="toc-section-number">3.2</span> Generador de conjuntos</a></li>
+<li><a href="#especificación-de-las-propiedades-de-los-conjuntos"><span class="toc-section-number">3.3</span> Especificación de las propiedades de los conjuntos</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-los-conjuntos"><span class="header-section-number">1</span> Especificación del TAD de los conjuntos</h1>
+<h2 id="signatura-del-tad-de-los-conjuntos"><span class="header-section-number">1.1</span> Signatura del TAD de los conjuntos</h2>
+<ul>
+<li>Signatura:</li>
+</ul>
+<pre class="sesion"><code>vacio,     :: Conj a                         
+inserta    :: Eq a =&gt; a -&gt; Conj a -&gt; Conj a
+elimina    :: Eq a =&gt; a -&gt; Conj a -&gt; Conj a
+pertenece  :: Eq a =&gt; a -&gt; Conj a -&gt; Bool  
+esVacio    :: Conj a -&gt; Bool                </code></pre>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>vacio</code> es el conjunto vacío.</li>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>.</li>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>.</li>
+<li><code>(pertenece x c)</code> se verifica si <code>x</code> pertenece al conjunto <code>c</code>.</li>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío.</li>
+</ul></li>
+</ul>
+<h2 id="propiedades-del-tad-de-los-conjuntos"><span class="header-section-number">1.2</span> Propiedades del TAD de los conjuntos</h2>
+<ul>
+<li><p><code>inserta x (inserta x c) == inserta x c</code></p></li>
+<li><p><code>inserta x (inserta y c) == inserta y (inserta x c)</code></p></li>
+<li><p><code>not (pertenece x vacio)</code></p></li>
+<li><p><code>pertenece y (inserta x c) == (x==y) || pertenece y c</code></p></li>
+<li><p><code>elimina x vacio == vacio</code></p></li>
+<li><p>Si <code>x == y</code>, entonces<br />
+ <code>elimina x (inserta y c) == elimina x c</code></p></li>
+<li><p>Si <code>x /= y</code>, entonces<br />
+ <code>elimina x (inserta y c) == inserta y (elimina x c)</code></p></li>
+<li><p><code>esVacio vacio</code></p></li>
+<li><p><code>not (esVacio (inserta x c))</code></p></li>
+</ul>
+<h1 id="implementaciones-del-tad-de-los-conjuntos"><span class="header-section-number">2</span> Implementaciones del TAD de los conjuntos</h1>
+<h2 id="los-conjuntos-como-listas-no-ordenadas-con-duplicados"><span class="header-section-number">2.1</span> Los conjuntos como listas no ordenadas con duplicados</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ConjuntoConListasNoOrdenadasConDuplicados</span> 
+    (<span class="dt">Conj</span>,
+     vacio,     <span class="co">-- Conj a                         </span>
+     inserta,   <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+     elimina,   <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+     pertenece, <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Bool  </span>
+     esVacio,   <span class="co">-- Conj a -&gt; Bool                </span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>El tipo de los conjuntos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Conj</span> a <span class="fu">=</span> <span class="dt">Cj</span> [a]</code></pre></div>
+<ul>
+<li>Procedimiento de escritura de los conjuntos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Conj</span> a) <span class="kw">where</span>
+    showsPrec _ (<span class="dt">Cj</span> s) cad <span class="fu">=</span> showConj s cad
+
+showConj []     cad <span class="fu">=</span> showString <span class="st">&quot;{}&quot;</span> cad
+showConj (x<span class="fu">:</span>xs) cad <span class="fu">=</span> 
+  showChar <span class="ch">&#39;{&#39;</span> (shows x (showl xs cad))
+  <span class="kw">where</span> 
+   showl []     cad <span class="fu">=</span> showChar <span class="ch">&#39;}&#39;</span> cad
+   showl (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;,&#39;</span> (shows x (showl xs cad))</code></pre></div>
+<ul>
+<li>Ejemplo de conjunto: <code>c1</code> es el conjunto obtenido añadiéndole al conjunto vacío los elementos 2, 5, 1, 3, 7, 5, 3, 2, 1, 9 y 0.</li>
+</ul>
+<pre class="sesion"><code>ghci &gt; c1
+{2,5,1,3,7,5,3,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">c1 ::</span> <span class="dt">Conj</span> <span class="dt">Int</span>
+c1 <span class="fu">=</span> foldr inserta vacio [<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">7</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>,<span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>vacio</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; vacio
+{}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Conj</span> a                         
+vacio <span class="fu">=</span> <span class="dt">Cj</span> []</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {2,5,1,3,7,5,3,2,1,9,0}
+inserta 5 c1  ==  {5,2,5,1,3,7,5,3,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+inserta x (<span class="dt">Cj</span> ys) <span class="fu">=</span> <span class="dt">Cj</span> (x<span class="fu">:</span>ys)</code></pre></div>
+<ul>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {2,5,1,3,7,5,3,2,1,9,0}
+elimina 3 c1  ==  {2,5,1,7,5,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elimina ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+elimina x (<span class="dt">Cj</span> ys) <span class="fu">=</span> <span class="dt">Cj</span> (filter (<span class="fu">/=</span> x) ys)</code></pre></div>
+<ul>
+<li><code>(pertenece x c)</code> se verifica si <code>x</code> pertenece al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1              ==  {2,5,1,3,7,5,3,2,1,9,0}
+pertenece 3 c1  ==  True
+pertenece 4 c1  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pertenece ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span> 
+pertenece x (<span class="dt">Cj</span> xs) <span class="fu">=</span> elem x xs</code></pre></div>
+<ul>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacio c1     ==  False
+esVacio vacio  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>                
+esVacio (<span class="dt">Cj</span> xs) <span class="fu">=</span> null xs</code></pre></div>
+<ul>
+<li><code>(subconjunto c1 c2)</code> se verifica si <code>c1</code> es un subconjunto de <code>c2</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>subconjunto (Cj [1,3,2,1]) (Cj [3,1,3,2])  ==  True
+subconjunto (Cj [1,3,4,1]) (Cj [3,1,3,2])  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">subconjunto ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+subconjunto (<span class="dt">Cj</span> xs) (<span class="dt">Cj</span> ys) <span class="fu">=</span> sublista xs ys
+    <span class="kw">where</span> sublista [] _      <span class="fu">=</span> <span class="dt">True</span>
+          sublista (x<span class="fu">:</span>xs) ys <span class="fu">=</span> elem x ys <span class="fu">&amp;&amp;</span> 
+                               sublista xs ys</code></pre></div>
+<ul>
+<li><code>(igualConjunto c1 c2)</code> se verifica si los conjuntos <code>c1</code> y <code>c2</code> son iguales. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>igualConjunto (Cj [1,3,2,1]) (Cj [3,1,3,2])  ==  True
+igualConjunto (Cj [1,3,4,1]) (Cj [3,1,3,2])  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">igualConjunto ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+igualConjunto c1 c2 <span class="fu">=</span> 
+    subconjunto c1 c2 <span class="fu">&amp;&amp;</span> subconjunto c2 c1</code></pre></div>
+<ul>
+<li>Los conjuntos son comparables por igualdad.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Eq</span> (<span class="dt">Conj</span> a) <span class="kw">where</span>
+    (<span class="fu">==</span>) <span class="fu">=</span> igualConjunto</code></pre></div>
+<h2 id="los-conjuntos-como-listas-no-ordenadas-sin-duplicados"><span class="header-section-number">2.2</span> Los conjuntos como listas no ordenadas sin duplicados</h2>
+<ul>
+<li>Cabecera del módulo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ConjuntoConListasNoOrdenadasSinDuplicados</span>
+    (<span class="dt">Conj</span>,
+     vacio,     <span class="co">-- Conj a                       </span>
+     esVacio,   <span class="co">-- Conj a -&gt; Bool               </span>
+     pertenece, <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Bool  </span>
+     inserta,   <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+     elimina    <span class="co">-- Eq a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Los conjuntos como listas no ordenadas sin repeticiones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Conj</span> a <span class="fu">=</span> <span class="dt">Cj</span> [a]</code></pre></div>
+<ul>
+<li>Procedimiento de escritura de los conjuntos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Conj</span> a) <span class="kw">where</span>
+    showsPrec _ (<span class="dt">Cj</span> s) cad <span class="fu">=</span> showConj s cad
+
+showConj []     cad <span class="fu">=</span> showString <span class="st">&quot;{}&quot;</span> cad
+showConj (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;{&#39;</span> (shows x (showl xs cad)) 
+  <span class="kw">where</span> 
+  showl []     cad <span class="fu">=</span> showChar <span class="ch">&#39;}&#39;</span> cad
+  showl (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;,&#39;</span> (shows x (showl xs cad))</code></pre></div>
+<ul>
+<li>Ejemplo de conjunto: <code>c1</code> es el conjunto obtenido añadiéndole al conjunto vacío los elementos 2, 5, 1, 3, 7, 5, 3, 2, 1, 9 y 0.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+{7,5,3,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">c1 ::</span> <span class="dt">Conj</span> <span class="dt">Int</span>
+c1 <span class="fu">=</span> foldr inserta vacio [<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">7</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>,<span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>vacio</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; vacio
+{}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Conj</span> a                         
+vacio <span class="fu">=</span> <span class="dt">Cj</span> []</code></pre></div>
+<ul>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacio c1     ==  False
+esVacio vacio  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>                
+esVacio (<span class="dt">Cj</span> xs) <span class="fu">=</span> null xs</code></pre></div>
+<ul>
+<li><code>(pertenece x c)</code> se verifica si <code>x</code> pertenece al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1              ==  {2,5,1,3,7,5,3,2,1,9,0}
+pertenece 3 c1  ==  True
+pertenece 4 c1  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pertenece ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span> 
+pertenece x (<span class="dt">Cj</span> xs) <span class="fu">=</span> elem x xs</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>inserta 4 c1  ==  {4,7,5,3,2,1,9,0}
+inserta 5 c1  ==  {7,5,3,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+inserta x s<span class="fu">@</span>(<span class="dt">Cj</span> xs) <span class="fu">|</span> pertenece x s <span class="fu">=</span> s
+                    <span class="fu">|</span> otherwise  <span class="fu">=</span> <span class="dt">Cj</span> (x<span class="fu">:</span>xs)</code></pre></div>
+<ul>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>elimina 3 c1  ==  {7,5,2,1,9,0}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elimina ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+elimina x (<span class="dt">Cj</span> ys) <span class="fu">=</span> <span class="dt">Cj</span> [y <span class="fu">|</span> y <span class="ot">&lt;-</span> ys, y <span class="fu">/=</span> x]</code></pre></div>
+<ul>
+<li><code>(subconjunto c1 c2)</code> se verifica si <code>c1</code> es un subconjunto de <code>c2</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>subconjunto (Cj [1,3,2]) (Cj [3,1,2])    ==  True
+subconjunto (Cj [1,3,4,1]) (Cj [1,3,2])  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">subconjunto ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+subconjunto (<span class="dt">Cj</span> xs) (<span class="dt">Cj</span> ys) <span class="fu">=</span> sublista xs ys
+    <span class="kw">where</span> sublista [] _      <span class="fu">=</span> <span class="dt">True</span>
+          sublista (x<span class="fu">:</span>xs) ys <span class="fu">=</span> elem x ys <span class="fu">&amp;&amp;</span> 
+                               sublista xs ys</code></pre></div>
+<ul>
+<li><code>(igualConjunto c1 c2)</code> se verifica si los conjuntos <code>c1</code> y <code>c2</code> son iguales. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>igualConjunto (Cj [3,2,1]) (Cj [1,3,2])  ==  True
+igualConjunto (Cj [1,3,4]) (Cj [1,3,2])  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">igualConjunto ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+igualConjunto c1 c2 <span class="fu">=</span> 
+    subconjunto c1 c2 <span class="fu">&amp;&amp;</span> subconjunto c2 c1</code></pre></div>
+<ul>
+<li>Los conjuntos son comparables por igualdad.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Eq</span> (<span class="dt">Conj</span> a) <span class="kw">where</span>
+    (<span class="fu">==</span>) <span class="fu">=</span> igualConjunto</code></pre></div>
+<h2 id="los-conjuntos-como-listas-ordenadas-sin-duplicados"><span class="header-section-number">2.3</span> Los conjuntos como listas ordenadas sin duplicados</h2>
+<ul>
+<li>Cabecera del módulo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ConjuntoConListasOrdenadasSinDuplicados</span>
+    (<span class="dt">Conj</span>,
+     vacio,     <span class="co">-- Conj a                       </span>
+     esVacio,   <span class="co">-- Conj a -&gt; Bool               </span>
+     pertenece, <span class="co">-- Ord a =&gt; a -&gt; Conj a -&gt; Bool  </span>
+     inserta,   <span class="co">-- Ord a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+     elimina    <span class="co">-- Ord a =&gt; a -&gt; Conj a -&gt; Conj a</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Los conjuntos como listas ordenadas sin repeticiones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Conj</span> a <span class="fu">=</span> <span class="dt">Cj</span> [a]
+    <span class="kw">deriving</span> <span class="dt">Eq</span></code></pre></div>
+<ul>
+<li>Procedimiento de escritura de los conjuntos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Conj</span> a) <span class="kw">where</span>
+    showsPrec _ (<span class="dt">Cj</span> s) cad <span class="fu">=</span> showConj s cad
+
+showConj []     cad <span class="fu">=</span> showString <span class="st">&quot;{}&quot;</span> cad
+showConj (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;{&#39;</span> (shows x (showl xs cad))
+     <span class="kw">where</span> showl []     cad <span class="fu">=</span> showChar <span class="ch">&#39;}&#39;</span> cad
+           showl (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;,&#39;</span> (shows x (showl xs cad))</code></pre></div>
+<ul>
+<li>Ejemplo de conjunto: <code>c1</code> es el conjunto obtenido añadiéndole al conjunto vacío los elementos 2, 5, 1, 3, 7, 5, 3, 2, 1, 9 y 0.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+{0,1,2,3,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">c1 ::</span> <span class="dt">Conj</span> <span class="dt">Int</span>
+c1 <span class="fu">=</span> foldr inserta vacio [<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">7</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>,<span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>vacio</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; vacio
+{}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Conj</span> a                         
+vacio <span class="fu">=</span> <span class="dt">Cj</span> []</code></pre></div>
+<ul>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacio c1     ==  False
+esVacio vacio  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>                
+esVacio (<span class="dt">Cj</span> xs) <span class="fu">=</span> null xs</code></pre></div>
+<ul>
+<li><code>(pertenece x c)</code> se verifica si <code>x</code> pertenece al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1              ==  {0,1,2,3,5,7,9}
+pertenece 3 c1  ==  True
+pertenece 4 c1  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pertenece ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span> 
+pertenece x (<span class="dt">Cj</span> ys) <span class="fu">=</span> elem x (takeWhile (<span class="fu">&lt;=</span> x) ys)</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {0,1,2,3,5,7,9}
+inserta 5 c1  ==  {0,1,2,3,5,7,9}
+inserta 4 c1  ==  {0,1,2,3,4,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+inserta x (<span class="dt">Cj</span> s) <span class="fu">=</span> <span class="dt">Cj</span> (agrega x s) <span class="kw">where</span> 
+   agrega x []                   <span class="fu">=</span> [x]                
+   agrega x s<span class="fu">@</span>(y<span class="fu">:</span>ys) <span class="fu">|</span> x <span class="fu">&gt;</span> y     <span class="fu">=</span> y <span class="fu">:</span> (agrega x ys)
+                     <span class="fu">|</span> x <span class="fu">&lt;</span> y     <span class="fu">=</span> x <span class="fu">:</span> s
+                     <span class="fu">|</span> otherwise <span class="fu">=</span> s</code></pre></div>
+<ul>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {0,1,2,3,5,7,9}
+elimina 3 c1  ==  {0,1,2,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elimina ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a <span class="ot">-&gt;</span> <span class="dt">Conj</span> a
+elimina x (<span class="dt">Cj</span> s) <span class="fu">=</span> <span class="dt">Cj</span> (elimina x s) <span class="kw">where</span> 
+   elimina x []                   <span class="fu">=</span> []
+   elimina x s<span class="fu">@</span>(y<span class="fu">:</span>ys) <span class="fu">|</span> x <span class="fu">&gt;</span> y     <span class="fu">=</span> y <span class="fu">:</span> elimina x ys
+                      <span class="fu">|</span> x <span class="fu">&lt;</span> y     <span class="fu">=</span> s
+                      <span class="fu">|</span> otherwise <span class="fu">=</span> ys</code></pre></div>
+<h2 id="los-conjuntos-de-números-enteros-mediante-números-binarios"><span class="header-section-number">2.4</span> Los conjuntos de números enteros mediante números binarios</h2>
+<ul>
+<li>Los conjuntos que sólo contienen números (de tipo <code>Int</code>) entre 0 y n-1, se pueden representar como números binarios con n bits donde el bit i (0 ≤ i &lt; n) es 1 syss el número i pertenece al conjunto. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>  {3,4}     en binario es 11000 y en decimal es 24 
+  {1,2,3,4} en binario es 11110 y en decimal es 30 
+  {1,2,4}   en binario es 10110 y en decimal es 22 </code></pre>
+<ul>
+<li>Cabecera del módulo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ConjuntoConNumerosBinarios</span>
+    (<span class="dt">Conj</span>,
+     vacio,     <span class="co">-- Conj                       </span>
+     esVacio,   <span class="co">-- Conj -&gt; Bool               </span>
+     pertenece, <span class="co">-- Int -&gt; Conj -&gt; Bool  </span>
+     inserta,   <span class="co">-- Int -&gt; Conj -&gt; Conj</span>
+     elimina    <span class="co">-- Int -&gt; Conj -&gt; Conj</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Los conjuntos de números enteros como números binarios.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Conj</span> <span class="fu">=</span> <span class="dt">Cj</span> <span class="dt">Int</span> <span class="kw">deriving</span> <span class="dt">Eq</span></code></pre></div>
+<ul>
+<li><code>(conj2Lista c)</code> es la lista de los elementos del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>conj2Lista (Cj 24)  ==  [3,4]
+conj2Lista (Cj 30)  ==  [1,2,3,4]
+conj2Lista (Cj 22)  ==  [1,2,4]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">conj2Lista (<span class="dt">Cj</span> s) <span class="fu">=</span> c2l s <span class="dv">0</span>
+    <span class="kw">where</span> 
+      c2l <span class="dv">0</span> _             <span class="fu">=</span> []
+      c2l n i <span class="fu">|</span> odd n     <span class="fu">=</span> i <span class="fu">:</span> c2l (n <span class="ot">`div`</span> <span class="dv">2</span>) (i<span class="fu">+</span><span class="dv">1</span>)
+              <span class="fu">|</span> otherwise <span class="fu">=</span> c2l (n <span class="ot">`div`</span> <span class="dv">2</span>) (i<span class="fu">+</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li>Procedimiento de escritura de conjuntos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Conj</span> <span class="kw">where</span>
+    showsPrec _ s cad <span class="fu">=</span> showConj (conj2Lista s) cad
+
+showConj []     cad <span class="fu">=</span> showString <span class="st">&quot;{}&quot;</span> cad
+showConj (x<span class="fu">:</span>xs) cad <span class="fu">=</span> 
+   showChar <span class="ch">&#39;{&#39;</span> (shows x (showl xs cad))
+   <span class="kw">where</span> 
+     showl []     cad <span class="fu">=</span> showChar <span class="ch">&#39;}&#39;</span> cad
+     showl (x<span class="fu">:</span>xs) cad <span class="fu">=</span> showChar <span class="ch">&#39;,&#39;</span> (shows x (showl xs cad))</code></pre></div>
+<ul>
+<li><code>maxConj</code> es el máximo número que puede pertenecer al conjunto. Depende de la implementación de Haskell. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>maxConj  ==  29</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">maxConj ::</span> <span class="dt">Int</span>
+maxConj <span class="fu">=</span> 
+   truncate (logBase <span class="dv">2</span> (fromIntegral maxInt)) <span class="fu">-</span> <span class="dv">1</span>
+   <span class="kw">where</span> maxInt <span class="fu">=</span><span class="ot"> maxBound::</span><span class="dt">Int</span></code></pre></div>
+<ul>
+<li>Ejemplo de conjunto: <code>c1</code> es el conjunto obtenido añadiéndole al conjunto vacío los elementos 2, 5, 1, 3, 7, 5, 3, 2, 1, 9 y 0.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; c1
+{0,1,2,3,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">c1 ::</span> <span class="dt">Conj</span>
+c1 <span class="fu">=</span> foldr inserta vacio [<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">7</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">9</span>,<span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>vacio</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; vacio
+{}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Conj</span>
+vacio <span class="fu">=</span> <span class="dt">Cj</span> <span class="dv">0</span></code></pre></div>
+<ul>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacio c1     ==  False
+esVacio vacio  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esVacio (<span class="dt">Cj</span> n) <span class="fu">=</span> n <span class="fu">==</span> <span class="dv">0</span></code></pre></div>
+<ul>
+<li><code>(pertenece x c)</code> se verifica si <code>x</code> pertenece al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1              ==  {0,1,2,3,5,7,9}
+pertenece 3 c1  ==  True
+pertenece 4 c1  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pertenece ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+pertenece i (<span class="dt">Cj</span> s)
+    <span class="fu">|</span> (i<span class="fu">&gt;=</span><span class="dv">0</span>) <span class="fu">&amp;&amp;</span> (i<span class="fu">&lt;=</span>maxConj) <span class="fu">=</span> odd (s <span class="ot">`div`</span> (<span class="dv">2</span><span class="fu">^</span>i))
+    <span class="fu">|</span> otherwise    
+      <span class="fu">=</span> error (<span class="st">&quot;pertenece: elemento ilegal =&quot;</span> <span class="fu">++</span> show i)</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {0,1,2,3,5,7,9}
+inserta 5 c1  ==  {0,1,2,3,5,7,9}
+inserta 4 c1  ==  {0,1,2,3,4,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">inserta i (<span class="dt">Cj</span> s)
+    <span class="fu">|</span> (i<span class="fu">&gt;=</span><span class="dv">0</span>) <span class="fu">&amp;&amp;</span> (i<span class="fu">&lt;=</span>maxConj) <span class="fu">=</span> <span class="dt">Cj</span> (d&#39;<span class="fu">*</span>e<span class="fu">+</span>m)
+    <span class="fu">|</span> otherwise 
+      <span class="fu">=</span> error (<span class="st">&quot;inserta: elemento ilegal =&quot;</span> <span class="fu">++</span> show i)
+    <span class="kw">where</span> (d,m) <span class="fu">=</span> divMod s e
+          e     <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>i
+          d&#39;    <span class="fu">=</span> <span class="kw">if</span> odd d <span class="kw">then</span> d <span class="kw">else</span> d<span class="fu">+</span><span class="dv">1</span></code></pre></div>
+<ul>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>c1            ==  {0,1,2,3,5,7,9}
+elimina 3 c1  ==  {0,1,2,5,7,9}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">elimina i (<span class="dt">Cj</span> s)
+    <span class="fu">|</span> (i<span class="fu">&gt;=</span><span class="dv">0</span>) <span class="fu">&amp;&amp;</span> (i<span class="fu">&lt;=</span>maxConj) <span class="fu">=</span> <span class="dt">Cj</span> (d&#39;<span class="fu">*</span>e<span class="fu">+</span>m)
+    <span class="fu">|</span> otherwise              
+      <span class="fu">=</span> error (<span class="st">&quot;elimina: elemento ilegal =&quot;</span> <span class="fu">++</span> show i)
+    <span class="kw">where</span> (d,m) <span class="fu">=</span> divMod s e
+          e     <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>i
+          d&#39;    <span class="fu">=</span> <span class="kw">if</span> odd d <span class="kw">then</span> d<span class="fu">-</span><span class="dv">1</span> <span class="kw">else</span> d</code></pre></div>
+<h1 id="comprobación-de-las-implementaciones-con-quickcheck"><span class="header-section-number">3</span> Comprobación de las implementaciones con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación de los conjuntos que se desea verificar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">ConjuntoConListasNoOrdenadasConDuplicados</span>
+<span class="co">-- import ConjuntoConListasNoOrdenadasSinDuplicados</span>
+<span class="co">-- import ConjuntoConListasOrdenadasSinDuplicados</span></code></pre></div>
+<ul>
+<li>Importación de las librerías de comprobación</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-conjuntos"><span class="header-section-number">3.2</span> Generador de conjuntos</h2>
+<ul>
+<li><code>genConjunto</code> es un generador de conjuntos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genConjunto
+{3,-2,-2,-3,-2,4}
+{-8,0,4,6,-5,-2}
+{}</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genConjunto ::</span> <span class="dt">Gen</span> (<span class="dt">Conj</span> <span class="dt">Int</span>)
+genConjunto <span class="fu">=</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> listOf arbitrary
+                 return (foldr inserta vacio xs)
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">Conj</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genConjunto</code></pre></div>
+<h2 id="especificación-de-las-propiedades-de-los-conjuntos"><span class="header-section-number">3.3</span> Especificación de las propiedades de los conjuntos</h2>
+<ul>
+<li>El número de veces que se añada un elemento a un conjunto no importa.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_independencia_repeticiones ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="dt">Int</span> 
+                                   <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_independencia_repeticiones x c <span class="fu">=</span>
+    inserta x (inserta x c) <span class="fu">==</span> inserta x c</code></pre></div>
+<ul>
+<li>El orden en que se añadan los elementos a un conjunto no importa.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_independencia_del_orden ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="dt">Int</span> 
+                                <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_independencia_del_orden x y c <span class="fu">=</span>
+    inserta x (inserta y c) <span class="fu">==</span> inserta y (inserta x c)</code></pre></div>
+<ul>
+<li>El conjunto vacío no tiene elementos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacio_no_elementos::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_vacio_no_elementos x <span class="fu">=</span> 
+    not (pertenece x vacio)</code></pre></div>
+<ul>
+<li>Un elemento pertenece al conjunto obtenido añadiendo <code>x</code> al conjunto <code>c</code> syss es igual a <code>x</code> o pertenece a <code>c</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_pertenece_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_pertenece_inserta x y c <span class="fu">=</span>
+    pertenece y (inserta x c) <span class="fu">==</span> (x<span class="fu">==</span>y) <span class="fu">||</span> pertenece y c</code></pre></div>
+<ul>
+<li>Al eliminar cualquier elemento del conjunto vacío se obtiene el conjunto vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elimina_vacio ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elimina_vacio x <span class="fu">=</span>
+    elimina x vacio <span class="fu">==</span> vacio</code></pre></div>
+<ul>
+<li>El resultado de eliminar x en el conjunto obtenido añadiéndole x al conjunto c es c menos x, si x e y son iguales y es el conjunto obtenido añadiéndole y a c menos x, en caso contrario.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elimina_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elimina_inserta x y c <span class="fu">=</span>
+    elimina x (inserta y c) 
+    <span class="fu">==</span> <span class="kw">if</span> x <span class="fu">==</span> y <span class="kw">then</span> elimina x c
+       <span class="kw">else</span> inserta y (elimina x c)</code></pre></div>
+<ul>
+<li><code>vacio</code> es vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacio_es_vacio ::</span> <span class="dt">Bool</span>
+prop_vacio_es_vacio <span class="fu">=</span> 
+    esVacio (<span class="ot">vacio ::</span> <span class="dt">Conj</span> <span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li>Los conjuntos construidos con <code>inserta</code> no son vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_es_no_vacio ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_es_no_vacio x c <span class="fu">=</span>
+    not (esVacio (inserta x c))</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del TAD conjunto:&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span> prop_vacio_es_vacio,
+           testProperty <span class="st">&quot;P2&quot;</span> prop_inserta_es_no_vacio,
+           testProperty <span class="st">&quot;P3&quot;</span> prop_independencia_repeticiones,
+           testProperty <span class="st">&quot;P4&quot;</span> prop_independencia_del_orden,
+           testProperty <span class="st">&quot;P5&quot;</span> prop_vacio_no_elementos,
+           testProperty <span class="st">&quot;P6&quot;</span> prop_pertenece_inserta,
+           testProperty <span class="st">&quot;P7&quot;</span> prop_elimina_vacio,
+           testProperty <span class="st">&quot;P8&quot;</span> prop_elimina_inserta]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de los conjuntos</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades 
+Propiedades del TAD conjunto:
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+  P7: [OK, passed 100 tests]
+  P8: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  8           8          
+ Failed  0           0          
+ Total   8           8    </code></pre>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

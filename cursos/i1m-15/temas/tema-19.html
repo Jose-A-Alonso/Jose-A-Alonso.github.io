@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 19: El TAD de las árboles binarios de búsqueda</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 19: El TAD de las árboles binarios de búsqueda</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="toc-section-number">1</span> Especificación del TAD de los árboles binarios de búsqueda</a><ul>
+<li><a href="#signatura-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="toc-section-number">1.1</span> Signatura del TAD de los árboles binarios de búsqueda</a></li>
+<li><a href="#propiedades-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="toc-section-number">1.2</span> Propiedades del TAD de los árboles binarios de búsqueda</a></li>
+</ul></li>
+<li><a href="#implementación-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="toc-section-number">2</span> Implementación del TAD de los árboles binarios de búsqueda</a><ul>
+<li><a href="#los-abb-como-tipo-de-dato-algebraico"><span class="toc-section-number">2.1</span> Los ABB como tipo de dato algebraico</a></li>
+</ul></li>
+<li><a href="#comprobación-de-la-implementación-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de la implementación con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-árboles-binarios-de-búsqueda"><span class="toc-section-number">3.2</span> Generador de árboles binarios de búsqueda</a></li>
+<li><a href="#especificación-de-las-propiedades-de-los-árboles-de-búsqueda"><span class="toc-section-number">3.3</span> Especificación de las propiedades de los árboles de búsqueda</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="header-section-number">1</span> Especificación del TAD de los árboles binarios de búsqueda</h1>
+<h2 id="signatura-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="header-section-number">1.1</span> Signatura del TAD de los árboles binarios de búsqueda</h2>
+<p><strong>Descripción de los árboles binarios de búsqueda</strong></p>
+<ul>
+<li><p>Un árbol binario de búsqueda (ABB) es un árbol binario tal que el valor de cada nodo es mayor que los valores de su subárbol izquierdo y es menor que los valores de su subárbol derecho y, además, ambos subárboles son árboles binarios de búsqueda.</p></li>
+<li><p>Por ejemplo, al almacenar los valores de [2,3,4,5,6,8,9] en un ABB se puede obtener los siguientes ABB:</p></li>
+</ul>
+<pre class="sesion"><code>    5                     5
+  /   \                 /   \
+ 2     6               3     8
+  \     \             / \   / \
+   4     8           2   4 6   9
+  /       \
+ 3         9</code></pre>
+<ul>
+<li>El objetivo principal de los ABB es reducir el tiempo de acceso a los valores.</li>
+</ul>
+<p><strong>Signatura del TAD de los árboles binarios de búsqueda</strong></p>
+<pre class="sesion"><code>vacio     :: ABB 
+inserta   :: (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; ABB a
+elimina   :: (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; ABB a
+crea      :: (Ord a,Show a) =&gt; [a] -&gt; ABB a
+menor     :: Ord a =&gt; ABB a -&gt; a
+elementos :: (Ord a,Show a) =&gt; ABB a -&gt; [a]
+pertenece :: (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; Bool
+valido    :: (Ord a,Show a) =&gt; ABB a -&gt; Bool</code></pre>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>vacio</code> es el ABB vacío.</li>
+<li><code>(pertenece v a)</code> se verifica si v es el valor de algún nodo del ABB a.</li>
+<li><code>(inserta v a)</code> es el árbol obtenido añadiendo el valor v al ABB a, si no es uno de sus valores.</li>
+<li><code>(crea vs)</code> es el ABB cuyos valores son vs.</li>
+<li><code>(elementos a)</code> es la lista de los valores de los nodos del ABB en el recorrido inorden.</li>
+<li><code>(elimina v a)</code> es el ABB obtenido eliminando el valor v del ABB a.</li>
+<li><code>(menor a)</code> es el mínimo valor del ABB a.</li>
+<li><code>(valido a)</code> se verifica si a es un ABB correcto.</li>
+</ul></li>
+</ul>
+<h2 id="propiedades-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="header-section-number">1.2</span> Propiedades del TAD de los árboles binarios de búsqueda</h2>
+<ul>
+<li><p><code>valido vacio</code></p></li>
+<li><p><code>valido (inserta v a)</code></p></li>
+<li><p><code>inserta x a /= vacio</code></p></li>
+<li><p><code>pertenece x (inserta x a)</code></p></li>
+<li><p><code>not (pertenece x vacio)</code></p></li>
+<li><p><code>pertenece y (inserta x a) == (x == y) || pertenece y a</code></p></li>
+<li><p><code>valido (elimina v a)</code></p></li>
+<li><p><code>elimina x (inserta x a) == elimina x a</code></p></li>
+<li><p><code>valido (crea xs)</code></p></li>
+<li><p><code>elementos (crea xs) == sort (nub xs)</code></p></li>
+<li><p><code>pertenece v a == elem v (elementos a)</code></p></li>
+<li><p><code>∀x ∈ elementos a (menor a ≤ x)</code></p></li>
+</ul>
+<h1 id="implementación-del-tad-de-los-árboles-binarios-de-búsqueda"><span class="header-section-number">2</span> Implementación del TAD de los árboles binarios de búsqueda</h1>
+<h2 id="los-abb-como-tipo-de-dato-algebraico"><span class="header-section-number">2.1</span> Los ABB como tipo de dato algebraico</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ArbolBin</span>
+    (<span class="dt">ABB</span>,
+     vacio,     <span class="co">-- ABB </span>
+     inserta,   <span class="co">-- (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; ABB a</span>
+     elimina,   <span class="co">-- (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; ABB a</span>
+     crea,      <span class="co">-- (Ord a,Show a) =&gt; [a] -&gt; ABB a</span>
+     crea&#39;,     <span class="co">-- (Ord a,Show a) =&gt; [a] -&gt; ABB a</span>
+     menor,     <span class="co">-- Ord a =&gt; ABB a -&gt; a</span>
+     elementos, <span class="co">-- (Ord a,Show a) =&gt; ABB a -&gt; [a]</span>
+     pertenece, <span class="co">-- (Ord a,Show a) =&gt; a -&gt; ABB a -&gt; Bool</span>
+     valido     <span class="co">-- (Ord a,Show a) =&gt; ABB a -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Los ABB como tipo de dato algebraico.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">ABB</span> a <span class="fu">=</span> <span class="dt">Vacio</span>
+                    <span class="fu">|</span> <span class="dt">Nodo</span> a (<span class="dt">ABB</span> a) (<span class="dt">ABB</span> a)
+                    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
+<ul>
+<li>Procedimiento de escritura de árboles binarios de búsqueda.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Ord</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">ABB</span> a) <span class="kw">where</span>
+    show <span class="dt">Vacio</span>        <span class="fu">=</span> <span class="st">&quot; -&quot;</span>
+    show (<span class="dt">Nodo</span> x i d) <span class="fu">=</span> 
+       <span class="st">&quot; (&quot;</span> <span class="fu">++</span> show x <span class="fu">++</span> show i <span class="fu">++</span> show d <span class="fu">++</span> <span class="st">&quot;)&quot;</span></code></pre></div>
+<ul>
+<li><code>abb1</code> y <code>abb2</code> son árboles de búsqueda binarios.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; abb1
+ (5 (2 - (4 (3 - -) -)) (6 - (8 - (9 - -))))
+ghci&gt; abb2
+ (5 (2 - (4 (3 - -) -)) (8 (6 - (7 - -)) (10 (9 - -) (11 - -))))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">abb1,<span class="ot"> abb2 ::</span> <span class="dt">ABB</span> <span class="dt">Int</span>
+abb1 <span class="fu">=</span> crea (reverse [<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">3</span>,<span class="dv">9</span>])
+abb2 <span class="fu">=</span> foldr inserta vacio 
+             (reverse [<span class="dv">5</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">9</span>,<span class="dv">11</span>])</code></pre></div>
+<ul>
+<li><code>vacio</code> es el ABB vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">ABB</span> a
+vacio <span class="fu">=</span> <span class="dt">Vacio</span></code></pre></div>
+<ul>
+<li><code>(pertenece v a)</code> se verifica si <code>v</code> es el valor de algún nodo del ABB <code>a</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>pertenece 3 abb1  ==  True
+pertenece 7 abb1  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pertenece ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+pertenece v&#39; <span class="dt">Vacio</span>                <span class="fu">=</span> <span class="dt">False</span>
+pertenece v&#39; (<span class="dt">Nodo</span> v i d) <span class="fu">|</span> v&#39; <span class="fu">==</span> v <span class="fu">=</span> <span class="dt">True</span>  
+                          <span class="fu">|</span> v&#39; <span class="fu">&lt;</span>  v <span class="fu">=</span> pertenece v&#39; i
+                          <span class="fu">|</span> v&#39; <span class="fu">&gt;</span>  v <span class="fu">=</span> pertenece v&#39; d</code></pre></div>
+<ul>
+<li><code>(inserta v a)</code> es el árbol obtenido añadiendo el valor <code>v</code> al ABB <code>a</code>, si no es uno de sus valores. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; inserta 7 abb1
+ (5 (2 - (4 (3 - -) -)) (6 - (8 (7 - -) (9 - -))))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a
+inserta v&#39; <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">Nodo</span> v&#39; <span class="dt">Vacio</span> <span class="dt">Vacio</span>
+inserta v&#39; (<span class="dt">Nodo</span> v i d) 
+    <span class="fu">|</span> v&#39; <span class="fu">==</span> v   <span class="fu">=</span> <span class="dt">Nodo</span> v i d
+    <span class="fu">|</span> v&#39; <span class="fu">&lt;</span>  v   <span class="fu">=</span> <span class="dt">Nodo</span> v (inserta v&#39; i) d
+    <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Nodo</span> v i (inserta v&#39; d)</code></pre></div>
+<ul>
+<li><code>(crea vs)</code> es el ABB cuyos valores son <code>vs</code>. Por ejemplo</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; crea [3,7,2]
+ (2 - (7 (3 - -) -))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">crea ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">ABB</span> a
+crea <span class="fu">=</span> foldr inserta <span class="dt">Vacio</span></code></pre></div>
+<ul>
+<li><code>(crea' vs)</code> es el ABB de menor profundidad cuyos valores son los de la lista ordenada <code>vs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; crea&#39; [2,3,7]
+ (3 (2 - -) (7 - -))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">crea&#39; ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">ABB</span> a
+crea&#39; [] <span class="fu">=</span> <span class="dt">Vacio</span>
+crea&#39; vs <span class="fu">=</span> <span class="dt">Nodo</span> x (crea&#39; l1) (crea&#39; l2)
+    <span class="kw">where</span> n      <span class="fu">=</span> length vs <span class="ot">`div`</span> <span class="dv">2</span>
+          l1     <span class="fu">=</span> take n vs
+          (x<span class="fu">:</span>l2) <span class="fu">=</span> drop n vs </code></pre></div>
+<ul>
+<li><code>(elementos a)</code> es la lista de los valores de los nodos del ABB <code>a</code> en el recorrido inorden. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>elementos abb1  ==  [2,3,4,5,6,8,9]
+elementos abb2  ==  [2,3,4,5,6,7,8,9,10,11]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elementos ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> [a]
+elementos <span class="dt">Vacio</span> <span class="fu">=</span> []
+elementos (<span class="dt">Nodo</span> v i d) <span class="fu">=</span> 
+   elementos i <span class="fu">++</span> [v] <span class="fu">++</span> elementos d</code></pre></div>
+<ul>
+<li><code>(elimina v a)</code> el ABB obtenido eliminando el valor <code>v</code> del ABB <code>a</code>.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; elimina 3 abb1
+ (5 (2 - (4 - -)) (6 - (8 - (9 - -))))
+ghci&gt; elimina 2 abb1
+ (5 (4 (3 - -) -) (6 - (8 - (9 - -))))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elimina ::</span> (<span class="dt">Ord</span> a,<span class="dt">Show</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a
+elimina v&#39; <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">Vacio</span> 
+elimina v&#39; (<span class="dt">Nodo</span> v i <span class="dt">Vacio</span>) <span class="fu">|</span> v&#39; <span class="fu">==</span> v <span class="fu">=</span> i 
+elimina v&#39; (<span class="dt">Nodo</span> v <span class="dt">Vacio</span> d) <span class="fu">|</span> v&#39; <span class="fu">==</span> v <span class="fu">=</span> d
+elimina v&#39; (<span class="dt">Nodo</span> v i d)
+    <span class="fu">|</span> v&#39; <span class="fu">&lt;</span>  v <span class="fu">=</span> <span class="dt">Nodo</span> v (elimina v&#39; i) d 
+    <span class="fu">|</span> v&#39; <span class="fu">&gt;</span>  v <span class="fu">=</span> <span class="dt">Nodo</span> v i (elimina v&#39; d)  
+    <span class="fu">|</span> v&#39; <span class="fu">==</span> v <span class="fu">=</span> <span class="dt">Nodo</span> k i (elimina k d)
+                <span class="kw">where</span> k <span class="fu">=</span> menor d </code></pre></div>
+<ul>
+<li><code>(menor a)</code> es el mínimo valor del ABB <code>a</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>menor abb1  ==  2</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">menor ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> a
+menor (<span class="dt">Nodo</span> v <span class="dt">Vacio</span> _) <span class="fu">=</span> v
+menor (<span class="dt">Nodo</span> _ i     _) <span class="fu">=</span> menor i </code></pre></div>
+<ul>
+<li><code>(menorTodos v a)</code> se verifica si <code>v</code> es menor que todos los elementos del ABB <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">menorTodos ::</span> (<span class="dt">Ord</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+menorTodos v <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">True</span> 
+menorTodos v a     <span class="fu">=</span> v <span class="fu">&lt;</span> minimum (elementos a)</code></pre></div>
+<ul>
+<li><code>(mayorTodos v a)</code> se verifica si <code>v</code> es mayor que todos los elementos del ABB <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">mayorTodos ::</span> (<span class="dt">Ord</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+mayorTodos v <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">True</span> 
+mayorTodos v a     <span class="fu">=</span> v <span class="fu">&gt;</span> maximum (elementos a)</code></pre></div>
+<ul>
+<li><code>(valido a)</code> se verifica si <code>a</code> es un ABB correcto. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valido abb1 == True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valido ::</span> (<span class="dt">Ord</span> a, <span class="dt">Show</span> a) <span class="ot">=&gt;</span> <span class="dt">ABB</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valido <span class="dt">Vacio</span>        <span class="fu">=</span> <span class="dt">True</span>
+valido (<span class="dt">Nodo</span> v i d) <span class="fu">=</span> mayorTodos v i <span class="fu">&amp;&amp;</span> menorTodos v d 
+                      <span class="fu">&amp;&amp;</span> valido i <span class="fu">&amp;&amp;</span> valido d</code></pre></div>
+<h1 id="comprobación-de-la-implementación-con-quickcheck"><span class="header-section-number">3</span> Comprobación de la implementación con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación de ABB.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">ArbolBin</span></code></pre></div>
+<ul>
+<li>Importación de librerías auxiliares.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.List</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-árboles-binarios-de-búsqueda"><span class="header-section-number">3.2</span> Generador de árboles binarios de búsqueda</h2>
+<ul>
+<li><code>genABB</code> es un generador de árboles binarios de búsqueda. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genABB
+ -
+ (1 (-1 - -) -)
+ (1 - -)
+ (-1 (-3 - -) (1 - (4 - -)))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genABB ::</span> <span class="dt">Gen</span> (<span class="dt">ABB</span> <span class="dt">Int</span>)
+genABB <span class="fu">=</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> listOf arbitrary
+            return (foldr inserta vacio xs)
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">ABB</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genABB</code></pre></div>
+<ul>
+<li>Propiedad. Todo los elementos generados por genABB son árboles binarios de búsqueda.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_genABB_correcto ::</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_genABB_correcto <span class="fu">=</span> valido </code></pre></div>
+<ul>
+<li><code>listaOrdenada</code> es un generador de listas ordenadas de números enteros. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample listaOrdenada
+[1]
+[-2,-1,0]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">listaOrdenada ::</span> <span class="dt">Gen</span> [<span class="dt">Int</span>]
+listaOrdenada <span class="fu">=</span> 
+    frequency [(<span class="dv">1</span>,return []),
+               (<span class="dv">4</span>,<span class="kw">do</span> xs <span class="ot">&lt;-</span> orderedList
+                     n <span class="ot">&lt;-</span> arbitrary
+                     return (nub ((<span class="kw">case</span> xs <span class="kw">of</span>
+                                     []  <span class="ot">-&gt;</span> n
+                                     x<span class="fu">:</span>_ <span class="ot">-&gt;</span> n <span class="ot">`min`</span> x)
+                                  <span class="fu">:</span>xs)))]</code></pre></div>
+<ul>
+<li><code>(ordenada xs)</code> se verifica si <code>xs</code> es una lista ordenada creciente. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ordenada [3,5,9]  ==  True
+ordenada [3,9,5]  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ordenada ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+ordenada xs <span class="fu">=</span> and [x<span class="fu">&lt;</span>y <span class="fu">|</span> (x,y) <span class="ot">&lt;-</span> zip xs (tail xs)]</code></pre></div>
+<ul>
+<li>Propiedad. El generador <code>listaOrdenada</code> produce listas ordenadas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_listaOrdenada_correcta ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_listaOrdenada_correcta xs <span class="fu">=</span> 
+    forAll listaOrdenada ordenada</code></pre></div>
+<h2 id="especificación-de-las-propiedades-de-los-árboles-de-búsqueda"><span class="header-section-number">3.3</span> Especificación de las propiedades de los árboles de búsqueda</h2>
+<ul>
+<li><code>vacio</code> es un ABB.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacio_es_ABB ::</span> <span class="dt">Bool</span>
+prop_vacio_es_ABB <span class="fu">=</span>
+    valido (<span class="ot">vacio ::</span> <span class="dt">ABB</span> <span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li>Si <code>a</code> es un ABB, entonces <code>(inserta v a)</code> también lo es.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_es_valida ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_es_valida v a <span class="fu">=</span>
+    valido (inserta v a)</code></pre></div>
+<ul>
+<li>El árbol que resulta de añadir un elemento a un ABB es no vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_es_no_vacio ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_es_no_vacio x a <span class="fu">=</span>
+    inserta x a <span class="fu">/=</span> vacio</code></pre></div>
+<ul>
+<li>Para todo <code>x</code> y <code>a</code>, <code>x</code> es un elemento de <code>(inserta x a)</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elemento_de_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elemento_de_inserta x a <span class="fu">=</span>
+    pertenece x (inserta x a)</code></pre></div>
+<ul>
+<li>En un árbol vacio no hay ningún elemento.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacio_sin_elementos ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_vacio_sin_elementos x <span class="fu">=</span>
+    not (pertenece x vacio)</code></pre></div>
+<ul>
+<li>Los elementos de <code>(inserta x a)</code> son <code>x</code> y los elementos de <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elementos_de_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                             <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elementos_de_inserta x y a <span class="fu">=</span>
+    pertenece y (inserta x a)
+    <span class="fu">==</span> (x <span class="fu">==</span> y) <span class="fu">||</span> pertenece y a</code></pre></div>
+<ul>
+<li>Si <code>a</code> es un ABB, entonces <code>(elimina v a)</code> también lo es.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elimina_es_valida ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elimina_es_valida v a <span class="fu">=</span> 
+    valido (elimina v a)</code></pre></div>
+<ul>
+<li>El resultado de eliminar el elemento <code>x</code> en <code>(inserta x a)</code> es <code>(elimina x a)</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elimina_agrega ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elimina_agrega x a <span class="fu">=</span>
+    elimina (inserta x a) <span class="fu">==</span> elimina x a</code></pre></div>
+<ul>
+<li><code>(crea xs)</code> es un ABB.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_crea_es_valida ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_crea_es_valida xs <span class="fu">=</span>
+    valido (crea xs)</code></pre></div>
+<ul>
+<li>Para todas las listas ordenadas <code>xs</code>, se tiene que <code>(crea' xs)</code> es un ABB.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_crea&#39;_es_valida ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_crea&#39;_es_valida xs <span class="fu">=</span>
+    forAll listaOrdenada (valido <span class="fu">.</span> crea&#39;)</code></pre></div>
+<ul>
+<li><code>(elementos (crea xs))</code> es igual a la lista <code>xs</code> ordenada y sin repeticiones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elementos_crea ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elementos_crea xs <span class="fu">=</span>
+    elementos (crea xs) <span class="fu">==</span> sort (nub xs)</code></pre></div>
+<ul>
+<li>Si <code>ys</code> es una lista ordenada sin repeticiones, entonces <code>(elementos (crea' ys))</code> es igual <code>ys</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_elementos_crea&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_elementos_crea&#39; xs <span class="fu">=</span>
+    elementos (crea&#39; ys) <span class="fu">==</span> ys
+    <span class="kw">where</span> ys <span class="fu">=</span> sort (nub xs)</code></pre></div>
+<ul>
+<li>Un elemento pertenece a <code>(elementos a)</code> syss es un valor de <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_en_elementos ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_en_elementos v a <span class="fu">=</span>
+    pertenece v a <span class="fu">==</span> elem v (elementos a)</code></pre></div>
+<ul>
+<li><code>(menor a)</code> es menor o igual que todos los elementos de ABB <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_menoresMinimo ::</span><span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_menoresMinimo v a <span class="fu">=</span>
+    and [menor a <span class="fu">&lt;=</span> v <span class="fu">|</span> v <span class="ot">&lt;-</span> elementos a]</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del tipo ABB&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span>  prop_listaOrdenada_correcta,
+           testProperty <span class="st">&quot;P2&quot;</span>  prop_orderedList_correcta,
+           testProperty <span class="st">&quot;P3&quot;</span>  prop_vacio_es_ABB,
+           testProperty <span class="st">&quot;P4&quot;</span>  prop_inserta_es_valida,
+           testProperty <span class="st">&quot;P5&quot;</span>  prop_inserta_es_no_vacio,
+           testProperty <span class="st">&quot;P6&quot;</span>  prop_elemento_de_inserta,
+           testProperty <span class="st">&quot;P7&quot;</span>  prop_vacio_sin_elementos,
+           testProperty <span class="st">&quot;P8&quot;</span>  prop_elementos_de_inserta,
+           testProperty <span class="st">&quot;P9&quot;</span>  prop_elimina_es_valida,
+           testProperty <span class="st">&quot;P10&quot;</span> prop_elimina_agrega,
+           testProperty <span class="st">&quot;P11&quot;</span> prop_crea_es_valida,
+           testProperty <span class="st">&quot;P12&quot;</span> prop_crea&#39;_es_valida,
+           testProperty <span class="st">&quot;P13&quot;</span> prop_elementos_crea,
+           testProperty <span class="st">&quot;P14&quot;</span> prop_elementos_crea&#39;,
+           testProperty <span class="st">&quot;P15&quot;</span> prop_en_elementos,
+           testProperty <span class="st">&quot;P16&quot;</span> prop_menoresMinimo],
+         testGroup <span class="st">&quot;Corrección del generador&quot;</span> 
+          [testProperty <span class="st">&quot;P18&quot;</span> prop_genABB_correcto]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de los ABB</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades 
+Propiedades del tipo ABB:
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+  P7: [OK, passed 100 tests]
+  P8: [OK, passed 100 tests]
+  P9: [OK, passed 100 tests]
+  P10: [OK, passed 100 tests]
+  P11: [OK, passed 100 tests]
+  P12: [OK, passed 100 tests]
+  P13: [OK, passed 100 tests]
+  P14: [OK, passed 100 tests]
+  P15: [OK, passed 100 tests]
+  P16: [OK, passed 100 tests]
+Corrección del generador:
+  P18: [OK, passed 100 tests]
+
+         Properties   Total       
+ Passed  17           17          
+ Failed  0            0           
+ Total   17           17  </code></pre>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

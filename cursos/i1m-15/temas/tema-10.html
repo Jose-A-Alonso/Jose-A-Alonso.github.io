@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 10: Evaluación perezosa</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 10: Evaluación perezosa</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#estrategias-de-evaluación"><span class="toc-section-number">1</span> Estrategias de evaluación</a></li>
+<li><a href="#terminación"><span class="toc-section-number">2</span> Terminación</a></li>
+<li><a href="#número-de-reducciones"><span class="toc-section-number">3</span> Número de reducciones</a></li>
+<li><a href="#estructuras-infinitas"><span class="toc-section-number">4</span> Estructuras infinitas</a></li>
+<li><a href="#programación-modular"><span class="toc-section-number">5</span> Programación modular</a></li>
+<li><a href="#aplicación-estricta"><span class="toc-section-number">6</span> Aplicación estricta</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">7</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usan las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Data.List</span></code></pre></div>
+<h1 id="estrategias-de-evaluación"><span class="header-section-number">1</span> Estrategias de evaluación</h1>
+<p><strong>Estrategias de evaluación</strong></p>
+<ul>
+<li>Para los ejemplos se considera la función</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mult ::</span> (<span class="dt">Int</span>,<span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Int</span>
+mult (x,y) <span class="fu">=</span> x<span class="fu">*</span>y </code></pre></div>
+<ul>
+<li>Evaluación mediante paso de parámetros por valor (o por más internos):</li>
+</ul>
+<pre class="sesion"><code>mult (1+2,2+3)                        
+= mult (3,5)        [por def. de +]    
+= 3*5               [por def. de mult] 
+= 15                [por def. de *]</code></pre>
+<ul>
+<li>Evaluación mediante paso de parámetros por nombre (o por más externos):</li>
+</ul>
+<pre class="sesion"><code>mult (1+2,2+3)
+= (1+2)*(3+5)       [por def. de mult] 
+= 3*5               [por def. de +] 
+= 15                [por def. de *]</code></pre>
+<p><strong>Evaluación con lambda expresiones</strong></p>
+<ul>
+<li>Se considera la función</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mult&#39; ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+mult&#39; x <span class="fu">=</span> \y <span class="ot">-&gt;</span> x<span class="fu">*</span>y  </code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>mult&#39; (1+2) (2+3) 
+= mult&#39; 3 (2+3)      [por def. de +] 
+= (\y -&gt; 3*y) (2+3)  [por def. de mult&#39;] 
+= (\y -&gt; 3*y) 5      [por def. de +] 
+= 3*5                [por def. de +] 
+= 15                 [por def. de *]</code></pre>
+<h1 id="terminación"><span class="header-section-number">2</span> Terminación</h1>
+<p><strong>Procesamiento con el infinito</strong></p>
+<ul>
+<li>Definición de infinito</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">inf ::</span> <span class="dt">Int</span>
+inf <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> inf</code></pre></div>
+<ul>
+<li>Evaluación de infinito en Haskell:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; inf
+  C-c C-c Interrupted.</code></pre>
+<ul>
+<li>Evaluación de infinito:</li>
+</ul>
+<pre class="sesion"><code>inf 
+= 1 + inf             [por def. inf] 
+= 1 + (1 + inf)       [por def. inf] 
+= 1 + (1 + (1 + inf)) [por def. inf] 
+= ...</code></pre>
+<p><strong>Procesamiento con el infinito</strong></p>
+<ul>
+<li>Evaluación mediante paso de parámetros por valor:</li>
+</ul>
+<pre class="sesion"><code>fst (0,inf) 
+= fst (0,1 + inf)             [por def. inf] 
+= fst (0,1 + (1 + inf))       [por def. inf] 
+= fst (0,1 + (1 + (1 + inf))) [por def. inf] 
+= ...</code></pre>
+<ul>
+<li>Evaluación mediante paso de parámetros por nombre:</li>
+</ul>
+<pre class="sesion"><code>fst (0,inf) 
+= 0           [por def. fst]</code></pre>
+<ul>
+<li>Evaluación Haskell con infinito:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fst (0,inf)
+0</code></pre>
+<h1 id="número-de-reducciones"><span class="header-section-number">3</span> Número de reducciones</h1>
+<p><strong>Número de reducciones según las estrategias</strong></p>
+<ul>
+<li>Para los ejemplos se considera la función</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cuadrado ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+cuadrado n <span class="fu">=</span> n <span class="fu">*</span> n</code></pre></div>
+<ul>
+<li>Evaluación mediante paso de parámetros por valor:</li>
+</ul>
+<pre class="sesion"><code>cuadrado (1+2) 
+= cuadrado 3      [por def. +] 
+= 3*3             [por def. cuadrado] 
+= 9               [por def. de *] </code></pre>
+<ul>
+<li>Evaluación mediante paso de parámetros por nombre:</li>
+</ul>
+<pre class="sesion"><code>cuadrado (1+2) 
+= (1+2)*(1+2)        [por def. cuadrado] 
+= 3*(1+2)            [por def. de +] 
+= 3*3                [por def. de +] 
+= 9                  [por def. de *] </code></pre>
+<p><strong>Evaluación perezosa e impaciente</strong></p>
+<ul>
+<li><p>En la evaluación mediante paso de parámetros por nombre los argumentos pueden evaluarse más veces que en el paso por valor.</p></li>
+<li><p>Se puede usar punteros para compartir valores de expresiones.</p></li>
+<li><p>La evaluación mediante paso de parámetros por nombre usando punteros para compartir valores de expresiones se llama <em>evaluación perezosa</em>.</p></li>
+<li><p>La evaluación mediante paso de parámetros por valor se llama <em>evaluación impaciente</em>.</p></li>
+<li><p>Evaluación perezosa del ejemplo anterior:</p></li>
+</ul>
+<pre class="sesion"><code>cuadrado (1+2) 
+= x*x con x = 1+2      [por def. cuadrado] 
+= 3*3                  [por def. de +] 
+= 9                    [por def. de *] </code></pre>
+<ul>
+<li>Haskell usa evaluación perezosa.</li>
+</ul>
+<h1 id="estructuras-infinitas"><span class="header-section-number">4</span> Estructuras infinitas</h1>
+<p><strong>Programación con estructuras infinitas</strong></p>
+<ul>
+<li><code>unos</code> es una lista infinita de unos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">unos ::</span> [<span class="dt">Int</span>]
+unos <span class="fu">=</span> <span class="dv">1</span> <span class="fu">:</span> unos  </code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>unos 
+= 1 : unos                [por def. unos] 
+= 1 : (1 : unos)          [por def. unos] 
+= 1 : (1 : (1 : unos))    [por def. unos] 
+= ...</code></pre>
+<ul>
+<li>Evaluación en Haskell:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; unos
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,...</code></pre>
+<p><strong>Evaluación con estructuras infinitas</strong></p>
+<ul>
+<li>Evaluación impaciente:</li>
+</ul>
+<pre class="sesion"><code>head unos 
+= head (1 : unos)                [por def. unos] 
+= head (1 : (1 : unos))          [por def. unos] 
+= head (1 : (1 : (1 : unos)))    [por def. unos] 
+= ...</code></pre>
+<ul>
+<li>Evaluación perezosa:</li>
+</ul>
+<pre class="sesion"><code>head unos 
+= head (1 : unos)   [por def. unos] 
+= 1                 [por def. head]</code></pre>
+<ul>
+<li>Evaluación Haskell:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; head unos
+1</code></pre>
+<h1 id="programación-modular"><span class="header-section-number">5</span> Programación modular</h1>
+<p><strong>Programación modular</strong></p>
+<ul>
+<li><p>La evaluación perezosa permite separar el control de los datos.</p></li>
+<li><p>Para los ejemplos se considera la función</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">take<span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+take n _  <span class="fu">|</span> n <span class="fu">&lt;=</span> <span class="dv">0</span>  <span class="fu">=</span> []
+take _ []           <span class="fu">=</span> []
+take n (x<span class="fu">:</span>xs)       <span class="fu">=</span> x <span class="fu">:</span> take (n<span class="fu">-</span><span class="dv">1</span>) xs</code></pre></div>
+<ul>
+<li>Ejemplo de separación del control (tomar 2 elementos) de los datos (una lista infinita de unos):</li>
+</ul>
+<pre class="sesion"><code>take 2 unos 
+= take 2 (1 : unos)         [por def. unos] 
+= 1 : (take 1 unos)         [por def. take] 
+= 1 : (take 1 (1 : unos))   [por def. unos] 
+= 1 : (1 : (take 0 unos))   [por def. take] 
+= 1 : (1 : [])              [por def. take] 
+= [1,1]                     [por notación de listas]</code></pre>
+<p><strong>Terminación de evaluaciones con estructuras infinitas</strong></p>
+<ul>
+<li>Ejemplo de no terminación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; [1..]
+[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,...</code></pre>
+<ul>
+<li>Ejemplo de terminación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; take 3 [1..]
+[1,2,3]</code></pre>
+<ul>
+<li>Ejemplo de no terminación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; filter (&lt;=3) [1..]
+[1,2,3  C-c C-c Interrupted.</code></pre>
+<ul>
+<li>Ejemplo de no terminación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; takeWhile (&lt;=3) [1..]
+[1,2,3]</code></pre>
+<p><strong>La criba de Erastótenes</strong></p>
+<p>2 3 4 5 6 7 8 9 10 11 12 13 14 15 ... 3 5 7 9 11 13 15 ... 5 7 11 13 ... 7 11 13 ... 11 13 ... 13 ...</p>
+<ul>
+<li>Definición</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">primos ::</span> [<span class="dt">Int</span> ]
+primos <span class="fu">=</span> criba [<span class="dv">2</span><span class="fu">..</span>]
+
+<span class="ot">criba ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+criba (p<span class="fu">:</span>xs) <span class="fu">=</span> p <span class="fu">:</span> criba [x <span class="fu">|</span> x <span class="ot">&lt;-</span> xs, x <span class="ot">`mod`</span> p <span class="fu">/=</span> <span class="dv">0</span>]</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>take 15 primos == [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47]  </code></pre>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>primos
+= criba [2..]      
+= criba (2 : [3..])
+= 2 : (criba [x | x &lt;- [3..], x `mod` 2 /= 0])
+= 2 : (criba (3 : [x | x &lt;- [4..], x `mod` 2 /= 0]))
+= 2 : 3 : (criba [x | x &lt;- [4..], x `mod` 2 /= 0, 
+                                  x `mod` 3 /= 0])
+= 2 : 3 : (criba (5 : [x | x &lt;- [6..], x `mod` 2 /= 0, 
+                                       x `mod` 3 /= 0]))
+= 2 : 3 : 5 : (criba ([x | x &lt;- [6..], x `mod` 2 /= 0, 
+                                       x `mod` 3 /= 0,
+                                       x `mod` 5 /= 0]))
+= ...</code></pre>
+<h1 id="aplicación-estricta"><span class="header-section-number">6</span> Aplicación estricta</h1>
+<p><strong>Ejemplo de programa sin aplicación estricta</strong></p>
+<ul>
+<li><code>(sumaNE xs)</code> es la suma de los números de . Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>sumaNE [2,3,5]  ==  10  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sumaNE ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaNE xs <span class="fu">=</span> sumaNE&#39; <span class="dv">0</span> xs
+
+<span class="ot">sumaNE&#39; ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaNE&#39; v []     <span class="fu">=</span> v
+sumaNE&#39; v (x<span class="fu">:</span>xs) <span class="fu">=</span> sumaNE&#39; (v<span class="fu">+</span>x) xs</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>sumaNE [2,3,5] 
+= sumaNE&#39; 0 [2,3,5]           [por def. sumaNE] 
+= sumaNE&#39; (0+2) [3,5]         [por def. sumaNE&#39;] 
+= sumaNE&#39; ((0+2)+3) [5]       [por def. sumaNE&#39;] 
+= sumaNE&#39; (((0+2)+3)+5) []    [por def. sumaNE&#39;] 
+= ((0+2)+3)+5                 [por def. sumaNE&#39;] 
+= (2+3)+5                     [por def. +] 
+= 5+5                         [por def. +] 
+= 10                          [por def. +]</code></pre>
+<p><strong>Ejemplo de programa con aplicación estricta</strong></p>
+<ul>
+<li><code>(sumaE xs)</code> es la suma de los números de <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>sumaE [2,3,5]  ==  10  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sumaE ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaE xs <span class="fu">=</span> sumaE&#39; <span class="dv">0</span> xs
+
+<span class="ot">sumaE&#39; ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaE&#39; v []     <span class="fu">=</span> v
+sumaE&#39; v (x<span class="fu">:</span>xs) <span class="fu">=</span> (sumaE&#39; <span class="fu">$!</span> (v<span class="fu">+</span>x)) xs</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>sumaE [2,3,5] 
+= sumaE&#39; 0 [2,3,5]          [por def. sumaE] 
+= (sumaE&#39; \$! (0+2)) [3,5]  [por def. sumaE&#39;] 
+= sumaE&#39; 2 [3,5]            [por aplicación de \$!] 
+= (sumaE&#39; \$! (2+3)) [5]    [por def. sumaE&#39;] 
+= sumaE&#39; 5 [5]              [por aplicación de \$!] 
+= (sumaE&#39; \$! (5+5)) []     [por def. sumaE&#39;] 
+= sumaE&#39; 10 []              [por aplicación de \$!] 
+= 10                        [por def. sumaE&#39;] </code></pre>
+<p><strong>Comparación de consumo de memoria</strong></p>
+<ul>
+<li>Comparación de consumo de memoria:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sumaNE [1..1000000]
+*** Exception: stack overflow
+ghci&gt; sumaE [1..1000000]
+1784293664
+ghci&gt; :set +s
+ghci&gt; sumaE [1..1000000]
+1784293664
+(2.16 secs, 145435772 bytes)</code></pre>
+<p><strong>Plegado estricto</strong></p>
+<ul>
+<li>Versión estricta de <code>foldl</code> en el <code>Data.List</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">foldl&#39; ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [b] <span class="ot">-&gt;</span> a
+foldl&#39; f a []     <span class="fu">=</span> a
+foldl&#39; f a (x<span class="fu">:</span>xs) <span class="fu">=</span> (foldl&#39; f <span class="fu">$!</span> f a x) xs</code></pre></div>
+<ul>
+<li>Comparación de plegado y plegado estricto:s</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; foldl (+) 0 [2,3,5]
+10
+ghci&gt; foldl&#39; (+) 0 [2,3,5]
+10
+ghci&gt; foldl (+) 0 [1..1000000]
+*** Exception: stack overflow
+ghci&gt; foldl&#39; (+) 0 [1..1000000]
+500000500000</code></pre>
+<h1 id="bibliografía"><span class="header-section-number">7</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. Cap. 7: Eficiencia.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 12: Lazy evaluation.</li>
+</ul></li>
+<li>B. O'Sullivan, D. Stewart y J. Goerzen. <em>Real World Haskell</em>. O'Reilly, 2008.
+<ul>
+<li>Cap. 2: Types and Functions.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 2: Introducción a Haskell.</li>
+<li>Cap. 8: Evaluación perezosa. Redes de procesos.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 17: Lazy programming.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

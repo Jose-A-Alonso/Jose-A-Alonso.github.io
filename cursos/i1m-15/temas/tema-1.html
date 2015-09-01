@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 1: Introducción a la programación funcional</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 1: Introducción a la programación funcional</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#funciones"><span class="toc-section-number">1</span> Funciones</a><ul>
+<li><a href="#funciones-en-haskell"><span class="toc-section-number">1.1</span> Funciones en Haskell</a></li>
+<li><a href="#evaluaciones-de-funciones-en-haskell"><span class="toc-section-number">1.2</span> Evaluaciones de funciones en Haskell</a></li>
+<li><a href="#comprobación-de-propiedades"><span class="toc-section-number">1.3</span> Comprobación de propiedades</a></li>
+<li><a href="#refutación-de-propiedades"><span class="toc-section-number">1.4</span> Refutación de propiedades</a></li>
+</ul></li>
+<li><a href="#programación-funcional"><span class="toc-section-number">2</span> Programación funcional</a><ul>
+<li><a href="#programación-funcional-y-programación-imperativa"><span class="toc-section-number">2.1</span> Programación funcional y programación imperativa</a></li>
+<li><a href="#solución-mediante-programación-imperativa"><span class="toc-section-number">2.2</span> Solución mediante programación imperativa</a></li>
+<li><a href="#solución-mediante-programación-funcional"><span class="toc-section-number">2.3</span> Solución mediante programación funcional</a></li>
+</ul></li>
+<li><a href="#rasgos-característicos-de-haskell"><span class="toc-section-number">3</span> Rasgos característicos de Haskell</a></li>
+<li><a href="#antecedentes-históricos"><span class="toc-section-number">4</span> Antecedentes históricos</a></li>
+<li><a href="#presentación-de-haskell"><span class="toc-section-number">5</span> Presentación de Haskell</a><ul>
+<li><a href="#ejemplo-de-recursión-sobre-listas"><span class="toc-section-number">5.1</span> Ejemplo de recursión sobre listas</a></li>
+<li><a href="#ejemplo-con-listas-de-comprensión"><span class="toc-section-number">5.2</span> Ejemplo con listas de comprensión</a></li>
+<li><a href="#evaluación-del-ejemplo-con-listas-de-comprensión"><span class="toc-section-number">5.3</span> Evaluación del ejemplo con listas de comprensión</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">6</span> Bibliografía</a></li>
+</ul>
+</nav>
+<!--
+> import Test.QuickCheck
+-->
+<h1 id="funciones"><span class="header-section-number">1</span> Funciones</h1>
+<h2 id="funciones-en-haskell"><span class="header-section-number">1.1</span> Funciones en Haskell</h2>
+<ul>
+<li><p>En <em>Haskell</em>, una <em>función</em> es una <em>aplicación</em> que toma uno o más <em>argumentos</em> y devuelve un <em>valor</em>.</p></li>
+<li><p>En Haskell, las funciones se definen mediante <em>ecuaciones</em> formadas por el <em>nombre de la función</em>, los <em>nombres de los argumentos</em> y el <em>cuerpo</em> que especifica cómo se calcula el valor a partir de los argumentos.</p></li>
+<li><p>Ejemplo de definición de función en Haskell:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">doble x <span class="fu">=</span> x <span class="fu">+</span> x</code></pre></div>
+<ul>
+<li>Ejemplo de evaluación:</li>
+</ul>
+<pre class="sesion"><code>doble 3 
+= 3 + 3   [def. de doble] 
+= 6       [def. de +] </code></pre>
+<h2 id="evaluaciones-de-funciones-en-haskell"><span class="header-section-number">1.2</span> Evaluaciones de funciones en Haskell</h2>
+<ul>
+<li>Ejemplo de evaluación anidada impaciente:</li>
+</ul>
+<pre class="sesion"><code>doble (doble 3)  
+= doble (3 + 3)   [def. de doble]  
+= doble 6         [def. de +]      
+= 6 + 6           [def. de doble]  
+= 12              [def. de +]</code></pre>
+<ul>
+<li>Ejemplo de evaluación anidada perezosa:</li>
+</ul>
+<pre class="sesion"><code>doble (doble 3) 
+= (doble 3) + (doble 3)    [def. de doble] 
+= (3 +3) + (doble 3)       [def. de doble] 
+= 6 + (doble 3)            [def. de +] 
+= 6 + (3 + 3)              [def. de doble] 
+= 6 + 6                    [def. de +] 
+= 12                       [def. de +]</code></pre>
+<h2 id="comprobación-de-propiedades"><span class="header-section-number">1.3</span> Comprobación de propiedades</h2>
+<ul>
+<li><p>Propiedad: El doble de x más y es el doble de x más el doble de y</p></li>
+<li><p>Expresión de la propiedad:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_doble x y <span class="fu">=</span> doble (x<span class="fu">+</span>y) <span class="fu">==</span> (doble x) <span class="fu">+</span> (doble y)  </code></pre></div>
+<ul>
+<li>Comprobación de la propiedad con QuickCheck:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_doble
++++ OK, passed 100 tests.</code></pre>
+<ul>
+<li>Para usar QuickCheck hay que importarlo, escribiendo al principio del fichero</li>
+</ul>
+<pre><code>import Test.QuickCheck</code></pre>
+<h2 id="refutación-de-propiedades"><span class="header-section-number">1.4</span> Refutación de propiedades</h2>
+<ul>
+<li><p>Propiedad: El producto de dos números cualesquiera es distinto de su suma.</p></li>
+<li><p>Expresión de la propiedad:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_prod_suma x y <span class="fu">=</span> x<span class="fu">*</span>y <span class="fu">/=</span> x<span class="fu">+</span>y</code></pre></div>
+<ul>
+<li>Refutación de la propiedad con QuickCheck:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_prod_suma
+*** Failed! Falsifiable (after 1 test):
+0
+0</code></pre>
+<ul>
+<li>Refinamiento: El producto de dos números no nulos cualequiera es distinto de su suma.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_prod_suma&#39; x y <span class="fu">=</span> 
+    x <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> y <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">==&gt;</span> x<span class="fu">*</span>y <span class="fu">/=</span> x<span class="fu">+</span>y</code></pre></div>
+<ul>
+<li>Refutación de la propiedad con QuickCheck:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_prod_suma&#39;
++++ OK, passed 100 tests.
+ghci&gt; quickCheck prop_prod_suma&#39;
+*** Failed! Falsifiable (after 5 tests):  
+2
+2</code></pre>
+<h1 id="programación-funcional"><span class="header-section-number">2</span> Programación funcional</h1>
+<h2 id="programación-funcional-y-programación-imperativa"><span class="header-section-number">2.1</span> Programación funcional y programación imperativa</h2>
+<ul>
+<li><p>La <em>programación funcional</em> es un estilo de programación cuyo método básico de computación es la aplicación de funciones a sus argumentos.</p></li>
+<li><p>Un <em>lenguaje de programación funcional</em> es uno que soporta y potencia el estilo funcional.</p></li>
+<li><p>La <em>programación imperativa</em> es un estilo de programación en el que los programas están formados por instrucciones que especifican cómo se ha de calcular el resultado.</p></li>
+<li><p>Ejemplo de problema para diferenciar los estilos de programación: <em>Sumar los n primeros números.</em></p></li>
+</ul>
+<h2 id="solución-mediante-programación-imperativa"><span class="header-section-number">2.2</span> Solución mediante programación imperativa</h2>
+<ul>
+<li>Programa</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> suma(n):
+    contador <span class="op">=</span> <span class="dv">0</span>
+    total    <span class="op">=</span> <span class="dv">0</span> 
+    <span class="cf">while</span> contador <span class="op">&lt;</span> n:
+        contador <span class="op">=</span> contador <span class="op">+</span> <span class="dv">1</span> 
+        total    <span class="op">=</span> total <span class="op">+</span> contador 
+    <span class="cf">return</span> total</code></pre></div>
+<ul>
+<li>Evaluación de suma(4):</li>
+</ul>
+<pre class="sesion"><code>|contador | total |
+|---------|-------|
+|0        | 0     |
+|1        | 1     |
+|2        | 3     |
+|3        | 6     |
+|4        | 10    |</code></pre>
+<h2 id="solución-mediante-programación-funcional"><span class="header-section-number">2.3</span> Solución mediante programación funcional</h2>
+<ul>
+<li>Programa:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">suma n <span class="fu">=</span> sum [<span class="dv">1</span><span class="fu">..</span>n]</code></pre></div>
+<ul>
+<li>Evaluación de suma 4:</li>
+</ul>
+<pre class="sesion"><code>suma 4 
+= sum [1..4]        [def. de suma] 
+= sum [1, 2, 3, 4]  [def. de [..]] 
+= 1 + 2 + 3 + 4     [def. de sum] 
+= 10                [def. de +]</code></pre>
+<h1 id="rasgos-característicos-de-haskell"><span class="header-section-number">3</span> Rasgos característicos de Haskell</h1>
+<ul>
+<li>Programas concisos.</li>
+<li>Sistema potente de tipos.</li>
+<li>Listas por comprensión.</li>
+<li>Funciones recursivas.</li>
+<li>Funciones de orden superior.</li>
+<li>Razonamiento sobre programas.</li>
+<li>Evaluación perezosa.</li>
+<li>Efectos monádicos.</li>
+</ul>
+<h1 id="antecedentes-históricos"><span class="header-section-number">4</span> Antecedentes históricos</h1>
+<ul>
+<li>1930s: Alonzo Church desarrolla el lambda cálculo (teoría básica de los lenguajes funcionales).</li>
+<li>1950s: John McCarthy desarrolla el Lisp (lenguaje funcional con asignaciones).</li>
+<li>1960s: Peter Landin desarrolla ISWIN (lenguaje funcional puro).</li>
+<li>1970s: John Backus desarrolla FP (lenguaje funcional con orden superior).</li>
+<li>1970s: Robin Milner desarrolla ML (lenguaje funcional con tipos polimórficos e inferencia de tipos).</li>
+<li>1980s: David Turner desarrolla Miranda (lenguaje funcional perezoso).</li>
+<li>1987: Un comité comienza el desarrollo de Haskell.</li>
+<li>2003: El comité publica el &quot;Haskell Report&quot;.</li>
+</ul>
+<h1 id="presentación-de-haskell"><span class="header-section-number">5</span> Presentación de Haskell</h1>
+<h2 id="ejemplo-de-recursión-sobre-listas"><span class="header-section-number">5.1</span> Ejemplo de recursión sobre listas</h2>
+<ul>
+<li><p>Especificación: (sum xs) es la suma de los elementos de xs.</p></li>
+<li><p>Ejemplo: sum [2,3,7] == 12</p></li>
+<li><p>Definición:</p></li>
+</ul>
+<pre><code>sum []     = 0
+sum (x:xs) = x + sum xs</code></pre>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>sum [2,3,7] 
+= 2 + sum [3,7]           [def. de sum] 
+= 2 + (3 + sum [7])       [def. de sum] 
+= 2 + (3 + (7 + sum []))  [def. de sum] 
+= 2 + (3 + (7 + 0))       [def. de sum] 
+= 12                      [def. de +] </code></pre>
+<ul>
+<li>Tipo de sum: (Num a) =&gt; [a] -&gt; a</li>
+</ul>
+<h2 id="ejemplo-con-listas-de-comprensión"><span class="header-section-number">5.2</span> Ejemplo con listas de comprensión</h2>
+<ul>
+<li><p>Especificación: (ordena xs) es la lista obtenida ordenando xs mediante el algoritmo de ordenación rápida.</p></li>
+<li><p>Ejemplo:</p></li>
+</ul>
+<pre class="sesion"><code>ordena [4,6,2,5,3] == [2,3,4,5,6]
+ordena &quot;deacb&quot;     == &quot;abcde&quot;</code></pre>
+<ul>
+<li>Definición:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ordena [] <span class="fu">=</span> []
+ordena (x<span class="fu">:</span>xs) <span class="fu">=</span> 
+    (ordena menores) <span class="fu">++</span> [x] <span class="fu">++</span> (ordena mayores)
+    <span class="kw">where</span> menores <span class="fu">=</span> [a <span class="fu">|</span> a <span class="ot">&lt;-</span> xs, a <span class="fu">&lt;=</span> x]
+          mayores <span class="fu">=</span> [b <span class="fu">|</span> b <span class="ot">&lt;-</span> xs, b <span class="fu">&gt;</span> x]</code></pre></div>
+<ul>
+<li>Tipo de ordena: Ord a =&gt; [a] -&gt; [a]</li>
+</ul>
+<h2 id="evaluación-del-ejemplo-con-listas-de-comprensión"><span class="header-section-number">5.3</span> Evaluación del ejemplo con listas de comprensión</h2>
+<pre class="sesion"><code>ordena [4,6,2,3] 
+= (ordena [2,3]) ++ [4] ++ (ordena [6])  
+  [def. ordena] 
+= ((ordena []) ++ [2] ++ (ordena [3])) ++ [4] ++ (ordena [6]) 
+  [def. ordena] 
+= ([] ++ [2] ++ (ordena [3])) ++ [4] ++ (ordena [6]) 
+  [def. ordena] 
+= ([2] ++ (ordena [3])) ++ [4] ++ (ordena [6,5]) 
+  [def. ++] 
+= ([2] ++ ((ordena []) ++ [3] ++ [])) ++ [4] ++ (ordena [6]) 
+  [def. ordena] 
+= ([2] ++ ([] ++ [3] ++ [])) ++ [4] ++ (ordena [6]) 
+  [def. ordena] 
+= ([2] ++ [3]) ++ [4] ++ (ordena [6]) 
+  [def. ++] 
+= [2,3] ++ [4] ++ (ordena [6]) 
+  [def. ++] 
+= [2,3,4] ++ (ordena [6]) 
+  [def. ++] 
+= [2,3,4] ++ ((ordena []) ++ [6] ++ (ordena [])) 
+  [def. ordena] 
+= [2,3,4] ++ ((ordena []) ++ [6] ++ (ordena [])) 
+  [def. ordena] 
+= [2,3,4] ++ ([] ++ [6] ++ []) 
+  [def. ordena] 
+= [2,3,4,6]
+  [def. ++]</code></pre>
+<h1 id="bibliografía"><span class="header-section-number">6</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 1: Conceptos fundamentales.</li>
+</ul></li>
+<li>G. Hutton <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 1: Introduction.</li>
+</ul></li>
+<li>B. O'Sullivan, D. Stewart y J. Goerzen <em>Real World Haskell</em>. O'Reilly, 2008.
+<ul>
+<li>Cap. 1: Getting started.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 1: Programación funcional.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The craft of functional programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 1: Introducing functional programming.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 21: El TAD de los polinomios</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 21: El TAD de los polinomios</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-los-polinomios"><span class="toc-section-number">1</span> Especificación del TAD de los polinomios</a><ul>
+<li><a href="#signatura-del-tad-de-los-polinomios"><span class="toc-section-number">1.1</span> Signatura del TAD de los polinomios</a></li>
+<li><a href="#propiedades-del-tad-de-los-polinomios"><span class="toc-section-number">1.2</span> Propiedades del TAD de los polinomios</a></li>
+</ul></li>
+<li><a href="#implementación-del-tad-de-los-polinomios"><span class="toc-section-number">2</span> Implementación del TAD de los polinomios</a><ul>
+<li><a href="#los-polinomios-como-tipo-de-dato-algebraico"><span class="toc-section-number">2.1</span> Los polinomios como tipo de dato algebraico</a></li>
+<li><a href="#los-polinomios-como-listas-dispersas"><span class="toc-section-number">2.2</span> Los polinomios como listas dispersas</a></li>
+<li><a href="#los-polinomios-como-listas-densas"><span class="toc-section-number">2.3</span> Los polinomios como listas densas</a></li>
+</ul></li>
+<li><a href="#comprobación-de-las-implementaciones-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de las implementaciones con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-polinomios"><span class="toc-section-number">3.2</span> Generador de polinomios</a></li>
+<li><a href="#especificación-de-las-propiedades-de-los-polinomios"><span class="toc-section-number">3.3</span> Especificación de las propiedades de los polinomios</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+<li><a href="#operaciones-con-polinomios"><span class="toc-section-number">4</span> Operaciones con polinomios</a></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-los-polinomios"><span class="header-section-number">1</span> Especificación del TAD de los polinomios</h1>
+<h2 id="signatura-del-tad-de-los-polinomios"><span class="header-section-number">1.1</span> Signatura del TAD de los polinomios</h2>
+<p><strong>Signatura del TAD de los polinomios</strong></p>
+<pre class="sesion"><code>polCero   :: Polinomio a                                         
+esPolCero :: Polinomio a -&gt; Bool                       
+consPol   :: (Num a, Eq a) =&gt; Int -&gt; a -&gt; Polinomio a -&gt; Polinomio a   
+grado     :: Polinomio a -&gt; Int                                  
+coefLider :: Num a =&gt; Polinomio a -&gt; a                           
+restoPol  :: (Num a, Eq a) =&gt; Polinomio a -&gt; Polinomio a</code></pre>
+<p>Descripción de las operaciones:</p>
+<ul>
+<li><p><code>polCero</code> es el polinomio cero.</p></li>
+<li><p><code>(esPolCero p)</code> se verifica si <code>p</code> es el polinomio cero.</p></li>
+<li><p><code>(consPol n b p)</code> es el polinomio <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=bx%5En%2Bp" alt="bx^n+p" title="bx^n+p" />.</p></li>
+<li><p><code>(grado p)</code> es el grado del polinomio <code>p</code>.</p></li>
+<li><p><code>(coefLider p)</code> es el coeficiente líder del polinomio <code>p</code>.</p></li>
+<li><p><code>(restoPol p)</code> es el resto del polinomio <code>p</code>.</p></li>
+</ul>
+<p><strong>Ejemplos de polinomios</strong></p>
+<ul>
+<li>Definición:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">ejPol1, ejPol2, ejPol3,<span class="ot"> ejTerm::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span>
+ejPol1 <span class="fu">=</span> consPol <span class="dv">4</span> <span class="dv">3</span> (consPol <span class="dv">2</span> (<span class="fu">-</span><span class="dv">5</span>) (consPol <span class="dv">0</span> <span class="dv">3</span> polCero))
+ejPol2 <span class="fu">=</span> consPol <span class="dv">5</span> <span class="dv">1</span> (consPol <span class="dv">2</span> <span class="dv">5</span> (consPol <span class="dv">1</span> <span class="dv">4</span> polCero))
+ejPol3 <span class="fu">=</span> consPol <span class="dv">4</span> <span class="dv">6</span> (consPol <span class="dv">1</span> <span class="dv">2</span> polCero)
+ejTerm <span class="fu">=</span> consPol <span class="dv">1</span> <span class="dv">4</span> polCero</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>ejPol1  ==  3*x^4 + -5*x^2 + 3
+ejPol2  ==  x^5 + 5*x^2 + 4*x
+ejPol3  ==  6*x^4 + 2*x
+ejTerm  ==  4*x</code></pre>
+<h2 id="propiedades-del-tad-de-los-polinomios"><span class="header-section-number">1.2</span> Propiedades del TAD de los polinomios</h2>
+<ul>
+<li><p><code>esPolCero polCero</code></p></li>
+<li><p><code>n &gt; grado p &amp;&amp; b /= 0 ==&gt; not (esPolCero (consPol n b p))</code></p></li>
+<li><p><code>consPol (grado p) (coefLider p) (restoPol p) == p</code></p></li>
+<li><p><code>n &gt; grado p &amp;&amp; b /= 0 ==&gt; grado (consPol n b p) == n</code></p></li>
+<li><p><code>n &gt; grado p &amp;&amp; b /= 0 ==&gt; coefLider (consPol n b p) == b</code></p></li>
+<li><p><code>n &gt; grado p &amp;&amp; b /= 0 ==&gt; restoPol (consPol n b p) == p</code></p></li>
+</ul>
+<h1 id="implementación-del-tad-de-los-polinomios"><span class="header-section-number">2</span> Implementación del TAD de los polinomios</h1>
+<h2 id="los-polinomios-como-tipo-de-dato-algebraico"><span class="header-section-number">2.1</span> Los polinomios como tipo de dato algebraico</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">PolRepTDA</span>
+  ( <span class="dt">Polinomio</span>,
+    polCero,   <span class="co">-- Polinomio a                                         </span>
+    esPolCero, <span class="co">-- Polinomio a -&gt; Bool                       </span>
+    consPol,   <span class="co">-- (Num a, Eq a) =&gt; Int -&gt; a -&gt; Polinomio a </span>
+               <span class="co">--            -&gt; Polinomio a   </span>
+    grado,     <span class="co">-- Polinomio a -&gt; Int                                  </span>
+    coefLider, <span class="co">-- Num a =&gt; Polinomio a -&gt; a                           </span>
+    restoPol   <span class="co">-- (Num a, Eq a) =&gt; Polinomio a -&gt; Polinomio a</span>
+  ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Representamos un polinomio mediante los constructores <code>ConsPol</code> y <code>PolCero</code>. Por ejemplo, el polinomio 6x^4 - 5x^2 + 4x - 7 se representa por</li>
+</ul>
+<pre class="sesion"><code>ConsPol 4 6 
+  (ConsPol 2 (-5) 
+     (ConsPol 1 4 
+        (ConsPol 0 (-7) PolCero)))</code></pre>
+<ul>
+<li>El tipo de los polinomios.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Polinomio</span> a <span class="fu">=</span> <span class="dt">PolCero</span> 
+                 <span class="fu">|</span> <span class="dt">ConsPol</span> <span class="dt">Int</span> a (<span class="dt">Polinomio</span> a)
+                 <span class="kw">deriving</span> <span class="dt">Eq</span></code></pre></div>
+<ul>
+<li>Procedimiento de escritura de los polinomios.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Num</span> a, <span class="dt">Show</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Polinomio</span> a) <span class="kw">where</span>
+    show <span class="dt">PolCero</span>               <span class="fu">=</span> <span class="st">&quot;0&quot;</span>
+    show (<span class="dt">ConsPol</span> <span class="dv">0</span> b <span class="dt">PolCero</span>) <span class="fu">=</span> show b
+    show (<span class="dt">ConsPol</span> <span class="dv">0</span> b p)       <span class="fu">=</span> concat [show b,<span class="st">&quot; + &quot;</span>,show p] 
+    show (<span class="dt">ConsPol</span> <span class="dv">1</span> b <span class="dt">PolCero</span>) <span class="fu">=</span> concat [show b,<span class="st">&quot;*x&quot;</span>]
+    show (<span class="dt">ConsPol</span> <span class="dv">1</span> b p)       <span class="fu">=</span> concat [show b,<span class="st">&quot;*x + &quot;</span>,show p] 
+    show (<span class="dt">ConsPol</span> n <span class="dv">1</span> <span class="dt">PolCero</span>) <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n] 
+    show (<span class="dt">ConsPol</span> n b <span class="dt">PolCero</span>) <span class="fu">=</span> concat [show b,<span class="st">&quot;*x^&quot;</span>,show n] 
+    show (<span class="dt">ConsPol</span> n <span class="dv">1</span> p)       <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] 
+    show (<span class="dt">ConsPol</span> n b p)       <span class="fu">=</span> concat [show b,<span class="st">&quot;*x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] </code></pre></div>
+<ul>
+<li><code>polCero</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; polCero
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">polCero ::</span> <span class="dt">Polinomio</span> a
+polCero <span class="fu">=</span> <span class="dt">PolCero</span></code></pre></div>
+<ul>
+<li><code>(esPolCero p)</code> se verifica si <code>p</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esPolCero polCero  ==  True
+esPolCero ejPol1   ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esPolCero ::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esPolCero <span class="dt">PolCero</span> <span class="fu">=</span> <span class="dt">True</span>
+esPolCero _       <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><code>(consPol n b p)</code> es el polinomio bx^n+p. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol2               ==  x^5 + 5*x^2 + 4*x
+consPol 3 0 ejPol2   ==  x^5 + 5*x^2 + 4*x
+consPol 3 2 polCero  ==  2*x^3
+consPol 6 7 ejPol2   ==  7*x^6 + x^5 + 5*x^2 + 4*x
+consPol 4 7 ejPol2   ==  x^5 + 7*x^4 + 5*x^2 + 4*x
+consPol 5 7 ejPol2   ==  8*x^5 + 5*x^2 + 4*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">consPol ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a  
+consPol _ <span class="dv">0</span> p <span class="fu">=</span> p
+consPol n b <span class="dt">PolCero</span> <span class="fu">=</span> <span class="dt">ConsPol</span> n b <span class="dt">PolCero</span>
+consPol n b (<span class="dt">ConsPol</span> m c p) 
+    <span class="fu">|</span> n <span class="fu">&gt;</span> m      <span class="fu">=</span> <span class="dt">ConsPol</span> n b (<span class="dt">ConsPol</span> m c p)
+    <span class="fu">|</span> n <span class="fu">&lt;</span> m      <span class="fu">=</span> <span class="dt">ConsPol</span> m c (consPol n b p)
+    <span class="fu">|</span> b<span class="fu">+</span>c <span class="fu">==</span> <span class="dv">0</span>   <span class="fu">=</span> p
+    <span class="fu">|</span> otherwise  <span class="fu">=</span> <span class="dt">ConsPol</span> n (b<span class="fu">+</span>c) p</code></pre></div>
+<ul>
+<li><code>(grado p)</code> es el grado del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3        ==  6*x^4 + 2*x
+grado ejPol3  ==  4</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">grado::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+grado <span class="dt">PolCero</span>         <span class="fu">=</span> <span class="dv">0</span>
+grado (<span class="dt">ConsPol</span> n _ _) <span class="fu">=</span> n</code></pre></div>
+<ul>
+<li><code>(coefLider p)</code> es el coeficiente líder del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>coefLider ejPol3  ==  6</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">coefLider::</span> <span class="dt">Num</span> t <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> t
+coefLider <span class="dt">PolCero</span>         <span class="fu">=</span> <span class="dv">0</span>
+coefLider (<span class="dt">ConsPol</span> _ b _) <span class="fu">=</span> b</code></pre></div>
+<ul>
+<li><code>(restoPol p)</code> es el resto del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3           ==  6*x^4 + 2*x
+restoPol ejPol3  ==  2*x
+ejPol2           ==  x^5 + 5*x^2 + 4*x
+restoPol ejPol2  ==  5*x^2 + 4*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">restoPol ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+restoPol <span class="dt">PolCero</span>         <span class="fu">=</span> <span class="dt">PolCero</span>
+restoPol (<span class="dt">ConsPol</span> _ _ p) <span class="fu">=</span> p</code></pre></div>
+<h2 id="los-polinomios-como-listas-dispersas"><span class="header-section-number">2.2</span> Los polinomios como listas dispersas</h2>
+<ul>
+<li>Cabecera del módulo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">PolRepDispersa</span>
+  ( <span class="dt">Polinomio</span>,
+    polCero,   <span class="co">-- Polinomio a                                         </span>
+    esPolCero, <span class="co">-- Polinomio a -&gt; Bool                       </span>
+    consPol,   <span class="co">-- (Num a, Eq a) =&gt; Int -&gt; a -&gt; Polinomio a </span>
+               <span class="co">--            -&gt; Polinomio a   </span>
+    grado,     <span class="co">-- Polinomio a -&gt; Int                                  </span>
+    coefLider, <span class="co">-- Num a =&gt; Polinomio a -&gt; a                           </span>
+    restoPol   <span class="co">-- (Num a, Eq a) =&gt; Polinomio a -&gt; Polinomio a</span>
+  ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Representaremos un polinomio por la lista de sus coeficientes ordenados en orden decreciente según el grado. Por ejemplo, el polinomio 6x^4 -5x^2 + 4x -7 se representa por la lista</li>
+</ul>
+<pre class="sesion"><code>[6,0,-2,4,-7]</code></pre>
+<ul>
+<li>Los polinomios como listas dispersas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Polinomio</span> a <span class="fu">=</span> <span class="dt">Pol</span> [a] 
+                   <span class="kw">deriving</span> <span class="dt">Eq</span></code></pre></div>
+<ul>
+<li>Procedimiento de escritura de los polinomios.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Num</span> a, <span class="dt">Show</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Polinomio</span> a) <span class="kw">where</span>
+  show pol 
+      <span class="fu">|</span> esPolCero pol         <span class="fu">=</span> <span class="st">&quot;0&quot;</span>
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> show a 
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">0</span>                <span class="fu">=</span> concat [show a,<span class="st">&quot; + &quot;</span>,show p] 
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> concat [show a,<span class="st">&quot;*x&quot;</span>]
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">1</span>                <span class="fu">=</span> concat [show a,<span class="st">&quot;*x + &quot;</span>,show p] 
+      <span class="fu">|</span> a <span class="fu">==</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n] 
+      <span class="fu">|</span> esPolCero p           <span class="fu">=</span> concat [show a,<span class="st">&quot;*x^&quot;</span>,show n] 
+      <span class="fu">|</span> a <span class="fu">==</span> <span class="dv">1</span>                <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] 
+      <span class="fu">|</span> otherwise             <span class="fu">=</span> concat [show a,<span class="st">&quot;*x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] 
+     <span class="kw">where</span> n <span class="fu">=</span> grado pol
+           a <span class="fu">=</span> coefLider pol
+           p <span class="fu">=</span> restoPol pol</code></pre></div>
+<ul>
+<li><code>polCero</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; polCero
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">polCero ::</span> <span class="dt">Polinomio</span> a
+polCero <span class="fu">=</span> <span class="dt">Pol</span> []</code></pre></div>
+<ul>
+<li><code>(esPolCero p)</code> se verifica si <code>p</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esPolCero polCero  ==  True
+esPolCero ejPol1   ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esPolCero ::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esPolCero (<span class="dt">Pol</span> []) <span class="fu">=</span> <span class="dt">True</span>
+esPolCero _        <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><p><code>(consPol n b p)</code> es el polinomio <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=bx%5En%2Bp" alt="bx^n+p" title="bx^n+p" />. Por ejemplo,</p>
+<pre class="sesion"><code>ejPol2               ==  x^5 + 5*x^2 + 4*x
+consPol 3 0 ejPol2   ==  x^5 + 5*x^2 + 4*x
+consPol 3 2 polCero  ==  2*x^3
+consPol 6 7 ejPol2   ==  7*x^6 + x^5 + 5*x^2 + 4*x
+consPol 4 7 ejPol2   ==  x^5 + 7*x^4 + 5*x^2 + 4*x
+consPol 5 7 ejPol2   ==  8*x^5 + 5*x^2 + 4*x</code></pre></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">consPol ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a
+consPol _ <span class="dv">0</span> p <span class="fu">=</span> p
+consPol n b p<span class="fu">@</span>(<span class="dt">Pol</span> xs) 
+    <span class="fu">|</span> esPolCero p <span class="fu">=</span> <span class="dt">Pol</span> (b<span class="fu">:</span>replicate n <span class="dv">0</span>)
+    <span class="fu">|</span> n <span class="fu">&gt;</span> m       <span class="fu">=</span> <span class="dt">Pol</span> (b<span class="fu">:</span>(replicate (n<span class="fu">-</span>m<span class="fu">-</span><span class="dv">1</span>) <span class="dv">0</span>)<span class="fu">++</span>xs)
+    <span class="fu">|</span> n <span class="fu">&lt;</span> m       <span class="fu">=</span> consPol m c (consPol n b (restoPol p))
+    <span class="fu">|</span> b<span class="fu">+</span>c <span class="fu">==</span> <span class="dv">0</span>    <span class="fu">=</span> <span class="dt">Pol</span> (dropWhile (<span class="fu">==</span><span class="dv">0</span>) (tail xs))
+    <span class="fu">|</span> otherwise   <span class="fu">=</span> <span class="dt">Pol</span> ((b<span class="fu">+</span>c)<span class="fu">:</span>tail xs)
+    <span class="kw">where</span> 
+      c <span class="fu">=</span> coefLider p
+      m <span class="fu">=</span> grado p</code></pre></div>
+<ul>
+<li><code>(grado p)</code> es el grado del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3        ==  6*x^4 + 2*x
+grado ejPol3  ==  4</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">grado::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+grado (<span class="dt">Pol</span> []) <span class="fu">=</span> <span class="dv">0</span>
+grado (<span class="dt">Pol</span> xs) <span class="fu">=</span> length xs <span class="fu">-</span> <span class="dv">1</span></code></pre></div>
+<ul>
+<li><code>(coefLider p)</code> es el coeficiente líder del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>coefLider ejPol3  ==  6</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">coefLider::</span> <span class="dt">Num</span> t <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> t
+coefLider (<span class="dt">Pol</span> [])    <span class="fu">=</span> <span class="dv">0</span>
+coefLider (<span class="dt">Pol</span> (a<span class="fu">:</span>_)) <span class="fu">=</span> a </code></pre></div>
+<ul>
+<li><code>(restoPol p)</code> es el resto del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3           ==  6*x^4 + 2*x
+restoPol ejPol3  ==  2*x
+ejPol2           ==  x^5 + 5*x^2 + 4*x
+restoPol ejPol2  ==  5*x^2 + 4*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">restoPol ::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+restoPol (<span class="dt">Pol</span> [])     <span class="fu">=</span> polCero
+restoPol (<span class="dt">Pol</span> [_])    <span class="fu">=</span> polCero
+restoPol (<span class="dt">Pol</span> (_<span class="fu">:</span>b<span class="fu">:</span>as)) 
+    <span class="fu">|</span> b <span class="fu">==</span> <span class="dv">0</span>    <span class="fu">=</span> <span class="dt">Pol</span> (dropWhile (<span class="fu">==</span><span class="dv">0</span>) as)
+    <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Pol</span> (b<span class="fu">:</span>as)</code></pre></div>
+<h2 id="los-polinomios-como-listas-densas"><span class="header-section-number">2.3</span> Los polinomios como listas densas</h2>
+<ul>
+<li>Cabecera del módulo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">PolRepDensa</span>
+  ( <span class="dt">Polinomio</span>,
+    polCero,   <span class="co">-- Polinomio a                                         </span>
+    esPolCero, <span class="co">-- Polinomio a -&gt; Bool                       </span>
+    consPol,   <span class="co">-- (Num a, Eq a) =&gt; Int -&gt; a -&gt; Polinomio a </span>
+               <span class="co">--          -&gt; Polinomio a   </span>
+    grado,     <span class="co">-- Polinomio a -&gt; Int                                  </span>
+    coefLider, <span class="co">-- Num a =&gt; Polinomio a -&gt; a                           </span>
+    restoPol   <span class="co">-- (Num a, Eq a) =&gt; Polinomio a -&gt; Polinomio a</span>
+  ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Representaremos un polinomio mediante una lista de pares (grado,coef), ordenados en orden decreciente según el grado. Por ejemplo, el polinomio 6x^4 - 5x^2 + 4x - 7 se representa por la lista de pares</li>
+</ul>
+<pre class="sesion"><code>[(4,6),(2,-5),(1,4),(0,-7)]. </code></pre>
+<ul>
+<li>Los polinomios como listas densas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Polinomio</span> a <span class="fu">=</span> <span class="dt">Pol</span> [(<span class="dt">Int</span>,a)] 
+                   <span class="kw">deriving</span> <span class="dt">Eq</span></code></pre></div>
+<ul>
+<li>Procedimiento de escritura de polinomios</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> (<span class="dt">Num</span> a, <span class="dt">Show</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Polinomio</span> a) <span class="kw">where</span>
+  show pol 
+      <span class="fu">|</span> esPolCero pol         <span class="fu">=</span> <span class="st">&quot;0&quot;</span>
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">0</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> show a 
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">0</span>                <span class="fu">=</span> concat [show a,<span class="st">&quot; + &quot;</span>,show p] 
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> concat [show a,<span class="st">&quot;*x&quot;</span>]
+      <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">1</span>                <span class="fu">=</span> concat [show a,<span class="st">&quot;*x + &quot;</span>,show p] 
+      <span class="fu">|</span> a <span class="fu">==</span> <span class="dv">1</span> <span class="fu">&amp;&amp;</span> esPolCero p <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n] 
+      <span class="fu">|</span> esPolCero p           <span class="fu">=</span> concat [show a,<span class="st">&quot;*x^&quot;</span>,show n] 
+      <span class="fu">|</span> a <span class="fu">==</span> <span class="dv">1</span>                <span class="fu">=</span> concat [<span class="st">&quot;x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] 
+      <span class="fu">|</span> otherwise             <span class="fu">=</span> concat [show a,<span class="st">&quot;*x^&quot;</span>,show n,<span class="st">&quot; + &quot;</span>,show p] 
+     <span class="kw">where</span> n <span class="fu">=</span> grado pol
+           a <span class="fu">=</span> coefLider pol
+           p <span class="fu">=</span> restoPol pol</code></pre></div>
+<ul>
+<li><code>polCero</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; polCero
+0</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">polCero ::</span> <span class="dt">Polinomio</span> a
+polCero <span class="fu">=</span> <span class="dt">Pol</span> []</code></pre></div>
+<ul>
+<li><code>(esPolCero p)</code> se verifica si <code>p</code> es el polinomio cero. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esPolCero polCero  ==  True
+esPolCero ejPol1   ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esPolCero ::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esPolCero (<span class="dt">Pol</span> []) <span class="fu">=</span> <span class="dt">True</span>
+esPolCero _        <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><code>(consPol n b p)</code> es el polinomio bx^n+p. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol2               ==  x^5 + 5*x^2 + 4*x
+consPol 3 0 ejPol2   ==  x^5 + 5*x^2 + 4*x
+consPol 3 2 polCero  ==  2*x^3
+consPol 6 7 ejPol2   ==  7*x^6 + x^5 + 5*x^2 + 4*x
+consPol 4 7 ejPol2   ==  x^5 + 7*x^4 + 5*x^2 + 4*x
+consPol 5 7 ejPol2   ==  8*x^5 + 5*x^2 + 4*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">consPol ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a
+consPol _ <span class="dv">0</span> p <span class="fu">=</span> p
+consPol n b p<span class="fu">@</span>(<span class="dt">Pol</span> xs) 
+    <span class="fu">|</span> esPolCero p <span class="fu">=</span> <span class="dt">Pol</span> [(n,b)]
+    <span class="fu">|</span> n <span class="fu">&gt;</span> m       <span class="fu">=</span> <span class="dt">Pol</span> ((n,b)<span class="fu">:</span>xs)
+    <span class="fu">|</span> n <span class="fu">&lt;</span> m       <span class="fu">=</span> consPol m c (consPol n b (<span class="dt">Pol</span> (tail xs)))
+    <span class="fu">|</span> b<span class="fu">+</span>c <span class="fu">==</span> <span class="dv">0</span>    <span class="fu">=</span> <span class="dt">Pol</span> (tail xs)
+    <span class="fu">|</span> otherwise   <span class="fu">=</span> <span class="dt">Pol</span> ((n,b<span class="fu">+</span>c)<span class="fu">:</span>(tail xs))
+    <span class="kw">where</span> 
+      c <span class="fu">=</span> coefLider p
+      m <span class="fu">=</span> grado p</code></pre></div>
+<ul>
+<li><code>(grado p)</code> es el grado del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3        ==  6*x^4 + 2*x
+grado ejPol3  ==  4</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">grado::</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+grado (<span class="dt">Pol</span> [])        <span class="fu">=</span> <span class="dv">0</span>
+grado (<span class="dt">Pol</span> ((n,_)<span class="fu">:</span>_)) <span class="fu">=</span> n</code></pre></div>
+<ul>
+<li><code>(coefLider p)</code> es el coeficiente líder del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>coefLider ejPol3  ==  6</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">coefLider::</span> <span class="dt">Num</span> t <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> t
+coefLider (<span class="dt">Pol</span> [])        <span class="fu">=</span> <span class="dv">0</span>
+coefLider (<span class="dt">Pol</span> ((_,b)<span class="fu">:</span>_)) <span class="fu">=</span> b</code></pre></div>
+<ul>
+<li><code>(restoPol p)</code> es el resto del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3           ==  6*x^4 + 2*x
+restoPol ejPol3  ==  2*x
+ejPol2           ==  x^5 + 5*x^2 + 4*x
+restoPol ejPol2  ==  5*x^2 + 4*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">restoPol ::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+restoPol (<span class="dt">Pol</span> [])     <span class="fu">=</span> polCero
+restoPol (<span class="dt">Pol</span> [_])    <span class="fu">=</span> polCero
+restoPol (<span class="dt">Pol</span> (_<span class="fu">:</span>xs)) <span class="fu">=</span> <span class="dt">Pol</span> xs</code></pre></div>
+<h1 id="comprobación-de-las-implementaciones-con-quickcheck"><span class="header-section-number">3</span> Comprobación de las implementaciones con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación a verificar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">PolRepTDA</span>
+<span class="co">-- import PolRepDispersa</span>
+<span class="co">-- import PolRepDensa</span></code></pre></div>
+<ul>
+<li>Librerías auxiliares.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-polinomios"><span class="header-section-number">3.2</span> Generador de polinomios</h2>
+<ul>
+<li><code>(genPol n)</code> es un generador de polinomios. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample (genPol 1)
+7*x^9 + 9*x^8 + 10*x^7 + -14*x^5 + -15*x^2 + -10
+-4*x^8 + 2*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genPol ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Gen</span> (<span class="dt">Polinomio</span> <span class="dt">Int</span>)
+genPol <span class="dv">0</span> <span class="fu">=</span> return polCero
+genPol n <span class="fu">=</span> <span class="kw">do</span> n <span class="ot">&lt;-</span> choose (<span class="dv">0</span>,<span class="dv">10</span>)
+              b <span class="ot">&lt;-</span> choose (<span class="fu">-</span><span class="dv">10</span>,<span class="dv">10</span>)
+              p <span class="ot">&lt;-</span> genPol (div n <span class="dv">2</span>)
+              return (consPol n b p) 
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">Polinomio</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> sized genPol</code></pre></div>
+<h2 id="especificación-de-las-propiedades-de-los-polinomios"><span class="header-section-number">3.3</span> Especificación de las propiedades de los polinomios</h2>
+<ul>
+<li><code>polCero</code> es el polinomio cero.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_polCero_es_cero ::</span> <span class="dt">Bool</span>
+prop_polCero_es_cero <span class="fu">=</span>
+    esPolCero polCero</code></pre></div>
+<ul>
+<li>Si <code>n</code> es mayor que el grado de <code>p</code> y <code>b</code> no es cero, entonces <code>(consPol n b p)</code> es un polinomio distinto del cero.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_consPol_no_cero ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> 
+                        <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_consPol_no_cero n b p <span class="fu">=</span>
+    n <span class="fu">&gt;</span> grado p <span class="fu">&amp;&amp;</span> b <span class="fu">/=</span> <span class="dv">0</span>  <span class="fu">==&gt;</span>  
+      not (esPolCero (consPol n b p))</code></pre></div>
+<ul>
+<li><code>(consPol (grado p) (coefLider p) (restoPol p))</code> es igual a <code>p</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_consPol ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_consPol p <span class="fu">=</span>
+    consPol (grado p) (coefLider p) (restoPol p) <span class="fu">==</span> p</code></pre></div>
+<ul>
+<li>Si <code>n</code> es mayor que el grado de <code>p</code> y <code>b</code> no es cero, entonces el grado de <code>(consPol n b p)</code> es <code>n</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_grado ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_grado n b p <span class="fu">=</span> 
+    n <span class="fu">&gt;</span> grado p <span class="fu">&amp;&amp;</span> b <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">==&gt;</span> 
+      grado (consPol n b p) <span class="fu">==</span> n </code></pre></div>
+<ul>
+<li>Si <code>n</code> es mayor que el grado de <code>p</code> y <code>b</code> no es cero, entonces el coeficiente líder de <code>(consPol n b p)</code> es <code>b</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_coefLider ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_coefLider n b p <span class="fu">=</span> 
+    n <span class="fu">&gt;</span> grado p <span class="fu">&amp;&amp;</span> b <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">==&gt;</span> 
+      coefLider (consPol n b p) <span class="fu">==</span> b </code></pre></div>
+<ul>
+<li>Si <code>n</code> es mayor que el grado de <code>p</code> y <code>b</code> no es cero, entonces el resto de <code>(consPol n b p)</code> es <code>p</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_restoPol ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_restoPol n b p <span class="fu">=</span> 
+    n <span class="fu">&gt;</span> grado p <span class="fu">&amp;&amp;</span> b <span class="fu">/=</span> <span class="dv">0</span> <span class="fu">==&gt;</span> 
+      restoPol (consPol n b p) <span class="fu">==</span> p </code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del TAD polinomio:&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span> prop_polCero_es_cero,
+           testProperty <span class="st">&quot;P2&quot;</span> prop_consPol_no_cero,
+           testProperty <span class="st">&quot;P3&quot;</span> prop_consPol,
+           testProperty <span class="st">&quot;P4&quot;</span> prop_grado,
+           testProperty <span class="st">&quot;P5&quot;</span> prop_coefLider,
+           testProperty <span class="st">&quot;P6&quot;</span> prop_restoPol]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de los polinomios</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades 
+Propiedades del TAD polinomio::
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  6           6          
+ Failed  0           0          
+ Total   6           6  </code></pre>
+<h1 id="operaciones-con-polinomios"><span class="header-section-number">4</span> Operaciones con polinomios</h1>
+<ul>
+<li>Importación de la implementación a utilizar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">PolRepTDA</span>
+<span class="co">-- import PolRepDispersa</span>
+<span class="co">-- import PolRepDensa</span></code></pre></div>
+<ul>
+<li>Importación de librerías auxiliares.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<p><strong>Funciones sobre términos</strong></p>
+<ul>
+<li><p><code>(creaTermino n a)</code> es el término <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=ax%5En" alt="ax^n" title="ax^n" />. Por ejemplo,</p>
+<pre class="sesion"><code>creaTermino 2 5  ==  5*x^2</code></pre></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">creaTermino::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+creaTermino n a <span class="fu">=</span> consPol n a polCero</code></pre></div>
+<ul>
+<li><code>(termLider p)</code> es el término líder del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol2            ==  x^5 + 5*x^2 + 4*x
+termLider ejPol2  ==  x^5</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">termLider::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+termLider p <span class="fu">=</span> creaTermino (grado p) (coefLider p)</code></pre></div>
+<p><strong>Suma de polinomios</strong></p>
+<ul>
+<li><code>(sumaPol p q)</code> es la suma de los polinomios <code>p</code> y <code>q</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol1                 ==  3*x^4 + -5*x^2 + 3
+ejPol2                 ==  x^5 + 5*x^2 + 4*x
+sumaPol ejPol1 ejPol2  ==  x^5 + 3*x^4 + 4*x + 3</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sumaPol::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a
+sumaPol p q 
+    <span class="fu">|</span> esPolCero p <span class="fu">=</span> q
+    <span class="fu">|</span> esPolCero q <span class="fu">=</span> p
+    <span class="fu">|</span> n1 <span class="fu">&gt;</span> n2      <span class="fu">=</span> consPol n1 a1 (sumaPol r1 q)
+    <span class="fu">|</span> n1 <span class="fu">&lt;</span> n2      <span class="fu">=</span> consPol n2 a2 (sumaPol p r2)
+    <span class="fu">|</span> otherwise    <span class="fu">=</span> consPol n1 (a1<span class="fu">+</span>a2) (sumaPol r1 r2)
+    <span class="kw">where</span> n1 <span class="fu">=</span> grado p
+          a1 <span class="fu">=</span> coefLider p
+          r1 <span class="fu">=</span> restoPol p
+          n2 <span class="fu">=</span> grado q
+          a2 <span class="fu">=</span> coefLider q
+          r2 <span class="fu">=</span> restoPol q</code></pre></div>
+<p><strong>Propiedades de la suma de polinomios</strong></p>
+<ul>
+<li>El polinomio cero es el elemento neutro de la suma.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_neutroSumaPol ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_neutroSumaPol p <span class="fu">=</span> 
+    sumaPol polCero p <span class="fu">==</span> p</code></pre></div>
+<ul>
+<li>La suma es conmutativa.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_conmutativaSuma ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> 
+                        <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_conmutativaSuma p q <span class="fu">=</span> 
+    sumaPol p q <span class="fu">==</span> sumaPol q p</code></pre></div>
+<p><strong>Producto de polinomios</strong></p>
+<ul>
+<li><code>(multPorTerm t p)</code> es el producto del término <code>t</code> por el polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejTerm                     ==  4*x
+ejPol2                     ==  x^5 + 5*x^2 + 4*x
+multPorTerm ejTerm ejPol2  ==  4*x^6 + 20*x^3 + 16*x^2</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">multPorTerm ::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> t
+multPorTerm term pol 
+    <span class="fu">|</span> esPolCero pol <span class="fu">=</span> polCero
+    <span class="fu">|</span> otherwise     <span class="fu">=</span> consPol (n<span class="fu">+</span>m) (a<span class="fu">*</span>b) (multPorTerm term r)
+    <span class="kw">where</span> n <span class="fu">=</span> grado term
+          a <span class="fu">=</span> coefLider term
+          m <span class="fu">=</span> grado pol
+          b <span class="fu">=</span> coefLider pol
+          r <span class="fu">=</span> restoPol pol    </code></pre></div>
+<ul>
+<li><code>(multPol p q)</code> es el producto de los polinomios <code>p</code> y <code>q</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; ejPol1
+3*x^4 + -5*x^2 + 3
+ghci&gt; ejPol2
+x^5 + 5*x^2 + 4*x
+ghci&gt; multPol ejPol1 ejPol2
+3*x^9 + -5*x^7 + 15*x^6 + 15*x^5 + -25*x^4 + -20*x^3 
+      + 15*x^2 + 12*x</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">multPol ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a
+multPol p q
+    <span class="fu">|</span> esPolCero p <span class="fu">=</span> polCero
+    <span class="fu">|</span> otherwise   <span class="fu">=</span> sumaPol (multPorTerm (termLider p) q)
+                            (multPol (restoPol p) q)</code></pre></div>
+<p><strong>Propiedades del producto polinomios</strong></p>
+<ul>
+<li>El producto de polinomios es conmutativo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_conmutativaProducto ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> 
+                            <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_conmutativaProducto p q <span class="fu">=</span> 
+    multPol p q <span class="fu">==</span> multPol q p</code></pre></div>
+<ul>
+<li>El producto es distributivo respecto de la suma.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_distributiva ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> 
+                     <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_distributiva p q r <span class="fu">=</span>
+    multPol p (sumaPol q r) <span class="fu">==</span> 
+    sumaPol (multPol p q) (multPol p r)</code></pre></div>
+<p><strong>Polinomio unidad</strong></p>
+<ul>
+<li><code>polUnidad</code> es el polinomio unidad. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; polUnidad
+1</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">polUnidad::</span> (<span class="dt">Num</span> t, <span class="dt">Eq</span> t) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> t
+polUnidad <span class="fu">=</span> consPol <span class="dv">0</span> <span class="dv">1</span> polCero</code></pre></div>
+<ul>
+<li>El polinomio unidad es el elemento neutro del producto.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_polUnidad ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_polUnidad p <span class="fu">=</span> 
+    multPol p polUnidad <span class="fu">==</span> p</code></pre></div>
+<p><strong>Valor de un polinomio en un punto</strong></p>
+<ul>
+<li><code>(valor p c)</code> es el valor del polinomio <code>p</code> al sustituir su variable por <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol1             ==  3*x^4 + -5*x^2 + 3
+valor ejPol1 0     ==  3
+valor ejPol1 1     ==  1
+valor ejPol1 (-2)  ==  31</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valor::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+valor p c 
+    <span class="fu">|</span> esPolCero p <span class="fu">=</span> <span class="dv">0</span>
+    <span class="fu">|</span> otherwise   <span class="fu">=</span>  b<span class="fu">*</span>c<span class="fu">^</span>n <span class="fu">+</span> valor r c
+    <span class="kw">where</span> n <span class="fu">=</span> grado p
+          b <span class="fu">=</span> coefLider p
+          r <span class="fu">=</span> restoPol p</code></pre></div>
+<p><strong>Verificación de raices de polinomios</strong></p>
+<ul>
+<li><code>(esRaiz c p)</code> se verifica si <code>c</code> es una raiz del polinomio <code>p</code>. por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol3           ==  6*x^4 + 2*x
+esRaiz 1 ejPol3  ==  False
+esRaiz 0 ejPol3  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esRaiz::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esRaiz c p <span class="fu">=</span> valor p c <span class="fu">==</span> <span class="dv">0</span></code></pre></div>
+<p><strong>Derivación de polinomios</strong></p>
+<ul>
+<li><code>(derivada p)</code> es la derivada del polinomio <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejPol2           ==  x^5 + 5*x^2 + 4*x
+derivada ejPol2  ==  5*x^4 + 10*x + 4</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">derivada ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span>
+derivada p 
+    <span class="fu">|</span> n <span class="fu">==</span> <span class="dv">0</span>     <span class="fu">=</span> polCero
+    <span class="fu">|</span> otherwise  <span class="fu">=</span> consPol (n<span class="fu">-</span><span class="dv">1</span>) (n<span class="fu">*</span>b) (derivada r)
+    <span class="kw">where</span> n <span class="fu">=</span> grado p
+          b <span class="fu">=</span> coefLider p
+          r <span class="fu">=</span> restoPol p</code></pre></div>
+<p><strong>Propiedades de las derivadas de polinomios</strong></p>
+<ul>
+<li>La derivada de la suma es la suma de las derivadas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_derivada ::</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Polinomio</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_derivada p q <span class="fu">=</span>
+    derivada (sumaPol p q) <span class="fu">==</span> 
+    sumaPol (derivada p) (derivada q)</code></pre></div>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

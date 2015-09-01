@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 9: Declaraciones de tipos y clases</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 9: Declaraciones de tipos y clases</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#declaraciones-de-tipos"><span class="toc-section-number">1</span> Declaraciones de tipos</a></li>
+<li><a href="#definiciones-de-tipos-de-datos"><span class="toc-section-number">2</span> Definiciones de tipos de datos</a></li>
+<li><a href="#definición-de-tipos-recursivos"><span class="toc-section-number">3</span> Definición de tipos recursivos</a></li>
+<li><a href="#sistema-de-decisión-de-tautologías"><span class="toc-section-number">4</span> Sistema de decisión de tautologías</a></li>
+<li><a href="#máquina-abstracta-de-cálculo-aritmético"><span class="toc-section-number">5</span> Máquina abstracta de cálculo aritmético</a></li>
+<li><a href="#declaraciones-de-clases-y-de-instancias"><span class="toc-section-number">6</span> Declaraciones de clases y de instancias</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">7</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usan las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Data.List</span> (nub)</code></pre></div>
+<h1 id="declaraciones-de-tipos"><span class="header-section-number">1</span> Declaraciones de tipos</h1>
+<p><strong>Declaraciones de tipos como sinónimos</strong></p>
+<ul>
+<li><p>Se puede definir un nuevo nombre para un tipo existente mediante una <em>declaración de tipo</em>.</p></li>
+<li><p>Ejemplo: Las cadenas son listas de caracteres.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">String</span> <span class="fu">=</span> [<span class="dt">Char</span>]  </code></pre></div>
+<ul>
+<li>El nombre del tipo tiene que empezar por mayúscula.</li>
+</ul>
+<p><strong>Declaraciones de tipos nuevos</strong></p>
+<ul>
+<li><p>Las declaraciones de tipos pueden usarse para facilitar la lectura de tipos.</p></li>
+<li><p>Las posiciones son pares de enteros.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Pos</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li><code>origen</code> es la posición (0,0).</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">origen ::</span> <span class="dt">Pos</span>
+origen <span class="fu">=</span> (<span class="dv">0</span>,<span class="dv">0</span>)</code></pre></div>
+<ul>
+<li><code>(izquierda p)</code> es la posición a la izquierda de la posición <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>izquierda (3,5)  ==  (2,5)  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">izquierda ::</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span>
+izquierda (x,y) <span class="fu">=</span> (x<span class="fu">-</span><span class="dv">1</span>,y)  </code></pre></div>
+<p><strong>Declaraciones de tipos parametrizadas</strong></p>
+<ul>
+<li>Las declaraciones de tipos pueden tener parámetros. Por ejemplo,<br />
+ <code>Par a</code> es el tipo de pares de elementos de tipo <code>a</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Par</span> a <span class="fu">=</span> (a,a)  </code></pre></div>
+<ul>
+<li><code>(multiplica p)</code> es el producto del par de enteros <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>multiplica (2,5)  ==  10  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">multiplica ::</span> <span class="dt">Par</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+multiplica (x,y) <span class="fu">=</span> x<span class="fu">*</span>y</code></pre></div>
+<ul>
+<li><code>(copia x)</code> es el par formado con dos copias de <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>copia 5  ==  (5,5)  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">copia ::</span> a <span class="ot">-&gt;</span> <span class="dt">Par</span> a
+copia x <span class="fu">=</span> (x,x)</code></pre></div>
+<p><strong>Declaraciones anidadas de tipos</strong></p>
+<p>Las declaraciones de tipos pueden anidarse. Por ejemplo,</p>
+<ul>
+<li>Las posiciones son pares de enteros.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Pos</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)  </code></pre></div>
+<ul>
+<li>Los movimientos son funciones que va de una posición a otra.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Movimiento</span> <span class="fu">=</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span>  </code></pre></div>
+<ul>
+<li>Las declaraciones de tipo no pueden ser recursivas. Por ejemplo, el siguiente código es erróneo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Arbol</span> <span class="fu">=</span> (<span class="dt">Int</span>,[<span class="dt">Arbol</span>])  </code></pre></div>
+<ul>
+<li>Al intentar cargarlo da el mensaje de error</li>
+</ul>
+<pre class="sesion"><code>Cycle in type synonym declarations  </code></pre>
+<h1 id="definiciones-de-tipos-de-datos"><span class="header-section-number">2</span> Definiciones de tipos de datos</h1>
+<p><strong>Definición de tipos con data</strong></p>
+<ul>
+<li><p>En Haskell pueden definirse nuevos tipos mediante <code>data</code>.</p></li>
+<li><p>El tipo de los booleanos está formado por dos valores para representar lo falso y lo verdadero.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Bool</span> <span class="fu">=</span> <span class="dt">False</span> <span class="fu">|</span> <span class="dt">True</span>  </code></pre></div>
+<ul>
+<li><p>El símbolo <code>|</code> se lee como &quot;o&quot;.</p></li>
+<li><p>Los valores <code>False</code> y <code>True</code> se llaman los <em>constructores</em> del tipo <code>Bool</code>.</p></li>
+<li><p>Los nombres de los constructores tienen que empezar por mayúscula.</p></li>
+</ul>
+<p><strong>Uso de los valores de los tipos definidos</strong></p>
+<ul>
+<li><p>Los valores de los tipos definidos pueden usarse como los de los predefinidos.</p></li>
+<li><p>Definición del tipo de movimientos:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Mov</span> <span class="fu">=</span> <span class="dt">Izquierda</span> <span class="fu">|</span> <span class="dt">Derecha</span> <span class="fu">|</span> <span class="dt">Arriba</span> <span class="fu">|</span> <span class="dt">Abajo</span>  </code></pre></div>
+<ul>
+<li>Uso como argumento: <code>(movimiento m p)</code> es la posición obtenida aplicando el movimiento <code>m</code> a la posición <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>movimiento Arriba (2,5)  == (2,6)</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">movimiento ::</span> <span class="dt">Mov</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span>
+movimiento <span class="dt">Izquierda</span> (x,y) <span class="fu">=</span> (x<span class="fu">-</span><span class="dv">1</span>,y)
+movimiento <span class="dt">Derecha</span>   (x,y) <span class="fu">=</span> (x<span class="fu">+</span><span class="dv">1</span>,y)
+movimiento <span class="dt">Arriba</span>    (x,y) <span class="fu">=</span> (x,y<span class="fu">+</span><span class="dv">1</span>)
+movimiento <span class="dt">Abajo</span>     (x,y) <span class="fu">=</span> (x,y<span class="fu">-</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li>Uso en listas: <code>(movimientos ms p)</code> es la posición obtenida aplicando la lista de movimientos <code>ms</code> a la posición <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>movimientos [Arriba, Izquierda] (2,5)  ==  (1,6)  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">movimientos ::</span> [<span class="dt">Mov</span>] <span class="ot">-&gt;</span> <span class="dt">Pos</span> <span class="ot">-&gt;</span> <span class="dt">Pos</span>
+movimientos []     p <span class="fu">=</span> p
+movimientos (m<span class="fu">:</span>ms) p <span class="fu">=</span> movimientos ms (movimiento m p)</code></pre></div>
+<ul>
+<li>Uso como valor: <code>(opuesto m)</code> es el movimiento opuesto de <code>m</code>.</li>
+</ul>
+<pre class="sesion"><code>movimiento (opuesto Arriba) (2,5)  == (2,4)</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">opuesto ::</span> <span class="dt">Mov</span> <span class="ot">-&gt;</span> <span class="dt">Mov</span>
+opuesto <span class="dt">Izquierda</span> <span class="fu">=</span> <span class="dt">Derecha</span>
+opuesto <span class="dt">Derecha</span>   <span class="fu">=</span> <span class="dt">Izquierda</span>
+opuesto <span class="dt">Arriba</span>    <span class="fu">=</span> <span class="dt">Abajo</span>
+opuesto <span class="dt">Abajo</span>     <span class="fu">=</span> <span class="dt">Arriba</span></code></pre></div>
+<p><strong>Definición de tipo con constructores con parámetros</strong></p>
+<ul>
+<li><p>Los constructores en las definiciones de tipos pueden tener parámetros.</p></li>
+<li><p>Ejemplo de definición</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Figura</span> <span class="fu">=</span> <span class="dt">Circulo</span> <span class="dt">Float</span> <span class="fu">|</span> <span class="dt">Rect</span> <span class="dt">Float</span> <span class="dt">Float</span></code></pre></div>
+<ul>
+<li>Tipos de los constructores:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; :type Circulo
+Circulo :: Float -&gt; Figura
+ghci&gt; :type Rect
+Rect :: Float -&gt; Float -&gt; Figura</code></pre>
+<ul>
+<li>Uso del tipo como valor: <code>(cuadrado n)</code> es el cuadrado de lado <code>n</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cuadrado ::</span> <span class="dt">Float</span> <span class="ot">-&gt;</span> <span class="dt">Figura</span>
+cuadrado n <span class="fu">=</span> <span class="dt">Rect</span> n n</code></pre></div>
+<ul>
+<li>Uso del tipo como argumento: <code>(area f)</code> es el área de la figura <code>f</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>area (Circulo 1)   ==  3.1415927
+area (Circulo 2)   ==  12.566371
+area (Rect 2 5)    ==  10.0
+area (cuadrado 3)  ==  9.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">area ::</span> <span class="dt">Figura</span> <span class="ot">-&gt;</span> <span class="dt">Float</span>
+area (<span class="dt">Circulo</span> r) <span class="fu">=</span> pi<span class="fu">*</span>r<span class="fu">^</span><span class="dv">2</span>
+area (<span class="dt">Rect</span> x y)  <span class="fu">=</span> x<span class="fu">*</span>y</code></pre></div>
+<p><strong>Definición de tipos con parámetros</strong></p>
+<ul>
+<li><p>Los tipos definidos pueden tener parámetros.</p></li>
+<li><p>Ejemplo de tipo con parámetro</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Maybe</span> a <span class="fu">=</span> <span class="dt">Nothing</span> <span class="fu">|</span> <span class="dt">Just</span> a  </code></pre></div>
+<ul>
+<li><code>(divisionSegura m n)</code> es la división de <code>m</code> entre <code>n</code> si <code>n</code> no es cero y nada en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>divisionSegura 6 3  ==  Just 2
+divisionSegura 6 0  ==  Nothing</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">divisionSegura ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Int</span>
+divisionSegura _ <span class="dv">0</span> <span class="fu">=</span> <span class="dt">Nothing</span>
+divisionSegura m n <span class="fu">=</span> <span class="dt">Just</span> (m <span class="ot">`div`</span> n)</code></pre></div>
+<ul>
+<li><code>(headSegura xs)</code> es la cabeza de <code>xs</code> si <code>xs</code> es no vacía y nada en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>headSegura [2,3,5]  ==  Just 2
+headSegura []       ==  Nothing</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">headSegura ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a
+headSegura [] <span class="fu">=</span> <span class="dt">Nothing</span>
+headSegura xs <span class="fu">=</span> <span class="dt">Just</span> (head xs)</code></pre></div>
+<h1 id="definición-de-tipos-recursivos"><span class="header-section-number">3</span> Definición de tipos recursivos</h1>
+<p><strong>Definición de tipos recursivos: Los naturales</strong></p>
+<ul>
+<li><p>Los tipos definidos con <code>data</code> pueden ser recursivos.</p></li>
+<li><p>Los naturales se construyen con el cero y la función sucesor.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Nat</span> <span class="fu">=</span> <span class="dt">Cero</span> <span class="fu">|</span> <span class="dt">Suc</span> <span class="dt">Nat</span>
+           <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li>Tipos de los constructores:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; :type Cero
+Cero :: Nat
+ghci&gt; :type Suc
+Suc :: Nat -&gt; Nat</code></pre>
+<ul>
+<li>Ejemplos de naturales:</li>
+</ul>
+<pre class="sesion"><code>Cero
+Suc Cero
+Suc (Suc Cero)  
+Suc (Suc (Suc Cero))</code></pre>
+<p><strong>Definiciones con tipos recursivos</strong></p>
+<ul>
+<li><code>(nat2int n)</code> es el número entero correspondiente al número natural <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>nat2int (Suc (Suc (Suc Cero)))  ==  3</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">nat2int ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+nat2int <span class="dt">Cero</span>    <span class="fu">=</span> <span class="dv">0</span>
+nat2int (<span class="dt">Suc</span> n) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> nat2int n</code></pre></div>
+<ul>
+<li><code>(int2nat n)</code> es el número natural correspondiente al número entero <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>int2nat 3  ==  Suc (Suc (Suc Cero))  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">int2nat ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>
+int2nat <span class="dv">0</span> <span class="fu">=</span> <span class="dt">Cero</span>
+int2nat n <span class="fu">=</span> <span class="dt">Suc</span> (int2nat (n<span class="fu">-</span><span class="dv">1</span>))</code></pre></div>
+<ul>
+<li><code>(suma m n)</code> es la suma de los número naturales <code>m</code> y <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; suma (Suc (Suc Cero)) (Suc Cero)  
+Suc (Suc (Suc Cero))  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">suma ::</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span> <span class="ot">-&gt;</span> <span class="dt">Nat</span>
+suma <span class="dt">Cero</span>    n <span class="fu">=</span> n
+suma (<span class="dt">Suc</span> m) n <span class="fu">=</span> <span class="dt">Suc</span> (suma m n)</code></pre></div>
+<ul>
+<li>Ejemplo de cálculo:</li>
+</ul>
+<pre class="sesion"><code>suma (Suc (Suc Cero)) (Suc Cero)
+= Suc (suma (Suc Cero) (Suc Cero))  
+= Suc (Suc (suma Cero (Suc Cero)))  
+= Suc (Suc (Suc Cero))  </code></pre>
+<p><strong>Tipo recursivo con parámetro: Las listas</strong></p>
+<ul>
+<li>Definición del tipo lista:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Lista</span> a <span class="fu">=</span> <span class="dt">Nil</span> <span class="fu">|</span> <span class="dt">Cons</span> a (<span class="dt">Lista</span> a)</code></pre></div>
+<ul>
+<li><code>(longitud xs)</code> es la longitud de la lista <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>longitud (Cons 2 (Cons 3 (Cons 5 Nil)))  ==  3  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">longitud ::</span> <span class="dt">Lista</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+longitud <span class="dt">Nil</span>         <span class="fu">=</span> <span class="dv">0</span>
+longitud (<span class="dt">Cons</span> _ xs) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> longitud xs</code></pre></div>
+<p><strong>Definición de tipos recursivos: Los árboles binarios</strong></p>
+<ul>
+<li>Ejemplo de árbol binario:</li>
+</ul>
+<pre class="sesion"><code>     5 
+    / \
+   /   \
+  3     7
+ / \   / \  
+1   4 6   9  </code></pre>
+<ul>
+<li>Definición del tipo de árboles binarios:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Arbol</span> <span class="fu">=</span> <span class="dt">Hoja</span> <span class="dt">Int</span> <span class="fu">|</span> <span class="dt">Nodo</span> <span class="dt">Arbol</span> <span class="dt">Int</span> <span class="dt">Arbol</span></code></pre></div>
+<ul>
+<li>Representación del ejemplo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">ejArbol <span class="fu">=</span> <span class="dt">Nodo</span> (<span class="dt">Nodo</span> (<span class="dt">Hoja</span> <span class="dv">1</span>) <span class="dv">3</span> (<span class="dt">Hoja</span> <span class="dv">4</span>)) 
+               <span class="dv">5</span> 
+               (<span class="dt">Nodo</span> (<span class="dt">Hoja</span> <span class="dv">6</span>) <span class="dv">7</span> (<span class="dt">Hoja</span> <span class="dv">9</span>))</code></pre></div>
+<p><strong>Definiciones sobre árboles binarios</strong></p>
+<ul>
+<li><code>(ocurre m a)</code> se verifica si <code>m</code> ocurre en el árbol <code>a</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ocurre 4  ejArbol  ==  True
+ocurre 10 ejArbol  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ocurre ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Arbol</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+ocurre m (<span class="dt">Hoja</span> n)     <span class="fu">=</span> m <span class="fu">==</span> n
+ocurre m (<span class="dt">Nodo</span> i n d) <span class="fu">=</span> m <span class="fu">==</span> n <span class="fu">||</span> ocurre m i <span class="fu">||</span> ocurre m d</code></pre></div>
+<ul>
+<li><code>(aplana a)</code> es la lista obtenida aplanando el árbol <code>a</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>aplana ejArbol  ==  [1,3,4,5,6,7,9]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">aplana ::</span> <span class="dt">Arbol</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+aplana (<span class="dt">Hoja</span> n)     <span class="fu">=</span> [n]
+aplana (<span class="dt">Nodo</span> i n d) <span class="fu">=</span> aplana i <span class="fu">++</span> [n] <span class="fu">++</span> aplana d</code></pre></div>
+<p><strong>Definiciones sobre árboles binarios</strong></p>
+<ul>
+<li><p>Un árbol es ordenado si el valor de cada nodo es mayor que los de su subárbol izquierdo y menor que los de su subárbol derecho.</p></li>
+<li><p>El árbol del ejemplo es ordenado.</p></li>
+<li><p><code>(ocurreEnArbolOrdenado m a)</code> se verifica si <code>m</code> ocurre en el árbol ordenado <code>a</code>. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>ocurreEnArbolOrdenado 4  ejArbol  ==  True
+ocurreEnArbolOrdenado 10 ejArbol  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ocurreEnArbolOrdenado ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Arbol</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+ocurreEnArbolOrdenado m (<span class="dt">Hoja</span> n)  <span class="fu">=</span>  m <span class="fu">==</span> n
+ocurreEnArbolOrdenado m (<span class="dt">Nodo</span> i n d)
+     <span class="fu">|</span> m <span class="fu">==</span> n      <span class="fu">=</span>  <span class="dt">True</span>
+     <span class="fu">|</span> m <span class="fu">&lt;</span> n       <span class="fu">=</span>  ocurreEnArbolOrdenado m i
+     <span class="fu">|</span> otherwise   <span class="fu">=</span>  ocurreEnArbolOrdenado m d</code></pre></div>
+<p><strong>Definiciones de distintos tipos de árboles</strong></p>
+<ul>
+<li>Árboles binarios con valores en las hojas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Arbol</span> a <span class="fu">=</span> <span class="dt">Hoja</span> a <span class="fu">|</span> <span class="dt">Nodo</span> (<span class="dt">Arbol</span> a) (<span class="dt">Arbol</span> a)  </code></pre></div>
+<ul>
+<li>Árboles binarios con valores en los nodos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Arbol</span> a <span class="fu">=</span> <span class="dt">Hoja</span> <span class="fu">|</span> <span class="dt">Nodo</span> (<span class="dt">Arbol</span> a) a (<span class="dt">Arbol</span> a)</code></pre></div>
+<ul>
+<li>Árboles binarios con valores en las hojas y en los nodos:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Arbol</span> a b <span class="fu">=</span> <span class="dt">Hoja</span> a <span class="fu">|</span> <span class="dt">Nodo</span> (<span class="dt">Arbol</span> a b) b (<span class="dt">Arbol</span> a b)  </code></pre></div>
+<ul>
+<li>Árboles con un número variable de sucesores:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Arbol</span> a <span class="fu">=</span> <span class="dt">Nodo</span> a [<span class="dt">Arbol</span> a]  </code></pre></div>
+<h1 id="sistema-de-decisión-de-tautologías"><span class="header-section-number">4</span> Sistema de decisión de tautologías</h1>
+<p><strong>Sintaxis de la lógica proposicional</strong></p>
+<ul>
+<li>Definición de fórmula proposicional:
+<ul>
+<li>Las variables proposicionales son fórmulas.</li>
+<li>Si <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F" alt="F" title="F" /> es una fórmula, entonces <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cneg%20F" alt="\neg F" title="\neg F" /> también lo es.</li>
+<li>Si <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F" alt="F" title="F" /> y <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=G" alt="G" title="G" /> son fórmulas, entonces <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F%20%5Cland%20G" alt="F \land G" title="F \land G" /> y <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F%20%5Cto%20G" alt="F \to G" title="F \to G" /> también lo son.</li>
+</ul></li>
+<li>Tipo de dato de fórmulas proposicionales:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">FProp</span> <span class="fu">=</span> <span class="dt">Const</span> <span class="dt">Bool</span>
+           <span class="fu">|</span> <span class="dt">Var</span> <span class="dt">Char</span>
+           <span class="fu">|</span> <span class="dt">Neg</span> <span class="dt">FProp</span>
+           <span class="fu">|</span> <span class="dt">Conj</span> <span class="dt">FProp</span> <span class="dt">FProp</span>
+           <span class="fu">|</span> <span class="dt">Impl</span> <span class="dt">FProp</span> <span class="dt">FProp</span>
+           <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li>Ejemplos de fórmulas proposicionales:
+<ul>
+<li>A ∧ ¬A</li>
+<li>(A ∧ B) → A</li>
+<li>A → (A ∧ B)</li>
+<li>(A → (A → B)) → B</li>
+</ul></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">p1, p2, p3,<span class="ot"> p4 ::</span> <span class="dt">FProp</span>
+p1 <span class="fu">=</span> <span class="dt">Conj</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Neg</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>))
+p2 <span class="fu">=</span> <span class="dt">Impl</span> (<span class="dt">Conj</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Var</span> <span class="ch">&#39;B&#39;</span>)) (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>)
+p3 <span class="fu">=</span> <span class="dt">Impl</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Conj</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Var</span> <span class="ch">&#39;B&#39;</span>))
+p4 <span class="fu">=</span> <span class="dt">Impl</span> (<span class="dt">Conj</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Impl</span> (<span class="dt">Var</span> <span class="ch">&#39;A&#39;</span>) (<span class="dt">Var</span> <span class="ch">&#39;B&#39;</span>))) 
+          (<span class="dt">Var</span> <span class="ch">&#39;B&#39;</span>)</code></pre></div>
+<p><strong>Semántica de la lógica proposicional</strong></p>
+<ul>
+<li>Tabla de verdad de la negación:</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">i</th>
+<th style="text-align: left;">¬i</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">F</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Tablas de verdad de la conjunción y el condicional:</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">i</th>
+<th style="text-align: left;">j</th>
+<th style="text-align: left;">i ∧ j</th>
+<th style="text-align: left;">i → j</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Tabla de verdad para (A → B) ∨ (B → A):</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">A</th>
+<th style="text-align: left;">B</th>
+<th style="text-align: left;">A → B</th>
+<th style="text-align: left;">B → A</th>
+<th style="text-align: left;">(A → B) ∨ (B → A)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+<td style="text-align: left;">T</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Las interpretaciones son listas formadas por el nombre de una variable proposicional y un valor de verdad.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Interpretacion</span> <span class="fu">=</span> [(<span class="dt">Char</span>, <span class="dt">Bool</span>)]</code></pre></div>
+<ul>
+<li><code>(valor i p)</code> es el valor de la fórmula <code>p</code> en la interpretación <code>i</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor [(&#39;A&#39;,False),(&#39;B&#39;,True)] p3  ==  True
+valor [(&#39;A&#39;,True),(&#39;B&#39;,False)] p3  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">Interpretacion</span> <span class="ot">-&gt;</span> <span class="dt">FProp</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valor _ (<span class="dt">Const</span> b)  <span class="fu">=</span> b
+valor i (<span class="dt">Var</span> x)    <span class="fu">=</span> busca x i
+valor i (<span class="dt">Neg</span> p)    <span class="fu">=</span> not (valor i p)
+valor i (<span class="dt">Conj</span> p q) <span class="fu">=</span> valor i p <span class="fu">&amp;&amp;</span> valor i q
+valor i (<span class="dt">Impl</span> p q) <span class="fu">=</span> valor i p <span class="fu">&lt;=</span> valor i q</code></pre></div>
+<ul>
+<li><code>(busca c t)</code> es el valor del primer elemento de la lista de asociación <code>t</code> cuya clave es <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>busca 2 [(1,&#39;a&#39;),(3,&#39;d&#39;),(2,&#39;c&#39;)]  ==  &#39;c&#39;  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">busca ::</span> <span class="dt">Eq</span> c <span class="ot">=&gt;</span> c <span class="ot">-&gt;</span> [(c,v)] <span class="ot">-&gt;</span> v
+busca c t <span class="fu">=</span> head [v <span class="fu">|</span> (c&#39;,v) <span class="ot">&lt;-</span> t, c <span class="fu">==</span> c&#39;]</code></pre></div>
+<ul>
+<li><code>(variables p)</code> es la lista de los nombres de las variables de <code>p</code>.</li>
+</ul>
+<pre class="sesion"><code>variables p3  ==  &quot;AAB&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">variables ::</span> <span class="dt">FProp</span> <span class="ot">-&gt;</span> [<span class="dt">Char</span>]
+variables (<span class="dt">Const</span> _)  <span class="fu">=</span> []
+variables (<span class="dt">Var</span> x)    <span class="fu">=</span> [x]
+variables (<span class="dt">Neg</span> p)    <span class="fu">=</span> variables p
+variables (<span class="dt">Conj</span> p q) <span class="fu">=</span> variables p <span class="fu">++</span> variables q
+variables (<span class="dt">Impl</span> p q) <span class="fu">=</span> variables p <span class="fu">++</span> variables q</code></pre></div>
+<ul>
+<li><code>(interpretacionesVar n)</code> es la lista de las interpretaciones con <code>n</code> variables. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; interpretacionesVar 2
+[[False,False],
+ [False,True],
+ [True,False],
+ [True,True]]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">interpretacionesVar ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [[<span class="dt">Bool</span>]]
+interpretacionesVar <span class="dv">0</span> <span class="fu">=</span> [[]]
+interpretacionesVar n <span class="fu">=</span> 
+    map (<span class="dt">False</span><span class="fu">:</span>) bss <span class="fu">++</span> map (<span class="dt">True</span><span class="fu">:</span>) bss
+    <span class="kw">where</span> bss <span class="fu">=</span> interpretacionesVar (n<span class="fu">-</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li><code>(interpretaciones p)</code> es la lista de las interpretaciones de la fórmula <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; interpretaciones p3
+[[(&#39;A&#39;,False),(&#39;B&#39;,False)],
+ [(&#39;A&#39;,False),(&#39;B&#39;,True)],
+ [(&#39;A&#39;,True),(&#39;B&#39;,False)],
+ [(&#39;A&#39;,True),(&#39;B&#39;,True)]]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">interpretaciones ::</span> <span class="dt">FProp</span> <span class="ot">-&gt;</span> [<span class="dt">Interpretacion</span>]
+interpretaciones p <span class="fu">=</span>  
+    [zip vs i <span class="fu">|</span> i <span class="ot">&lt;-</span> interpretacionesVar (length vs)]
+    <span class="kw">where</span> vs <span class="fu">=</span> nub (variables p)</code></pre></div>
+<p><strong>Decisión de tautología</strong></p>
+<ul>
+<li><code>(esTautologia p)</code> se verifica si la fórmula <code>p</code> es una tautología. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esTautologia p1  ==  False
+esTautologia p2  ==  True
+esTautologia p3  ==  False
+esTautologia p4  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">esTautologia ::</span> <span class="dt">FProp</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esTautologia p <span class="fu">=</span> 
+    and [valor i p <span class="fu">|</span> i <span class="ot">&lt;-</span> interpretaciones p]</code></pre></div>
+<h1 id="máquina-abstracta-de-cálculo-aritmético"><span class="header-section-number">5</span> Máquina abstracta de cálculo aritmético</h1>
+<p><strong>Evaluación de expresiones aritméticas</strong></p>
+<ul>
+<li>Una expresión aritmética es un número entero o la suma de dos expresiones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Expr</span> <span class="fu">=</span>  <span class="dt">Num</span> <span class="dt">Int</span> <span class="fu">|</span> <span class="dt">Suma</span> <span class="dt">Expr</span> <span class="dt">Expr</span>  </code></pre></div>
+<ul>
+<li><code>(valorEA x)</code> es el valor de la expresión aritmética <code>x</code>.</li>
+</ul>
+<pre class="sesion"><code>valorEA (Suma (Suma (Num 2) (Num 3)) (Num 4))  ==  9  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valorEA ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+valorEA (<span class="dt">Num</span> n)    <span class="fu">=</span> n
+valorEA (<span class="dt">Suma</span> x y) <span class="fu">=</span> valorEA x <span class="fu">+</span> valorEA y</code></pre></div>
+<ul>
+<li>Cálculo:</li>
+</ul>
+<pre class="sesion"><code>  valorEA (Suma (Suma (Num 2) (Num 3)) (Num 4))
+= (valorEA (Suma (Num 2) (Num 3))) + (valorEA (Num 4))
+= (valorEA (Suma (Num 2) (Num 3))) + 4
+= (valorEA (Num 2) + (valorEA (Num 3))) + 4
+= (2 + 3) + 4
+= 9</code></pre>
+<p><strong>Máquina de cálculo aritmético</strong></p>
+<ul>
+<li>La pila de control de la máquina abstracta es una lista de operaciones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">PControl</span> <span class="fu">=</span> [<span class="dt">Op</span>]  </code></pre></div>
+<ul>
+<li>Las operaciones son meter una expresión en la pila o sumar un número con el primero de la pila.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Op</span> <span class="fu">=</span>  <span class="dt">METE</span> <span class="dt">Expr</span> <span class="fu">|</span> <span class="dt">SUMA</span> <span class="dt">Int</span>  </code></pre></div>
+<ul>
+<li><code>(eval x p)</code> evalúa la expresión <code>x</code> con la pila de control <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>eval (Suma (Suma (Num 2) (Num 3)) (Num 4)) []  ==  9
+eval (Suma (Num 2) (Num 3)) [METE (Num 4)]     ==  9
+eval (Num 3) [SUMA 2, METE (Num 4)]            ==  9
+eval (Num 4) [SUMA 5]                          ==  9</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">eval ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> <span class="dt">PControl</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+eval (<span class="dt">Num</span> n)    p <span class="fu">=</span> ejec p n
+eval (<span class="dt">Suma</span> x y) p <span class="fu">=</span> eval x (<span class="dt">METE</span> y <span class="fu">:</span> p)</code></pre></div>
+<ul>
+<li><code>(ejec p n)</code> ejecuta la lista de control <code>p</code> sobre el entero <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ejec [METE (Num 3), METE (Num 4)] 2  ==  9
+ejec [SUMA 2, METE (Num 4)]       3  ==  9
+ejec [METE (Num 4)]               5  ==  9
+ejec [SUMA 5]                     4  ==  9
+ejec []                           9  ==  9</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ejec ::</span> <span class="dt">PControl</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+ejec []           n <span class="fu">=</span> n
+ejec (<span class="dt">METE</span> y <span class="fu">:</span> p) n <span class="fu">=</span> eval y (<span class="dt">SUMA</span> n <span class="fu">:</span> p)
+ejec (<span class="dt">SUMA</span> n <span class="fu">:</span> p) m <span class="fu">=</span> ejec p (n<span class="fu">+</span>m)</code></pre></div>
+<ul>
+<li><code>(evalua e)</code> evalúa la expresión aritmética <code>e</code> con la máquina abstracta. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>evalua (Suma (Suma (Num 2) (Num 3)) (Num 4))  ==  9  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">evalua ::</span> <span class="dt">Expr</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+evalua e <span class="fu">=</span> eval e []</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>eval (Suma (Suma (Num 2) (Num 3)) (Num 4)) []
+= eval (Suma (Num 2) (Num 3)) [METE (Num 4)]
+= eval (Num 2) [METE (Num 3), METE (Num 4)]
+= ejec [METE (Num 3), METE (Num 4)] 2
+= eval (Num 3) [SUMA 2, METE (Num 4)]
+= ejec [SUMA 2, METE (Num 4)] 3
+= ejec [METE (Num 4)] (2+3)
+= ejec [METE (Num 4)] 5
+= eval (Num 4) [SUMA 5]
+= ejec [SUMA 5] 4
+= ejec [] (5+4)
+= ejec [] 9
+= 9</code></pre>
+<h1 id="declaraciones-de-clases-y-de-instancias"><span class="header-section-number">6</span> Declaraciones de clases y de instancias</h1>
+<p><strong>Declaraciones de clases</strong></p>
+<ul>
+<li><p>Las clases se declaran mediante el mecanismo <code>class</code>.</p></li>
+<li><p>Ejemplo de declaración de clases:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Eq</span> a <span class="kw">where</span>
+    (<span class="fu">==</span>),<span class="ot"> (/=) ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+
+    <span class="co">-- Minimal complete definition: (==) or (/=)</span>
+    x <span class="fu">==</span> y <span class="fu">=</span> not (x<span class="fu">/=</span>y)
+    x <span class="fu">/=</span> y <span class="fu">=</span> not (x<span class="fu">==</span>y)</code></pre></div>
+<p><strong>Declaraciones de instancias</strong></p>
+<ul>
+<li><p>Las instancias se declaran mediante el mecanismo <code>instance</code>.</p></li>
+<li><p>Ejemplo de declaración de instancia:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">Bool</span> <span class="kw">where</span>
+    <span class="dt">False</span> <span class="fu">==</span> <span class="dt">False</span> <span class="fu">=</span> <span class="dt">True</span>
+    <span class="dt">True</span>  <span class="fu">==</span> <span class="dt">True</span>  <span class="fu">=</span> <span class="dt">True</span>
+    _     <span class="fu">==</span> _     <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<p><strong>Extensiones de clases</strong></p>
+<ul>
+<li><p>Las clases pueden extenderse mediante el mecanismo <code>class</code>.</p></li>
+<li><p>Ejemplo de extensión de clases:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> (<span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Ord</span> a <span class="kw">where</span>
+<span class="ot">    compare                ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Ordering</span>
+    (<span class="fu">&lt;</span>), (<span class="fu">&lt;=</span>), (<span class="fu">&gt;=</span>),<span class="ot"> (&gt;)   ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+    max,<span class="ot"> min               ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+
+    <span class="co">-- Minimal complete definition: (&lt;=) or compare</span>
+    <span class="co">-- using compare can be more efficient for complex types</span>
+    compare x y <span class="fu">|</span> x<span class="fu">==</span>y      <span class="fu">=</span> <span class="dt">EQ</span>
+                <span class="fu">|</span> x<span class="fu">&lt;=</span>y      <span class="fu">=</span> <span class="dt">LT</span>
+                <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">GT</span>
+
+    x <span class="fu">&lt;=</span> y                  <span class="fu">=</span> compare x y <span class="fu">/=</span> <span class="dt">GT</span>
+    x <span class="fu">&lt;</span>  y                  <span class="fu">=</span> compare x y <span class="fu">==</span> <span class="dt">LT</span>
+    x <span class="fu">&gt;=</span> y                  <span class="fu">=</span> compare x y <span class="fu">/=</span> <span class="dt">LT</span>
+    x <span class="fu">&gt;</span>  y                  <span class="fu">=</span> compare x y <span class="fu">==</span> <span class="dt">GT</span>
+
+    max x y   <span class="fu">|</span> x <span class="fu">&lt;=</span> y      <span class="fu">=</span> y
+              <span class="fu">|</span> otherwise   <span class="fu">=</span> x
+    min x y   <span class="fu">|</span> x <span class="fu">&lt;=</span> y      <span class="fu">=</span> x
+              <span class="fu">|</span> otherwise   <span class="fu">=</span> y</code></pre></div>
+<p><strong>Instancias de clases extendidas</strong></p>
+<ul>
+<li><p>Las instancias de las clases extendidas pueden declararse mediante el mecanismo <code>instance</code>.</p></li>
+<li><p>Ejemplo de declaración de instancia:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Bool</span> <span class="kw">where</span>
+     <span class="dt">False</span> <span class="fu">&lt;=</span> _     <span class="fu">=</span> <span class="dt">True</span>
+     <span class="dt">True</span>  <span class="fu">&lt;=</span> <span class="dt">True</span>  <span class="fu">=</span> <span class="dt">True</span>
+     <span class="dt">True</span>  <span class="fu">&lt;=</span> <span class="dt">False</span> <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<p><strong>Clases derivadas</strong></p>
+<ul>
+<li><p>Al definir un nuevo tipo con <code>data</code> puede declarse como instancia de clases mediante el mecanismo <code>deriving</code>.</p></li>
+<li><p>Ejemplo de clases derivadas:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Bool</span> <span class="fu">=</span> <span class="dt">False</span> <span class="fu">|</span> <span class="dt">True</span>
+        <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Read</span>, <span class="dt">Show</span>)</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>False == False        ==  True
+False &lt; True          ==  True
+show False            ==  &quot;False&quot;
+read &quot;False&quot; :: Bool  ==  False</code></pre>
+<ul>
+<li><p>Para derivar un tipo cuyos constructores tienen argumentos como derivado, los tipos de los argumentos tienen que ser instancias de las clases derivadas.</p></li>
+<li><p>Ejemplo:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Figura</span> <span class="fu">=</span> <span class="dt">Circulo</span> <span class="dt">Float</span> <span class="fu">|</span> <span class="dt">Rect</span> <span class="dt">Float</span> <span class="dt">Float</span>
+              <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</code></pre></div>
+<ul>
+<li>Se cumple que <code>Float</code> es instancia de <code>Eq</code>, <code>Ord</code> y <code>Show</code>.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; :info Float
+...
+instance Eq Float   
+instance Ord Float  
+instance Show Float 
+...</code></pre>
+<h1 id="bibliografía"><span class="header-section-number">7</span> Bibliografía</h1>
+<ul>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 10: Declaring types and classes.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 4: Definición de tipos.</li>
+<li>Cap. 5: El sistema de clases de Haskell.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 12: Overloading and type classes.</li>
+<li>Cap. 13: Checking types.</li>
+<li>Cap. 14: Algebraic types.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

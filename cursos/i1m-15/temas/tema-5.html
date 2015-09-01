@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 5: Definiciones de listas por comprensión</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 5: Definiciones de listas por comprensión</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#generadores"><span class="toc-section-number">1</span> Generadores</a></li>
+<li><a href="#guardas"><span class="toc-section-number">2</span> Guardas</a></li>
+<li><a href="#la-función-zip"><span class="toc-section-number">3</span> La función <code>zip</code></a></li>
+<li><a href="#comprensión-de-cadenas"><span class="toc-section-number">4</span> Comprensión de cadenas</a></li>
+<li><a href="#cifrado-césar"><span class="toc-section-number">5</span> Cifrado César</a><ul>
+<li><a href="#codificación-y-descodificación"><span class="toc-section-number">5.1</span> Codificación y descodificación</a></li>
+<li><a href="#análisis-de-frecuencias"><span class="toc-section-number">5.2</span> Análisis de frecuencias</a></li>
+<li><a href="#descifrado"><span class="toc-section-number">5.3</span> Descifrado</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">6</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p>Nota: En este tema se usarán las siguientes librerías</p>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Char</span>  
+<span class="kw">import </span><span class="dt">Test.QuickCheck</span></code></pre></div>
+<h1 id="generadores"><span class="header-section-number">1</span> Generadores</h1>
+<p><strong>Definiciones por comprensión</strong></p>
+<ul>
+<li><p>Definiciones por comprensión en Matemáticas:<br> <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5C%7Bx%5E2%20%3A%20x%20%5Cin%20%5C%7B2%2C3%2C4%2C5%5C%7D%5C%7D%20%3D%20%5C%7B4%2C9%2C16%2C25%5C%7D" alt="\{x^2 : x \in \{2,3,4,5\}\} = \{4,9,16,25\}" title="\{x^2 : x \in \{2,3,4,5\}\} = \{4,9,16,25\}" /></p></li>
+<li><p>Definiciones por comprensión en Haskell:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; [x^2 | x &lt;- [2..5]]
+[4,9,16,25]</code></pre>
+<ul>
+<li><p>La expresión <code>x &lt;- [2..5]</code> se llama un <em>generador</em>.</p></li>
+<li><p>Ejemplos con más de un generador:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; [(x,y) | x &lt;- [1,2,3], y &lt;- [4,5]]
+[(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)]
+ghci&gt; [(x,y) | y &lt;- [4,5], x &lt;- [1,2,3]]
+[(1,4),(2,4),(3,4),(1,5),(2,5),(3,5)]</code></pre>
+<p><strong>Generadores dependientes</strong></p>
+<ul>
+<li>Ejemplo con generadores dependientes:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; [(x,y) | x &lt;- [1..3], y &lt;- [x..3]]
+[(1,1),(1,2),(1,3),(2,2),(2,3),(3,3)]</code></pre>
+<ul>
+<li><code>(concat xss)</code> es la concatenación de la lista de listas <code>xss</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>concat [[1,3],[2,5,6],[4,7]]  ==  [1,3,2,5,6,4,7]`</code></pre>
+<pre><code>concat :: [[a]] -&gt; [a]
+concat xss = [x | xs &lt;- xss, x &lt;- xs]</code></pre>
+<p><strong>Generadores con variables anónimas</strong></p>
+<ul>
+<li>Ejemplo de generador con variable anónima: <code>(primeros ps)</code> es la lista de los primeros elementos de la lista de pares <code>ps</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primeros [(1,3),(2,5),(6,3)]  ==  [1,2,6]`</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">primeros ::</span> [(a, b)] <span class="ot">-&gt;</span> [a]
+primeros ps <span class="fu">=</span>  [x <span class="fu">|</span> (x,_) <span class="ot">&lt;-</span> ps]</code></pre></div>
+<ul>
+<li>Definición de la longitud por comprensión</li>
+</ul>
+<pre><code>length :: [a] -&gt; Int
+length xs = sum [1 | _ &lt;- xs]</code></pre>
+<h1 id="guardas"><span class="header-section-number">2</span> Guardas</h1>
+<ul>
+<li><p>Las listas por comprensión pueden tener <em>guardas</em> para restringir los valores.</p></li>
+<li><p>Ejemplo de guarda:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; [x | x &lt;- [1..10], even x]
+[2,4,6,8,10] </code></pre>
+<ul>
+<li><code>(factores n)</code> es la lista de los factores del número <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>factores 30  ==  [1,2,3,5,6,10,15,30]`</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">factores ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+factores n <span class="fu">=</span> [x <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>n], n <span class="ot">`mod`</span> x <span class="fu">==</span> <span class="dv">0</span>]</code></pre></div>
+<ul>
+<li><code>(primo n)</code> se verifica si <code>n</code> es primo. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primo 30  == False
+primo 31  == True</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">primo ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+primo n <span class="fu">=</span> factores n <span class="fu">==</span> [<span class="dv">1</span>, n]</code></pre></div>
+<ul>
+<li><code>(primos n)</code> es la lista de los primos menores o iguales que <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primos 31  == [2,3,5,7,11,13,17,19,23,29,31]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">primos ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+primos n <span class="fu">=</span> [x <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="dv">2</span><span class="fu">..</span>n], primo x]</code></pre></div>
+<p><strong>Guarda con igualdad</strong></p>
+<ul>
+<li>Una <em>lista de asociación</em> es una lista de pares formado por una clave y un valor. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>[(&quot;Juan&quot;,7),(&quot;Ana&quot;,9),(&quot;Eva&quot;,3)]</code></pre>
+<ul>
+<li><code>(busca c t)</code> es la lista de los valores de la lista de asociación <code>t</code> cuyas claves valen <code>c</code>. Por ejemplo</li>
+</ul>
+<pre class="sesion"><code>busca &#39;b&#39; [(&#39;a&#39;,1),(&#39;b&#39;,3),(&#39;c&#39;,5),(&#39;b&#39;,2)] ==  [3,2]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">busca ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [(a, b)] <span class="ot">-&gt;</span> [b]
+busca c t <span class="fu">=</span> [v <span class="fu">|</span> (c&#39;, v) <span class="ot">&lt;-</span> t, c&#39; <span class="fu">==</span> c]</code></pre></div>
+<h1 id="la-función-zip"><span class="header-section-number">3</span> La función <code>zip</code></h1>
+<p><strong>La función <code>zip</code> y elementos adyacentes</strong></p>
+<ul>
+<li><code>(zip xs ys)</code> es la lista obtenida emparejando los elementos de las listas <code>xs</code> e <code>ys</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; zip [&#39;a&#39;,&#39;b&#39;,&#39;c&#39;] [2,5,4,7]
+[(&#39;a&#39;,2),(&#39;b&#39;,5),(&#39;c&#39;,4)]  </code></pre>
+<ul>
+<li><code>(adyacentes xs)</code> es la lista de los pares de elementos adyacentes de la lista xs. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>adyacentes [2,5,3,7]  ==  [(2,5),(5,3),(3,7)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">adyacentes ::</span> [a] <span class="ot">-&gt;</span> [(a, a)]
+adyacentes xs <span class="fu">=</span> zip xs (tail xs)</code></pre></div>
+<p><strong>Las funciones <code>zip</code>, <code>and</code> y listas ordenadas</strong></p>
+<ul>
+<li><code>(and xs)</code> se verifica si todos los elementos de <code>xs</code> son verdaderos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>and [2 &lt; 3, 2+3 == 5]         ==  True
+and [2 &lt; 3, 2+3 == 5, 7 &lt; 7]  ==  False  </code></pre>
+<ul>
+<li><code>(ordenada xs)</code> se verifica si la lista <code>xs</code> está ordenada. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ordenada [1,3,5,6,7]  ==  True
+ordenada [1,3,6,5,7]  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ordenada ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+ordenada xs <span class="fu">=</span> and [x <span class="fu">&lt;=</span> y <span class="fu">|</span> (x,y) <span class="ot">&lt;-</span> adyacentes xs]</code></pre></div>
+<p><strong>La función <code>zip</code> y lista de posiciones</strong></p>
+<ul>
+<li><code>(posiciones x xs)</code> es la lista de las posiciones ocupadas por el elemento <code>x</code> en la lista <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>posiciones 5 [1,5,3,5,5,7]  ==  [1,3,4]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">posiciones ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+posiciones x xs <span class="fu">=</span> 
+    [i <span class="fu">|</span> (x&#39;,i) <span class="ot">&lt;-</span> zip xs [<span class="dv">0</span><span class="fu">..</span>n], x <span class="fu">==</span> x&#39;]
+    <span class="kw">where</span> n <span class="fu">=</span> length xs <span class="fu">-</span> <span class="dv">1</span></code></pre></div>
+<h1 id="comprensión-de-cadenas"><span class="header-section-number">4</span> Comprensión de cadenas</h1>
+<p><strong>Cadenas y listas</strong></p>
+<ul>
+<li>Las cadenas son listas de caracteres. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; &quot;abc&quot; == [&#39;a&#39;,&#39;b&#39;,&#39;c&#39;]
+True</code></pre>
+<ul>
+<li><p>La expresión<br> <code>&quot;abc&quot; :: String</code><br> es equivalente a<br> <code>['a','b','c'] :: [Char]</code></p></li>
+<li><p>Las funciones sobre listas se aplican a las cadenas:</p></li>
+</ul>
+<pre class="sesion"><code>length &quot;abcde&quot;              ==  5
+reverse &quot;abcde&quot;             ==  &quot;edcba&quot;
+&quot;abcde&quot; ++ &quot;fg&quot;             ==  &quot;abcdefg&quot;
+posiciones &#39;a&#39; &quot;Salamanca&quot;  ==  [1,3,5,8]  </code></pre>
+<p><strong>Definiciones sobre cadenas con comprensión</strong></p>
+<ul>
+<li><code>(minusculas c)</code> es la cadena formada por las letras minúsculas de la cadena <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>minusculas &quot;EstoEsUnaPrueba&quot;  ==  &quot;stosnarueba&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">minusculas ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+minusculas xs <span class="fu">=</span> [x <span class="fu">|</span> x <span class="ot">&lt;-</span> xs, elem x [<span class="ch">&#39;a&#39;</span><span class="fu">..</span><span class="ch">&#39;z&#39;</span>]]</code></pre></div>
+<ul>
+<li><code>(ocurrencias x xs)</code> es el número de veces que ocurre el carácter <code>x</code> en la cadena <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ocurrencias &#39;a&#39; &quot;Salamanca&quot;  ==  4</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ocurrencias ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+ocurrencias x xs <span class="fu">=</span> length [x&#39; <span class="fu">|</span> x&#39; <span class="ot">&lt;-</span> xs, x <span class="fu">==</span> x&#39;]  </code></pre></div>
+<h1 id="cifrado-césar"><span class="header-section-number">5</span> Cifrado César</h1>
+<ul>
+<li><p>En el <a href="http://es.wikipedia.org/wiki/Cifrado_César">cifrado César</a> cada letra en el texto original es reemplazada por otra letra que se encuentra 3 posiciones más adelante en el alfabeto.</p></li>
+<li><p>La codificación de<br> <code>&quot;en todo la medida&quot;</code><br> es<br> <code>&quot;hq wrgr od phglgd&quot;</code></p></li>
+<li><p>Se puede generalizar desplazando cada letra n posiciones.</p></li>
+<li><p>La codificación con un desplazamiento 5 de<br> <code>&quot;en todo la medida&quot;</code><br> es<br> <code>&quot;js ytit qf rjinif&quot;</code><br></p></li>
+<li><p>La descodificación de un texto codificado con un desplazamiento n se obtiene codificándolo con un desplazamiento -n.</p></li>
+</ul>
+<h2 id="codificación-y-descodificación"><span class="header-section-number">5.1</span> Codificación y descodificación</h2>
+<p><strong>Las funciones <code>ord</code> y <code>char</code></strong></p>
+<ul>
+<li><code>(ord c)</code> es el código del carácter <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ord &#39;a&#39;  ==  97
+ord &#39;b&#39;  ==  98
+ord &#39;A&#39;  ==  65</code></pre>
+<ul>
+<li><code>(char n)</code> es el carácter de código <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>chr 97  ==  &#39;a&#39;
+chr 98  ==  &#39;b&#39;
+chr 65  ==  &#39;A&#39;  </code></pre>
+<p><strong>Codificación y descodificación: Código de letra</strong></p>
+<ul>
+<li><p>Simplificación: Sólo se codificarán las letras minúsculas dejando los restantes caracteres sin modificar.</p></li>
+<li><p><code>(let2int c)</code> es el entero correspondiente a la letra minúscula <code>c</code>. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>let2int &#39;a&#39;  ==  0
+let2int &#39;d&#39;  ==  3
+let2int &#39;z&#39;  ==  25</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">let2int ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+let2int c <span class="fu">=</span> ord c <span class="fu">-</span> ord <span class="ch">&#39;a&#39;</span></code></pre></div>
+<p><strong>Codificación y descodificación: Letra de código</strong></p>
+<ul>
+<li><code>(int2let n)</code> es la letra minúscula correspondiente al entero <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>int2let 0   ==  &#39;a&#39;
+int2let 3   ==  &#39;d&#39;
+int2let 25  ==  &#39;z&#39;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">int2let ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Char</span>
+int2let n <span class="fu">=</span> chr (ord <span class="ch">&#39;a&#39;</span> <span class="fu">+</span> n)</code></pre></div>
+<p><strong>Codificación y descodificación: Desplazamiento</strong></p>
+<ul>
+<li><code>(desplaza n c)</code> es el carácter obtenido desplazando <code>n</code> caracteres el carácter <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>desplaza   3  &#39;a&#39;  ==  &#39;d&#39;
+desplaza   3  &#39;y&#39;  ==  &#39;b&#39;
+desplaza (-3) &#39;d&#39;  ==  &#39;a&#39;
+desplaza (-3) &#39;b&#39;  ==  &#39;y&#39;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">desplaza ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Char</span>
+desplaza n c 
+    <span class="fu">|</span> elem c [<span class="ch">&#39;a&#39;</span><span class="fu">..</span><span class="ch">&#39;z&#39;</span>] <span class="fu">=</span> int2let ((let2int c<span class="fu">+</span>n) <span class="ot">`mod`</span> <span class="dv">26</span>)
+    <span class="fu">|</span> otherwise         <span class="fu">=</span> c</code></pre></div>
+<p><strong>Codificación y descodificación</strong></p>
+<ul>
+<li><code>(codifica n xs)</code> es el resultado de codificar el texto <code>xs</code> con un desplazamiento <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; codifica   3  &quot;En todo la medida&quot; 
+&quot;Eq wrgr od phglgd&quot;
+ghci&gt; codifica (-3) &quot;Eq wrgr od phglgd&quot;   
+&quot;En todo la medida&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">codifica ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+codifica n xs <span class="fu">=</span> [desplaza n x <span class="fu">|</span> x <span class="ot">&lt;-</span> xs]</code></pre></div>
+<p><strong>Propiedades de la codificación con QuickCheck</strong></p>
+<ul>
+<li>Propiedad: Al desplazar n un carácter desplazado n, se obtiene el carácter inicial.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_desplaza n xs <span class="fu">=</span> 
+    desplaza (<span class="fu">-</span>n) (desplaza n xs) <span class="fu">==</span> xs</code></pre></div>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_desplaza
++++ OK, passed 100 tests.</code></pre>
+<ul>
+<li>Propiedad: Al codificar con -n una cadena codificada con n, se obtiene la cadena inicial.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">prop_codifica n xs <span class="fu">=</span> 
+    codifica (<span class="fu">-</span>n) (codifica n xs) <span class="fu">==</span> xs</code></pre></div>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_codifica
++++ OK, passed 100 tests.</code></pre>
+<h2 id="análisis-de-frecuencias"><span class="header-section-number">5.2</span> Análisis de frecuencias</h2>
+<p><strong>Tabla de frecuencias</strong></p>
+<ul>
+<li><p>Para descifrar mensajes se parte de la <a href="http://es.wikipedia.org/wiki/Frecuencia_de_aparición_de_letras">frecuencia de aparición de letras</a>.</p></li>
+<li><p><code>tabla</code> es la lista de la frecuencias de las letras en castellano, Por ejemplo, la frecuencia de la <code>'a'</code> es del 12.53%, la de la <code>'b'</code> es 1.42%.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">tabla ::</span> [<span class="dt">Float</span>]
+tabla <span class="fu">=</span> [<span class="fl">12.53</span>, <span class="fl">1.42</span>, <span class="fl">4.68</span>, <span class="fl">5.86</span>, <span class="fl">13.68</span>, <span class="fl">0.69</span>, <span class="fl">1.01</span>, 
+          <span class="fl">0.70</span>, <span class="fl">6.25</span>, <span class="fl">0.44</span>, <span class="fl">0.01</span>,  <span class="fl">4.97</span>, <span class="fl">3.15</span>, <span class="fl">6.71</span>, 
+          <span class="fl">8.68</span>, <span class="fl">2.51</span>, <span class="fl">0.88</span>, <span class="fl">6.87</span>,  <span class="fl">7.98</span>, <span class="fl">4.63</span>, <span class="fl">3.93</span>, 
+          <span class="fl">0.90</span>, <span class="fl">0.02</span>, <span class="fl">0.22</span>, <span class="fl">0.90</span>,  <span class="fl">0.52</span>]</code></pre></div>
+<p><strong>Frecuencias</strong></p>
+<ul>
+<li><code>(porcentaje n m)</code> es el porcentaje de <code>n</code> sobre <code>m</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>porcentaje 2 5  ==  40.0  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">porcentaje ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Float</span>
+porcentaje n m <span class="fu">=</span> (fromIntegral n <span class="fu">/</span> fromIntegral m) <span class="fu">*</span> <span class="dv">100</span></code></pre></div>
+<ul>
+<li><code>(frecuencias xs)</code> es la frecuencia de cada una de las minúsculas de la cadena <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; frecuencias &quot;en todo la medida&quot;
+[14.3,0,0,21.4,14.3,0,0,0,7.1,0,0,7.1,
+ 7.1,7.1,14.3,0,0,0,0,7.1,0,0,0,0,0,0]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">frecuencias ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Float</span>]
+frecuencias xs <span class="fu">=</span> 
+    [porcentaje (ocurrencias x xs) n <span class="fu">|</span> x <span class="ot">&lt;-</span> [<span class="ch">&#39;a&#39;</span><span class="fu">..</span><span class="ch">&#39;z&#39;</span>]]
+    <span class="kw">where</span> n <span class="fu">=</span> length (minusculas xs)</code></pre></div>
+<h2 id="descifrado"><span class="header-section-number">5.3</span> Descifrado</h2>
+<p><strong>Descifrado: Ajuste chi cuadrado</strong></p>
+<ul>
+<li><p>Una medida de la discrepancia entre la distribución observada <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=os_i" alt="os_i" title="os_i" /> y la esperada <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=es_i" alt="es_i" title="es_i" /> es<br> <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cchi%5E2%20%3D%20%5Cdisplaystyle%20%5Csum_%7Bi%3D0%7D%5E%7Bn-1%7D%5Cfrac%7B%28os_i-es_i%29%5E2%7D%7Bes_i%7D" alt="\chi^2 = \displaystyle \sum_{i=0}^{n-1}\frac{(os_i-es_i)^2}{es_i}" title="\chi^2 = \displaystyle \sum_{i=0}^{n-1}\frac{(os_i-es_i)^2}{es_i}" /><br> Los menores valores corresponden a menores discrepancias.</p></li>
+<li><p><code>(chiCuad os es)</code> es la medida chi cuadrado de las distribuciones <code>os</code> y <code>es</code>. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>chiCuad [3,5,6] [3,5,6]  ==  0.0
+chiCuad [3,5,6] [5,6,3]  ==  3.9666667</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">chiCuad ::</span> [<span class="dt">Float</span>] <span class="ot">-&gt;</span> [<span class="dt">Float</span>] <span class="ot">-&gt;</span> <span class="dt">Float</span>
+chiCuad os es <span class="fu">=</span> 
+    sum [((o<span class="fu">-</span>e)<span class="fu">^</span><span class="dv">2</span>)<span class="fu">/</span>e <span class="fu">|</span> (o,e) <span class="ot">&lt;-</span> zip os es]</code></pre></div>
+<p><strong>Descifrado: Rotación</strong></p>
+<ul>
+<li><code>(rota n xs)</code> es la lista obtenida rotando <code>n</code> posiciones los elementos de la lista <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>rota 2 &quot;manolo&quot;  ==  &quot;noloma&quot;  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">rota ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+rota n xs <span class="fu">=</span> drop n xs <span class="fu">++</span> take n xs</code></pre></div>
+<p><strong>Descifrado</strong></p>
+<ul>
+<li><code>(descifra xs)</code> es la cadena obtenida descodificando la cadena <code>xs</code> por el antidesplazamiento que produce una distribución de minúsculas con la menor desviación chi cuadrado respecto de la tabla de distribución de las letras en castellano. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; codifica 5 &quot;Todo para nada&quot;
+&quot;Ttit ufwf sfif&quot;
+ghci&gt; descifra &quot;Ttit ufwf sfif&quot;
+&quot;Todo para nada&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">descifra ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+descifra xs <span class="fu">=</span>  codifica (<span class="fu">-</span>factor) xs
+ <span class="kw">where</span>
+  factor <span class="fu">=</span> head (posiciones (minimum tabChi) tabChi)
+  tabChi <span class="fu">=</span> [chiCuad (rota n tabla&#39;) tabla <span class="fu">|</span> n <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="fu">..</span><span class="dv">25</span>]]
+  tabla&#39; <span class="fu">=</span> frecuencias xs</code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">6</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 4: Listas.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press.
+<ul>
+<li>Cap. 5: List comprehensions.</li>
+</ul></li>
+<li>B. O'Sullivan, D. Stewart y J. Goerzen. <em>Real World Haskell</em>. O'Reilly, 2008.
+<ul>
+<li>Cap. 12: Barcode Recognition.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 6: Programación con listas.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 5: Data types: tuples and lists.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

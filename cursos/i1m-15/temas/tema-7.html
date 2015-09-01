@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 7: Funciones de orden superior</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 7: Funciones de orden superior</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#funciones-de-orden-superior"><span class="toc-section-number">1</span> Funciones de orden superior</a></li>
+<li><a href="#procesamiento-de-listas"><span class="toc-section-number">2</span> Procesamiento de listas</a><ul>
+<li><a href="#la-función-map"><span class="toc-section-number">2.1</span> La función <code>map</code></a></li>
+<li><a href="#la-función-filter"><span class="toc-section-number">2.2</span> La función <code>filter</code></a></li>
+</ul></li>
+<li><a href="#función-de-plegado-por-la-derecha-foldr"><span class="toc-section-number">3</span> Función de plegado por la derecha: <code>foldr</code></a></li>
+<li><a href="#función-de-plegado-por-la-izquierda-foldl"><span class="toc-section-number">4</span> Función de plegado por la izquierda: <code>foldl</code></a></li>
+<li><a href="#composición-de-funciones"><span class="toc-section-number">5</span> Composición de funciones</a></li>
+<li><a href="#caso-de-estudio-codificación-binaria-y-transmisión-de-cadenas"><span class="toc-section-number">6</span> Caso de estudio: Codificación binaria y transmisión de cadenas</a><ul>
+<li><a href="#cambio-de-bases"><span class="toc-section-number">6.1</span> Cambio de bases</a></li>
+<li><a href="#codificación-y-descodificación"><span class="toc-section-number">6.2</span> Codificación y descodificación</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">7</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usarán las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Char</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.QuickCheck.Function</span></code></pre></div>
+<h1 id="funciones-de-orden-superior"><span class="header-section-number">1</span> Funciones de orden superior</h1>
+<p><strong>Funciones de orden superior</strong></p>
+<ul>
+<li><p>Una función es <em>de orden superior</em> si toma una función como argumento o devuelve una función como resultado.</p></li>
+<li><p><code>(dosVeces f x)</code> es el resultado de aplicar <code>f</code> a <code>f x</code>. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>dosVeces (*3) 2           ==  18
+dosVeces reverse [2,5,7]  ==  [2,5,7]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">dosVeces ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a
+dosVeces f x <span class="fu">=</span> f (f x)</code></pre></div>
+<ul>
+<li>Prop: <code>dosVeces reverse = id</code>, donde <code>id</code> es la función identidad.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">id<span class="ot"> ::</span> a <span class="ot">-&gt;</span> a
+id x <span class="fu">=</span>  x</code></pre></div>
+<p><strong>Usos de las funciones de orden superior</strong></p>
+<ul>
+<li>Definición de patrones de programación.
+<ul>
+<li>Aplicación de una función a todos los elementos de una lista.</li>
+<li>Filtrado de listas por propiedades.</li>
+<li>Patrones de recursión sobre listas.</li>
+</ul></li>
+<li>Diseño de lenguajes de dominio específico:
+<ul>
+<li>Lenguajes para procesamiento de mensajes.</li>
+<li>Analizadores sintácticos.</li>
+<li>Procedimientos de entrada/salida.</li>
+</ul></li>
+<li>Uso de las propiedades algebraicas de las funciones de orden superior para razonar sobre programas.</li>
+</ul>
+<h1 id="procesamiento-de-listas"><span class="header-section-number">2</span> Procesamiento de listas</h1>
+<h2 id="la-función-map"><span class="header-section-number">2.1</span> La función <code>map</code></h2>
+<p><strong>La función <code>map</code>: Definición</strong></p>
+<ul>
+<li><code>(map f xs)</code> es la lista obtenida aplicando <code>f</code> a cada elemento de <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>map (*2) [3,4,7]     == [6,8,14]
+map sqrt [1,2,4]     == [1.0,1.4142135623731,2.0]
+map even [1..5]      == [False,True,False,True,False]</code></pre>
+<ul>
+<li>Definición de <code>map</code> por comprensión:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">map<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [b]
+map f xs <span class="fu">=</span>  [f x <span class="fu">|</span> x <span class="ot">&lt;-</span> xs]</code></pre></div>
+<ul>
+<li>Definición de <code>map</code> por recursión:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">map<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [b]
+map _ []     <span class="fu">=</span> []
+map f (x<span class="fu">:</span>xs) <span class="fu">=</span> f x <span class="fu">:</span> map f xs</code></pre></div>
+<p><strong>Relación entre <code>sum</code> y <code>map</code></strong></p>
+<ul>
+<li>La función <code>sum</code>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sum<span class="ot"> ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sum []     <span class="fu">=</span> <span class="dv">0</span>                
+sum (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="fu">+</span> sum xs       </code></pre></div>
+<ul>
+<li><p>Propiedad: <code>sum (map (2*) xs) = 2 * sum xs</code></p></li>
+<li><p>Comprobación con QuickCheck:</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_sum_map ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_sum_map xs <span class="fu">=</span> sum (map (<span class="dv">2</span><span class="fu">*</span>) xs) <span class="fu">==</span> <span class="dv">2</span> <span class="fu">*</span> sum xs</code></pre></div>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_sum_map
++++ OK, passed 100 tests.</code></pre>
+<h2 id="la-función-filter"><span class="header-section-number">2.2</span> La función <code>filter</code></h2>
+<p><strong>La función <code>filter</code></strong></p>
+<ul>
+<li><code>filter p xs</code> es la lista de los elementos de <code>xs</code> que cumplen la propiedad <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>filter even [1,3,5,4,2,6,1] == [4,2,6]
+filter (&gt;3) [1,3,5,4,2,6,1] == [5,4,6]  </code></pre>
+<ul>
+<li>Definición de <code>filter</code> por comprensión:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">filter<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+filter p xs <span class="fu">=</span>  [x <span class="fu">|</span> x <span class="ot">&lt;-</span> xs, p x]</code></pre></div>
+<ul>
+<li>Definición de <code>filter</code> por recursión:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">filter<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]
+filter _ []                 <span class="fu">=</span> []
+filter p (x<span class="fu">:</span>xs) <span class="fu">|</span> p x       <span class="fu">=</span> x <span class="fu">:</span> filter p xs
+                <span class="fu">|</span> otherwise <span class="fu">=</span> filter p xs</code></pre></div>
+<p><strong>Uso conjunto de <code>map</code> y <code>filter</code></strong></p>
+<ul>
+<li><code>sumaCuadradosPares xs</code> es la suma de los cuadrados de los números pares de la lista <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>sumaCuadradosPares [1..5]  ==  20  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sumaCuadradosPares ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaCuadradosPares xs <span class="fu">=</span> sum (map (<span class="fu">^</span><span class="dv">2</span>) (filter even xs))</code></pre></div>
+<ul>
+<li>Definición por comprensión:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sumaCuadradosPares&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+sumaCuadradosPares&#39; xs <span class="fu">=</span> sum [x<span class="fu">^</span><span class="dv">2</span> <span class="fu">|</span> x <span class="ot">&lt;-</span> xs, even x]  </code></pre></div>
+<p><strong>Predefinidas de orden superior para procesar listas</strong></p>
+<ul>
+<li><code>all p xs</code> se verifica si todos los elementos de <code>xs</code> cumplen la propiedad <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>all odd [1,3,5]  ==  True
+all odd [1,3,6]  ==  False  </code></pre>
+<ul>
+<li><code>any p xs</code> se verifica si algún elemento de <code>xs</code> cumple la propiedad <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>any odd [1,3,5]  ==  True
+any odd [2,4,6]  ==  False  </code></pre>
+<ul>
+<li><code>takeWhile p xs</code> es la lista de los elementos iniciales de <code>xs</code> que verifican el predicado <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>takeWhile even [2,4,6,7,8,9] == [2,4,6]  </code></pre>
+<ul>
+<li><code>dropWhile p xs</code> es la lista <code>xs</code> sin los elementos iniciales que verifican el predicado <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>dropWhile even [2,4,6,7,8,9] == [7,8,9]  </code></pre>
+<h1 id="función-de-plegado-por-la-derecha-foldr"><span class="header-section-number">3</span> Función de plegado por la derecha: <code>foldr</code></h1>
+<p><strong>Esquema básico de recursión sobre listas</strong></p>
+<ul>
+<li>Ejemplos de definiciones recursivas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sum []         <span class="fu">=</span> <span class="dv">0</span>
+sum (x<span class="fu">:</span>xs)     <span class="fu">=</span> x <span class="fu">+</span> sum xs
+product []     <span class="fu">=</span> <span class="dv">1</span>
+product (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="fu">*</span> product xs
+or []          <span class="fu">=</span> <span class="dt">False</span>
+or (x<span class="fu">:</span>xs)      <span class="fu">=</span> x <span class="fu">||</span> or xs
+and []         <span class="fu">=</span> <span class="dt">True</span>
+and (x<span class="fu">:</span>xs)     <span class="fu">=</span> x <span class="fu">&amp;&amp;</span> and xs</code></pre></div>
+<ul>
+<li><p>Esquema básico de recursión sobre listas:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">f []     <span class="fu">=</span> v
+f (x<span class="fu">:</span>xs) <span class="fu">=</span> x <span class="ot">`op`</span> (f xs)</code></pre></div></li>
+</ul>
+<p><strong>El patrón <code>foldr</code></strong></p>
+<ul>
+<li>Redefiniciones con el patrón <code>foldr</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">sum     <span class="fu">=</span> foldr (<span class="fu">+</span>) <span class="dv">0</span>
+product <span class="fu">=</span> foldr (<span class="fu">*</span>) <span class="dv">1</span>
+or      <span class="fu">=</span> foldr (<span class="fu">||</span>) <span class="dt">False</span>
+and     <span class="fu">=</span> foldr (<span class="fu">&amp;&amp;</span>) <span class="dt">True</span></code></pre></div>
+<ul>
+<li><p>Definición del patrón <code>foldr</code></p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">foldr<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> b
+foldr f v []     <span class="fu">=</span>  v
+foldr f v (x<span class="fu">:</span>xs) <span class="fu">=</span>  f x (foldr f v xs)</code></pre></div></li>
+</ul>
+<p><strong>Visión no recursiva de <code>foldr</code></strong></p>
+<ul>
+<li>Cálculo con <code>sum</code>:</li>
+</ul>
+<pre class="sesion"><code>sum [2,3,5]
+= foldr (+) 0 [2,3,5]       [def. de sum] 
+= foldr (+) 0 2:(3:(5:[]))  [notación de lista] 
+=             2+(3+(5+0))   [sustituir (:) por (+) y 
+                                       []  por 0] 
+= 10`                       [aritmética]</code></pre>
+<ul>
+<li>Cálculo con <code>sum</code>:</li>
+</ul>
+<pre class="sesion"><code>product [2,3,5]  
+= foldr (*) 1 [2,3,5]      [def. de sum] 
+= foldr (*) 1 2:(3:(5:[])) [notación de lista] 
+=             2*(3*(5*1))  [sustituir (:) por (*) y 
+                                      []  por 1] 
+= 30                       [aritmética]</code></pre>
+<ul>
+<li>Cálculo de <code>foldr f v xs</code>
+<ul>
+<li>Sustituir en <code>xs</code> los <code>(:)</code> por <code>f</code> y <code>[]</code> por <code>v</code>.</li>
+</ul></li>
+</ul>
+<p><strong>Definición de la longitud mediante <code>foldr</code></strong></p>
+<ul>
+<li>Ejemplo de cálculo de la longitud:</li>
+</ul>
+<pre class="sesion"><code>longitud [2,3,5]
+= longitud 2:(3:(5:[]))
+=          1+(1+(1+0))      [Sustituciones]
+= 3  </code></pre>
+<ul>
+<li>Sustituciones:
+<ul>
+<li>los <code>(:)</code> por <code>(\x y -&gt; 1+y)</code></li>
+<li>la <code>[]</code> por <code>0</code></li>
+</ul></li>
+<li>Definición de <code>length</code> usando <code>foldr</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">longitud ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+longitud <span class="fu">=</span> foldr (\x y <span class="ot">-&gt;</span> <span class="dv">1</span><span class="fu">+</span>y) <span class="dv">0</span></code></pre></div>
+<p><strong>Definición de la inversa mediante <code>foldr</code></strong></p>
+<ul>
+<li>Ejemplo de cálculo de la inversa:</li>
+</ul>
+<pre class="sesion"><code>inversa [2,3,5]
+= inversa 2:(3:(5:[]))
+=         (([] ++ [5]) ++ [3]) ++ [2]  [Sustituciones]
+= [5,3,2]</code></pre>
+<ul>
+<li>Sustituciones:
+<ul>
+<li>los <code>(:)</code> por <code>(\x y -&gt; y ++ [x])</code></li>
+<li>la <code>[]</code> por <code>[]</code></li>
+</ul></li>
+<li>Definición de <code>inversa</code> usando <code>foldr</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">inversa ::</span> [a] <span class="ot">-&gt;</span> [a]
+inversa <span class="fu">=</span> foldr (\x y <span class="ot">-&gt;</span> y <span class="fu">++</span> [x]) []</code></pre></div>
+<p><strong>Definición de la concatenación mediante <code>foldr</code></strong></p>
+<ul>
+<li>Ejemplo de cálculo de la concatenación:</li>
+</ul>
+<pre class="sesion"><code>conc [2,3,5] [7,9]
+= conc 2:(3:(5:[])) [7,9]
+=      2:(3:(5:[7,9]))       [Sustituciones]
+= [2,3,5,7,9]</code></pre>
+<ul>
+<li>Sustituciones:
+<ul>
+<li>los <code>(:)</code> por <code>(:)</code></li>
+<li>la <code>[]</code> por <code>ys</code></li>
+</ul></li>
+<li>Definición de <code>conc</code> usando <code>foldr</code></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell">conc xs ys <span class="fu">=</span> (foldr (<span class="fu">:</span>) ys) xs</code></pre></div>
+<h1 id="función-de-plegado-por-la-izquierda-foldl"><span class="header-section-number">4</span> Función de plegado por la izquierda: <code>foldl</code></h1>
+<p><strong>Definición de suma de lista con acumuladores</strong></p>
+<ul>
+<li>Definición de <code>suma</code> con acumuladores:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">suma ::</span> [<span class="dt">Integer</span>] <span class="ot">-&gt;</span> <span class="dt">Integer</span>
+suma <span class="fu">=</span> sumaAux <span class="dv">0</span>
+    <span class="kw">where</span> sumaAux v []     <span class="fu">=</span> v
+          sumaAux v (x<span class="fu">:</span>xs) <span class="fu">=</span> sumaAux (v<span class="fu">+</span>x) xs</code></pre></div>
+<ul>
+<li>Cálculo con <code>suma</code>:</li>
+</ul>
+<pre class="sesion"><code>suma [2,3,7] 
+= sumaAux 0 [2,3,7]  
+= sumaAux (0+2) [3,7]  
+= sumaAux 2 [3,7]  
+= sumaAux (2+3) [7]  
+= sumaAux 5 [7]  
+= sumaAux (5+7) []  
+= sumaAux 12 []
+= 12  </code></pre>
+<p><strong>Patrón de definición de recursión con acumulador</strong></p>
+<ul>
+<li>Patrón de definición (generalización de <code>sumaAux</code>):</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">f v []     <span class="fu">=</span> v
+f v (x<span class="fu">:</span>xs) <span class="fu">=</span> f (v<span class="fu">*</span>x) xs</code></pre></div>
+<ul>
+<li>Definición con el patrón <code>foldl</code>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">suma    <span class="fu">=</span> foldl (<span class="fu">+</span>) <span class="dv">0</span>
+product <span class="fu">=</span> foldl (<span class="fu">*</span>) <span class="dv">1</span>
+or      <span class="fu">=</span> foldl (<span class="fu">||</span>) <span class="dt">False</span>
+and     <span class="fu">=</span> foldl (<span class="fu">&amp;&amp;</span>) <span class="dt">True</span></code></pre></div>
+<p><strong>Definición de <code>foldl</code></strong></p>
+<ul>
+<li>Definición de <code>foldl</code>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">foldl<span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [b ] <span class="ot">-&gt;</span> a
+foldl f v []     <span class="fu">=</span>  v
+foldl f v (x<span class="fu">:</span>xs) <span class="fu">=</span>  foldl f (f v x ) xs</code></pre></div>
+<ul>
+<li>Diferencia entre <code>foldr</code> y <code>foldl</code>:</li>
+</ul>
+<pre class="sesion"><code>(foldr (-) 0) [3,4,2] =     3-(4-(2-0)) = 1
+(foldl (-) 0) [3,4,2] = ((0-3)-4)-2     = -9</code></pre>
+<h1 id="composición-de-funciones"><span class="header-section-number">5</span> Composición de funciones</h1>
+<p><strong>Composición de funciones</strong></p>
+<ul>
+<li>Definición de la composición de dos funciones:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">(.) ::</span> (b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> c
+f <span class="fu">.</span> g  <span class="fu">=</span> \x <span class="ot">-&gt;</span> f (g x)</code></pre></div>
+<p><strong>Uso de composición para simplificar definiciones</strong></p>
+<ul>
+<li>Definiciones sin composición:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">par n                 <span class="fu">=</span> not (impar n)
+doVeces f x           <span class="fu">=</span> f (f x )
+sumaCuadradosPares ns <span class="fu">=</span> sum (map (<span class="fu">^</span><span class="dv">2</span>) (filter even ns))</code></pre></div>
+<ul>
+<li>Definiciones con composición:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">par                <span class="fu">=</span> not <span class="fu">.</span> impar
+dosVeces f         <span class="fu">=</span> f <span class="fu">.</span> f
+sumaCuadradosPares <span class="fu">=</span> sum <span class="fu">.</span> map (<span class="fu">^</span><span class="dv">2</span>) <span class="fu">.</span> filter even</code></pre></div>
+<p><strong>Composición de una lista de funciones</strong></p>
+<ul>
+<li>La función identidad:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">id<span class="ot"> ::</span> a <span class="ot">-&gt;</span> a
+id <span class="fu">=</span>  \x <span class="ot">-&gt;</span> x</code></pre></div>
+<ul>
+<li><code>(composicionLista fs)</code> es la composición de la lista de funciones <code>fs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>composicionLista [(*2),(^2)] 3       ==  18
+composicionLista [(^2),(*2)] 3       ==  36
+composicionLista [(/9),(^2),(*2)] 3  ==  4.0</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">composicionLista ::</span> [a <span class="ot">-&gt;</span> a] <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a)
+composicionLista <span class="fu">=</span>  foldr (<span class="fu">.</span>) id</code></pre></div>
+<h1 id="caso-de-estudio-codificación-binaria-y-transmisión-de-cadenas"><span class="header-section-number">6</span> Caso de estudio: Codificación binaria y transmisión de cadenas</h1>
+<ul>
+<li>Objetivos:
+<ul>
+<li>Definir una función que convierta una cadena en una lista de ceros y unos junto con otra función que realice la conversión opuesta.</li>
+<li>Simular la transmisión de cadenas mediante ceros y unos.</li>
+</ul></li>
+<li><p>Los números binarios se representan mediante listas de bits en orden inverso. Un bit es cero o uno. Por ejemplo, el número 1101 se representa por [1,0,1,1].</p></li>
+<li><p>El tipo <code>Bit</code> es el de los bits.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Bit</span> <span class="fu">=</span> <span class="dt">Int</span></code></pre></div>
+<h2 id="cambio-de-bases"><span class="header-section-number">6.1</span> Cambio de bases</h2>
+<p><strong>Cambio de bases: De binario a decimal</strong></p>
+<ul>
+<li><code>(bin2int x)</code> es el número decimal correspondiente al número binario <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>bin2int [1,0,1,1]  ==  13</code></pre>
+<ul>
+<li>El cálculo es</li>
+</ul>
+<pre class="sesion"><code>bin2int [1,0,1,1]
+= bin2int 1:(0:(1:(1:[])))
+=         1+2*(0+2*(1+2*(1+2*0)))
+= 13</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">bin2int ::</span> [<span class="dt">Bit</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span>
+bin2int <span class="fu">=</span>  foldr (\x y <span class="ot">-&gt;</span> x <span class="fu">+</span> <span class="dv">2</span><span class="fu">*</span>y) <span class="dv">0</span></code></pre></div>
+<p><strong>Cambio de base: De decimal a binario</strong></p>
+<ul>
+<li><code>(int2bin x)</code> es el número binario correspondiente al número decimal <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>int2bin 13  ==  [1,0,1,1]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">int2bin ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Bit</span>]
+int2bin n <span class="fu">|</span> n <span class="fu">&lt;</span> <span class="dv">2</span>     <span class="fu">=</span> [n]
+          <span class="fu">|</span> otherwise <span class="fu">=</span> n <span class="ot">`mod`</span> <span class="dv">2</span> <span class="fu">:</span> int2bin (n <span class="ot">`div`</span> <span class="dv">2</span>)</code></pre></div>
+<ul>
+<li>El cálculo es</li>
+</ul>
+<pre class="sesion"><code>int2bin 13 
+= 13 `mod` 2 : int2bin (13 `div` 2)  
+= 1 : int2bin (6 `div` 2)  
+= 1 : (6 `mod` 2 : int2bin (6 `div` 2))
+= 1 : (0 : int2bin 3)
+= 1 : (0 : (3 `mod` 2 : int2bin (3 `div` 2)))
+= 1 : (0 : (1 : int2bin 1))
+= 1 : (0 : (1 : (1 : int2bin 0)))
+= 1 : (0 : (1 : (1 : [])))
+= [1,0,1,1]</code></pre>
+<p><strong>Cambio de base: Comprobación de propiedades</strong></p>
+<ul>
+<li>Propiedad: Al pasar un número natural a binario con <code>int2bin</code> y el resultado a decimal con <code>bin2int</code> se obtiene el número inicial.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_int_bin ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_int_bin x <span class="fu">=</span>
+    bin2int (int2bin y) <span class="fu">==</span> y
+    <span class="kw">where</span> y <span class="fu">=</span> abs x</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_int_bin
++++ OK, passed 100 tests.</code></pre>
+<h2 id="codificación-y-descodificación"><span class="header-section-number">6.2</span> Codificación y descodificación</h2>
+<p><strong>Creación de octetos</strong></p>
+<ul>
+<li><p>Un octeto es un grupo de ocho bits.</p></li>
+<li><p><code>(creaOcteto bs)</code> es el octeto correspondiente a la lista de bits <code>bs</code>; es decir, los 8 primeros elementos de <code>bs</code> si su longitud es mayor o igual que 8 y la lista de 8 elemento añadiendo ceros al final de <code>bs</code> en caso contrario. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; creaOcteto [1,0,1,1,0,0,1,1,1,0,0,0]
+[1,0,1,1,0,0,1,1]
+ghci&gt; creaOcteto [1,0,1,1]             
+[1,0,1,1,0,0,0,0]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">creaOcteto ::</span> [<span class="dt">Bit</span>] <span class="ot">-&gt;</span> [<span class="dt">Bit</span>]
+creaOcteto bs <span class="fu">=</span>  take <span class="dv">8</span> (bs <span class="fu">++</span> repeat <span class="dv">0</span>)</code></pre></div>
+<ul>
+<li><code>(repeat x)</code> es una lista infinita cuyo único elemento es <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>take 3 (repeat 5) == [5,5,5]</code></pre>
+<p><strong>Codificación</strong></p>
+<ul>
+<li><code>(codifica c)</code> es la codificación de la cadena <code>c</code> como una lista de bits obtenida convirtiendo cada carácter en un número Unicode, convirtiendo cada uno de dichos números en un octeto y concatenando los octetos para obtener una lista de bits. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; codifica &quot;abc&quot;
+[1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">codifica ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Bit</span>]
+codifica <span class="fu">=</span>  concat <span class="fu">.</span> map (creaOcteto <span class="fu">.</span> int2bin <span class="fu">.</span> ord)</code></pre></div>
+<ul>
+<li><code>(concat xss)</code> es la lista obtenida concatenando la lista de listas <code>xss</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>concat [[1,5],[2],[4,5,3]] == [1,5,2,4,5,3]</code></pre>
+<p><strong>Codificación</strong></p>
+<ul>
+<li>Ejemplo de codificación,</li>
+</ul>
+<pre class="sesion"><code>codifica &quot;abc&quot; 
+= concat . map (creaOcteto . int2bin . ord) &quot;abc&quot;
+= concat . map (creaOcteto . int2bin . ord) [&#39;a&#39;,&#39;b&#39;,&#39;c&#39;]
+= concat [creaOcteto . int2bin . ord &#39;a&#39;, 
+          creaOcteto . int2bin . ord &#39;b&#39;, 
+          creaOcteto . int2bin . ord &#39;c&#39;]
+= concat [creaOcteto [1,0,0,0,0,1,1], 
+          creaOcteto [0,1,0,0,0,1,1], 
+          creaOcteto [1,1,0,0,0,1,1]]
+= concat [[1,0,0,0,0,1,1,0], 
+          [0,1,0,0,0,1,1,0], 
+          [1,1,0,0,0,1,1,0]]
+= [1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0]</code></pre>
+<p><strong>Separación de octetos</strong></p>
+<ul>
+<li><code>(separaOctetos bs)</code> es la lista obtenida separando la lista de bits <code>bs</code> en listas de 8 elementos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; separaOctetos [1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0]
+[[1,0,0,0,0,1,1,0],[0,1,0,0,0,1,1,0]]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">separaOctetos ::</span> [<span class="dt">Bit</span>] <span class="ot">-&gt;</span> [[<span class="dt">Bit</span>]]
+separaOctetos [] <span class="fu">=</span> []
+separaOctetos bs <span class="fu">=</span>  
+    take <span class="dv">8</span> bs <span class="fu">:</span> separaOctetos (drop <span class="dv">8</span> bs)</code></pre></div>
+<p><strong>Descodificación</strong></p>
+<ul>
+<li><code>(descodifica bs)</code> es la cadena correspondiente a la lista de bits <code>bs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; descodifica [1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0]
+&quot;abc&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">descodifica ::</span> [<span class="dt">Bit</span>] <span class="ot">-&gt;</span> <span class="dt">String</span>
+descodifica <span class="fu">=</span>  map (chr <span class="fu">.</span> bin2int) <span class="fu">.</span> separaOctetos</code></pre></div>
+<ul>
+<li>Ejemplo de cálculo:</li>
+</ul>
+<pre class="sesion"><code>descodifica [1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0]
+= (map (chr . bin2int) . separaOctetos) 
+  [1,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0]
+= map (chr . bin2int) [[1,0,0,0,0,1,1,0],[0,1,0,0,0,1,1,0],[1,1,0,0,0,1,1,0]]
+= [(chr . bin2int) [1,0,0,0,0,1,1,0],
+   (chr . bin2int) [0,1,0,0,0,1,1,0],
+   (chr . bin2int) [1,1,0,0,0,1,1,0]]
+= [chr 97, chr 98, chr 99]
+= &quot;abc&quot;</code></pre>
+<p><strong>Transmisión</strong></p>
+<ul>
+<li><p>Los canales de transmisión pueden representarse mediante funciones que transforman cadenas de bits en cadenas de bits.</p></li>
+<li><p><code>(transmite c t)</code> es la cadena obtenida transmitiendo la cadena <code>t</code> a través del canal <code>c</code>. Por ejemplo,</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; transmite id &quot;Texto por canal correcto&quot;
+&quot;Texto por canal correcto&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">transmite ::</span> ([<span class="dt">Bit</span>] <span class="ot">-&gt;</span> [<span class="dt">Bit</span>]) <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>
+transmite canal <span class="fu">=</span>  descodifica <span class="fu">.</span> canal <span class="fu">.</span> codifica</code></pre></div>
+<p><strong>Corrección de la transmisión</strong></p>
+<ul>
+<li>Propiedad: Al trasmitir cualquier cadena por el canal identidad se obtiene la cadena.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">prop_transmite ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_transmite cs <span class="fu">=</span>
+    transmite id cs <span class="fu">==</span> cs</code></pre></div>
+<ul>
+<li>Comprobación de la corrección:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_transmite
++++ OK, passed 100 tests.</code></pre>
+<h1 id="bibliografía"><span class="header-section-number">7</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 4: Listas.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 7: Higher-order functions.</li>
+</ul></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 8: Funciones de orden superior y polimorfismo.</li>
+</ul></li>
+<li>S. Thompson. <em>Haskell: The Craft of Functional Programming</em>, Second Edition. Addison-Wesley, 1999.
+<ul>
+<li>Cap. 9: Generalization: patterns of computation.</li>
+<li>Cap. 10: Functions as values.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

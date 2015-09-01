@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 24: Técnicas de diseño ascendente de algoritmos</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 24: Técnicas de diseño ascendente de algoritmos</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#programación-dinámica"><span class="toc-section-number">1</span> Programación dinámica</a><ul>
+<li><a href="#introducción-a-la-programación-dinámica"><span class="toc-section-number">1.1</span> Introducción a la programación dinámica</a></li>
+<li><a href="#el-patrón-de-la-programación-dinámica"><span class="toc-section-number">1.2</span> El patrón de la programación dinámica</a></li>
+</ul></li>
+<li><a href="#fibonacci-como-ejemplo-de-programación-dinámica"><span class="toc-section-number">2</span> Fibonacci como ejemplo de programación dinámica</a><ul>
+<li><a href="#definición-de-fibonacci-mediante-programación-dinámica"><span class="toc-section-number">2.1</span> Definición de Fibonacci mediante programación dinámica</a></li>
+</ul></li>
+<li><a href="#producto-de-cadenas-de-matrices-pcm"><span class="toc-section-number">3</span> Producto de cadenas de matrices (PCM)</a><ul>
+<li><a href="#descripción-del-problema-pcm"><span class="toc-section-number">3.1</span> Descripción del problema PCM</a></li>
+<li><a href="#el-algoritmo-del-pcm"><span class="toc-section-number">3.2</span> El algoritmo del PCM</a></li>
+<li><a href="#solución-del-pcm-mediante-programación-dinámica"><span class="toc-section-number">3.3</span> Solución del PCM mediante programación dinámica</a></li>
+<li><a href="#solución-del-pcm-mediante-divide-y-vencerás"><span class="toc-section-number">3.4</span> Solución del PCM mediante divide y vencerás</a></li>
+</ul></li>
+<li><a href="#árboles-binarios-de-búsqueda-optimales-abbo"><span class="toc-section-number">4</span> Árboles binarios de búsqueda optimales (ABBO)</a><ul>
+<li><a href="#descripción-del-problema-de-abbo"><span class="toc-section-number">4.1</span> Descripción del problema de ABBO</a></li>
+<li><a href="#el-algoritmo-del-abbo"><span class="toc-section-number">4.2</span> El algoritmo del ABBO</a></li>
+<li><a href="#solución-del-abbo-mediante-programación-dinámica"><span class="toc-section-number">4.3</span> Solución del ABBO mediante programación dinámica</a></li>
+</ul></li>
+<li><a href="#caminos-mínimos-entre-todos-los-pares-de-nodos-de-un-grafocm"><span class="toc-section-number">5</span> Caminos mínimos entre todos los pares de nodos de un grafo(CM)</a><ul>
+<li><a href="#descripción-del-problema"><span class="toc-section-number">5.1</span> Descripción del problema</a></li>
+<li><a href="#solución-del-problema-de-los-caminos-mínimos-cm"><span class="toc-section-number">5.2</span> Solución del problema de los caminos mínimos (CM)</a></li>
+</ul></li>
+<li><a href="#problema-del-viajante-pv"><span class="toc-section-number">6</span> Problema del viajante (PV)</a><ul>
+<li><a href="#descripción-del-problema-1"><span class="toc-section-number">6.1</span> Descripción del problema</a></li>
+<li><a href="#solución-del-problema-del-viajante-pv"><span class="toc-section-number">6.2</span> Solución del problema del viajante (PV)</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="programación-dinámica"><span class="header-section-number">1</span> Programación dinámica</h1>
+<h2 id="introducción-a-la-programación-dinámica"><span class="header-section-number">1.1</span> Introducción a la programación dinámica</h2>
+<p><strong>Divide y vencerás vs programación dinámica</strong></p>
+<ul>
+<li><p>Inconveniente de la técnica divide y vencerás: la posibilidad de crear idénticos supbroblemas y repetición del trabajo.</p></li>
+<li><p>Idea de la programación dinámica: resolver primero los subproblemas menores, guardar los resultados y usar los resultados de los subproblemas intermedios para resolver los mayores.</p></li>
+</ul>
+<p><strong>Cálculo de Fibonacci por divide y vencerás</strong></p>
+<ul>
+<li>Definición de Fibonacci por divide y vencerás.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">fib <span class="dv">0</span> <span class="fu">=</span> <span class="dv">0</span>
+fib <span class="dv">1</span> <span class="fu">=</span> <span class="dv">1</span>
+fib n <span class="fu">=</span> fib (n<span class="fu">-</span><span class="dv">1</span>) <span class="fu">+</span> fib (n<span class="fu">-</span><span class="dv">2</span>)</code></pre></div>
+<ul>
+<li>Cálculo de (fib 4) por divide y vencerás</li>
+</ul>
+<pre class="sesion"><code>                      fib 4
+                     /     \
+              +-----+       +--+ 
+              |                |
+            fib 3             fib 2 
+           /     \           /     \
+      fib 2       fib 1 fib 1       fib 0
+     /     \
+fib 1       fib 0</code></pre>
+<p class="indent">
+Calcula 2 veces (fib 2) y 3 veces (fib 1) y (fib 0).
+</p>
+<p><strong>Cálculo de Fibonacci por programación dinámica</strong></p>
+<ul>
+<li>Cálculo de (fib 4) por programación dinámica</li>
+</ul>
+<pre class="sesion"><code>fib 0
+ |    fib 1
+ |     |
+ +-----+=== fib 2    
+       |     |
+       +-----+=== fib 3
+             |     |
+             +-----+=== fib 4</code></pre>
+<h2 id="el-patrón-de-la-programación-dinámica"><span class="header-section-number">1.2</span> El patrón de la programación dinámica</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">Dinamica</span> (<span class="kw">module</span> <span class="dt">Tabla</span>, dinamica)  <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Librerías auxiliares</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="co">-- Hay que elegir una implementación de TAD Tabla</span>
+<span class="co">-- import TablaConFunciones as Tabla</span>
+<span class="kw">import </span><span class="dt">TablaConListasDeAsociacion</span> <span class="kw">as</span> <span class="dt">Tabla</span>
+<span class="co">-- import TablaConMatrices as Tabla</span>
+
+<span class="kw">import </span><span class="dt">Data.Array</span></code></pre></div>
+<ul>
+<li>El patrón de la programación dinámica</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">dinamica ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> (<span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> v) <span class="ot">-&gt;</span> (i,i)
+                    <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+dinamica calcula cotas <span class="fu">=</span> t
+    <span class="kw">where</span> t <span class="fu">=</span> tabla [(i,calcula t i) <span class="fu">|</span> i <span class="ot">&lt;-</span> range cotas]</code></pre></div>
+<ul>
+<li>Notas:
+<ul>
+<li><code>(calcula t i)</code> es el valor del índice <code>i</code> calculado a partir de los anteriores que ya se encuentran en la tabla <code>t</code>.</li>
+<li><code>cotas</code> son las cotas de la matriz <code>t</code> en la que se almacenan los valores calculados.</li>
+</ul></li>
+</ul>
+<h1 id="fibonacci-como-ejemplo-de-programación-dinámica"><span class="header-section-number">2</span> Fibonacci como ejemplo de programación dinámica</h1>
+<h2 id="definición-de-fibonacci-mediante-programación-dinámica"><span class="header-section-number">2.1</span> Definición de Fibonacci mediante programación dinámica</h2>
+<p><strong>Definición de Fibonacci mediante programación dinámica</strong></p>
+<ul>
+<li>Importación del patrón de programación dinámica</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Dinamica</span></code></pre></div>
+<ul>
+<li><code>(fib n)</code> es el n-ésimo término de la sucesión de Fibonacci, calculado mediante programación dinámica. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>fib 8  ==  21</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fib ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+fib n <span class="fu">=</span> valor t n
+    <span class="kw">where</span> t <span class="fu">=</span> dinamica calculaFib (cotasFib n) </code></pre></div>
+<ul>
+<li><code>(calculaFib t i)</code> es el valor de i-ésimo término de la sucesión de Fibonacci calculado mediante la tabla t que contiene los anteriores. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>calculaFib (tabla []) 0                       == 0
+calculaFib (tabla [(0,0),(1,1),(2,1),(3,2)] 4 == 3 </code></pre>
+<p class="indent">
+Además,
+</p>
+<pre class="sesion"><code>ghci&gt; dinamica calculaFib (0,6)
+Tbl [(0,0),(1,1),(2,1),(3,2),(4,3),(5,5),(6,8)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">calculaFib ::</span> <span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+calculaFib t i 
+   <span class="fu">|</span> i <span class="fu">&lt;=</span> <span class="dv">1</span>    <span class="fu">=</span> i
+   <span class="fu">|</span> otherwise <span class="fu">=</span> valor t (i<span class="fu">-</span><span class="dv">1</span>) <span class="fu">+</span> valor t (i<span class="fu">-</span><span class="dv">2</span>)</code></pre></div>
+<ul>
+<li><code>(cotasFib n)</code> son las cotas del vector que se necesita para calcular el n-ésimo término de la sucesión de Fibonacci mediante programación dinámica.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotasFib ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+cotasFib n <span class="fu">=</span> (<span class="dv">0</span>,n)</code></pre></div>
+<p><strong>Definición de Fibonacci mediante divide y vencerás</strong></p>
+<ul>
+<li><code>(fibR n)</code> es el n--ésimo término de la sucesión de Fibonacci calculado mediante divide y vencerás.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fibR ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+fibR <span class="dv">0</span> <span class="fu">=</span> <span class="dv">0</span>
+fibR <span class="dv">1</span> <span class="fu">=</span> <span class="dv">1</span>
+fibR n <span class="fu">=</span> fibR (n<span class="fu">-</span><span class="dv">1</span>) <span class="fu">+</span> fibR (n<span class="fu">-</span><span class="dv">2</span>)</code></pre></div>
+<ul>
+<li>Comparación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fib 30
+832040
+(0.01 secs, 0 bytes)
+ghci&gt; fibR 30
+832040
+(6.46 secs, 222602404 bytes)</code></pre>
+<p><strong>Definición de Fibonacci mediante evaluación perezosa</strong></p>
+<ul>
+<li><code>fibs</code> es la lista de los términos de la sucesión de Fibonacci. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>take 10 fibs  ==  [0,1,1,2,3,5,8,13,21,34]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fibs ::</span> [<span class="dt">Int</span>]
+fibs <span class="fu">=</span> <span class="dv">0</span><span class="fu">:</span><span class="dv">1</span><span class="fu">:</span>[x<span class="fu">+</span>y <span class="fu">|</span> (x,y) <span class="ot">&lt;-</span> zip fibs (tail fibs)]</code></pre></div>
+<ul>
+<li><code>(fib' n)</code> es el n-ésimo término de la sucesión de Fibonacci, calculado a partir de fibs. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>fib&#39; 8  ==  21</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fib&#39; ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+fib&#39; n <span class="fu">=</span> fibs<span class="fu">!!</span>n</code></pre></div>
+<ul>
+<li>Comparaciones:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fib 30
+832040
+(0.02 secs, 524808 bytes)
+ghci&gt; fib&#39; 30
+832040
+(0.01 secs, 542384 bytes)
+ghci&gt; fibR 30
+832040
+(6.46 secs, 222602404 bytes)</code></pre>
+<h1 id="producto-de-cadenas-de-matrices-pcm"><span class="header-section-number">3</span> Producto de cadenas de matrices (PCM)</h1>
+<h2 id="descripción-del-problema-pcm"><span class="header-section-number">3.1</span> Descripción del problema PCM</h2>
+<p><strong>Descripción del problema</strong></p>
+<ul>
+<li><p>Para multiplicar una matriz de orden m x p y otra de orden p x n se necesitan m x n x p multiplicaciones de elementos.</p></li>
+<li><p>El problema del producto de una cadena de matrices (en inglés, &quot;matrix chain multiplication&quot;) consiste en dada una sucesión de matrices encontrar la manera de multiplicarlas usando el menor número de productos de elementos.</p></li>
+<li><p>Ejemplo: Dada la sucesión de matrices<br />
+ A (30 x 1), B (1 x 40), C (40 x 10), D (10 x 25)<br />
+ las productos necesarios en las posibles asociaciones son</p></li>
+</ul>
+<pre class="sesion"><code>((AB)C)D  30 x  1 x 40 + 30 x 40 x 10 + 30 x 10 x 25 = 20700
+A(B(CD))  40 x 10 x 25 +  1 x 40 x 25 + 30 x  1 x 25 = 11750
+(AB)(CD)  30 x  1 x 40 + 40 x 10 x 25 + 30 x 40 x 25 = 41200
+A((BC)D)   1 x 40 x 10 +  1 x 10 x 25 + 30 x  1 x 25 =  1400 
+(A(BC))D   1 x 40 x 10 + 30 x  1 x 10 + 30 x 10 x 25 =  8200 </code></pre>
+<h2 id="el-algoritmo-del-pcm"><span class="header-section-number">3.2</span> El algoritmo del PCM</h2>
+<p><strong>El algoritmo del PCM</strong></p>
+<ul>
+<li><p>El PCM correspondiente a la sucesión d(0), ...,d(n) consiste en encontrar la manera de multiplicar una sucesión de matrices A(1), ...,A(n) (tal que el orden de A(i) es d(i-1) x d(i)) usando el menor número de productos de elementos.</p></li>
+<li><p>Sea c(i,j) el mínimo número de multiplicaciones necesarias para multiplicar la cadena A(i), ..., A(j) (1 ≤ i ≤ j ≤ n).</p></li>
+<li><p>Relación de recurrencia de c(i,j):</p></li>
+</ul>
+<pre class="sesion"><code>c(i,i) = 0
+c(i,j) = minimo {c(i,k)+c(k+1,j)+d(i-1)*d(k)*d(j) | i ≤ k &lt; j} </code></pre>
+<ul>
+<li>La solución del problema es c(1,n).</li>
+</ul>
+<p><strong>El algoritmo del PCM</strong></p>
+<figure>
+<img src="fig/PCM.png" alt="" />
+</figure>
+<h2 id="solución-del-pcm-mediante-programación-dinámica"><span class="header-section-number">3.3</span> Solución del PCM mediante programación dinámica</h2>
+<ul>
+<li>Importación de librerías auxiliares:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Dinamica</span></code></pre></div>
+<ul>
+<li><code>Cadena</code> representa el producto de una cadena de matrices. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>P (A 1) (P (A 2) (A 3))  ==  (A1*(A2*A3))
+P (P (A 1) (A 2)) (A 3)  ==  ((A1*A2)*A3)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Cadena</span> <span class="fu">=</span> <span class="dt">A</span> <span class="dt">Int</span> 
+            <span class="fu">|</span> <span class="dt">P</span> <span class="dt">Cadena</span> <span class="dt">Cadena</span>
+
+<span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Cadena</span> <span class="kw">where</span>
+    show (<span class="dt">A</span> x)     <span class="fu">=</span> <span class="st">&quot;A&quot;</span> <span class="fu">++</span> show x
+    show (<span class="dt">P</span> p1 p2) <span class="fu">=</span> concat [<span class="st">&quot;(&quot;</span>,show p1,<span class="st">&quot;*&quot;</span>,show p2,<span class="st">&quot;)&quot;</span>]</code></pre></div>
+<ul>
+<li>Los índices de la matriz de cálculo son de la forma <code>(i,j)</code> y sus valores <code>(v,k)</code> donde <code>v</code> es el mínimo número de multiplicaciones necesarias para multiplicar la cadena A(i), ...,A(j) y <code>k</code> es la posición donde dividir la cadena de forma óptima.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">IndicePCM</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+<span class="kw">type</span> <span class="dt">ValorPCM</span>  <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li><code>(pcm ds)</code> es el par formado por el mínimo número de multiplicaciones elementales para multiplicar una sucesión de matrices A(1), ..., A(n) (tal que el orden de A(i) es d(i-1) x d(i) y ds = [d(0), ...,d(n)]). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>pcm [30,1,40,10,25]  == (1400,(A1*((A2*A3)*A4)))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pcm ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Cadena</span>)
+pcm ds <span class="fu">=</span> (v, cadena t <span class="dv">1</span> n)
+    <span class="kw">where</span> n     <span class="fu">=</span> length ds <span class="fu">-</span> <span class="dv">1</span>
+          t     <span class="fu">=</span> dinamica (calculaPCM ds) (cotasPCM n)
+          (v,_) <span class="fu">=</span> valor t (<span class="dv">1</span>,n)</code></pre></div>
+<ul>
+<li><code>(calculaPCM ds t (i,j))</code> es el valor del índice <code>(i,j)</code> calculado a partir de la lista <code>ds</code> de dimensiones de las matrices y la tabla <code>t</code> de valores previamente calculados.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">calculaPCM ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">IndicePCM</span> <span class="dt">ValorPCM</span> 
+              <span class="ot">-&gt;</span> <span class="dt">IndicePCM</span> <span class="ot">-&gt;</span> <span class="dt">ValorPCM</span>
+calculaPCM ds t (i,j) 
+    <span class="fu">|</span> i <span class="fu">==</span> j    <span class="fu">=</span> (<span class="dv">0</span>,i)
+    <span class="fu">|</span> otherwise <span class="fu">=</span> 
+         minimum [(fst(valor t (i,k)) 
+                  <span class="fu">+</span> fst(valor t (k<span class="fu">+</span><span class="dv">1</span>,j)) 
+                  <span class="fu">+</span> ds<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>) <span class="fu">*</span> ds<span class="fu">!!</span>k <span class="fu">*</span> ds<span class="fu">!!</span>j, k) 
+                  <span class="fu">|</span> k <span class="ot">&lt;-</span> [i<span class="fu">..</span>j<span class="fu">-</span><span class="dv">1</span>]]</code></pre></div>
+<ul>
+<li><code>(cotasPCM n)</code> son las cotas de los índices para el producto de una cadena de n matrices.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotasPCM ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">IndicePCM</span>,<span class="dt">IndicePCM</span>)
+cotasPCM n <span class="fu">=</span> ((<span class="dv">1</span>,<span class="dv">1</span>),(n,n)) </code></pre></div>
+<ul>
+<li><code>(cadena t i j)</code> es la cadena que resultar de agrupar las matrices A(i), ..., A(j) según los valores de la tabla <code>t</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cadena ::</span> <span class="dt">Tabla</span> <span class="dt">IndicePCM</span> <span class="dt">ValorPCM</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Cadena</span>
+cadena t i j 
+    <span class="fu">|</span> i <span class="fu">==</span> j<span class="fu">-</span><span class="dv">1</span>  <span class="fu">=</span> <span class="dt">P</span> (<span class="dt">A</span> i) (<span class="dt">A</span> j)
+    <span class="fu">|</span> k <span class="fu">==</span> i    <span class="fu">=</span> <span class="dt">P</span> (<span class="dt">A</span> i) (cadena t (i<span class="fu">+</span><span class="dv">1</span>) j)
+    <span class="fu">|</span> k <span class="fu">==</span> j<span class="fu">-</span><span class="dv">1</span>  <span class="fu">=</span> <span class="dt">P</span> (cadena t i (j<span class="fu">-</span><span class="dv">1</span>)) (<span class="dt">A</span> j)
+    <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">P</span> (cadena t i (k<span class="fu">-</span><span class="dv">1</span>)) (cadena t k j)
+    <span class="kw">where</span> (_,k) <span class="fu">=</span> valor t (i,j)</code></pre></div>
+<ul>
+<li><code>(pcm' ds)</code> es la lista de los índices y valores usados en el cálculo del mínimo número de multiplicaciones necesarias para multiplicar una sucesión de matrices A(1), ...,A(n) (tal que el orden de A(i) es d(i-1) x d(i) y ds = [d(0), ..., d(n)]). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; pcm&#39; [30,1,40,10,25]
+[((1,1),(0,1)),((1,2),(1200,1)),((1,3),(700,1)),((1,4),(1400,1)),
+ ((2,2),(0,2)),((2,3),(400,2)),((2,4),(650,3)),
+ ((3,3),(0,3)),((3,4),(10000,3)),
+ ((4,4),(0,4))]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pcm&#39; ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [((<span class="dt">Int</span>, <span class="dt">Int</span>), <span class="dt">ValorPCM</span>)]
+pcm&#39; ds <span class="fu">=</span> [((i,j),valor t (i,j)) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>n], j <span class="ot">&lt;-</span> [i<span class="fu">..</span>n]] 
+    <span class="kw">where</span> n <span class="fu">=</span> length ds <span class="fu">-</span> <span class="dv">1</span>
+          t <span class="fu">=</span> dinamica (calculaPCM ds) (cotasPCM n)</code></pre></div>
+<h2 id="solución-del-pcm-mediante-divide-y-vencerás"><span class="header-section-number">3.4</span> Solución del PCM mediante divide y vencerás</h2>
+<ul>
+<li><code>(pcmDyV ds)</code> es la solución del PCM correspondiente a <code>ds</code> mediante divide y vencerás. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>pcmDyV [30,1,40,10,25]  ==  (1040,(A1*((A2*A3)*A4)))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">pcmDyV ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Cadena</span>)
+pcmDyV ds <span class="fu">=</span> cadenaDyV ds <span class="dv">1</span> n
+    <span class="kw">where</span> n <span class="fu">=</span> length ds <span class="fu">-</span> <span class="dv">1</span></code></pre></div>
+<ul>
+<li><code>cadenaDyV ds i j)</code> es la solución del PCM correspondiente a [d(i), ..., d(j)]. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>cadenaDyV [30,1,40,10,25] 1 4  ==  (1040,(A1*((A2*A3)*A4)))
+cadenaDyV [30,1,40,10,25] 2 4  ==  (650,((A2*A3)*A4))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cadenaDyV ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>, <span class="dt">Cadena</span>)
+cadenaDyV ds i j 
+    <span class="fu">|</span> i <span class="fu">==</span> j    <span class="fu">=</span> (<span class="dv">0</span>, <span class="dt">A</span> i)
+    <span class="fu">|</span> i <span class="fu">==</span> j<span class="fu">-</span><span class="dv">1</span>  <span class="fu">=</span> (ds<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>)<span class="fu">*</span>ds<span class="fu">!!</span>i<span class="fu">*</span>ds<span class="fu">!!</span>j, <span class="dt">P</span> (<span class="dt">A</span> i) (<span class="dt">A</span> j))
+    <span class="fu">|</span> k <span class="fu">==</span> i    <span class="fu">=</span> (v, <span class="dt">P</span> (<span class="dt">A</span> i) (subcadena (i<span class="fu">+</span><span class="dv">1</span>) j))
+    <span class="fu">|</span> k <span class="fu">==</span> j<span class="fu">-</span><span class="dv">1</span>  <span class="fu">=</span> (v, <span class="dt">P</span> (subcadena i (j<span class="fu">-</span><span class="dv">1</span>)) (<span class="dt">A</span> j))
+    <span class="fu">|</span> otherwise <span class="fu">=</span> (v, <span class="dt">P</span> (subcadena i (k<span class="fu">-</span><span class="dv">1</span>)) (subcadena k j))
+    <span class="kw">where</span> (v,k) <span class="fu">=</span> minimum [((valor i k) 
+                            <span class="fu">+</span> (valor (k<span class="fu">+</span><span class="dv">1</span>) j) 
+                            <span class="fu">+</span> ds<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>) <span class="fu">*</span> ds<span class="fu">!!</span>k <span class="fu">*</span> ds<span class="fu">!!</span>j, k) 
+                           <span class="fu">|</span> k <span class="ot">&lt;-</span> [i<span class="fu">..</span>j<span class="fu">-</span><span class="dv">1</span>]]
+          valor p q     <span class="fu">=</span> fst (cadenaDyV ds p q)
+          subcadena p q <span class="fu">=</span> snd (cadenaDyV ds p q)</code></pre></div>
+<p><strong>Comparación de las métodos de solucionar el PCM</strong></p>
+<pre class="sesion"><code>ghci&gt; :set +s
+
+ghci&gt; fst (pcm [1..20])
+2658
+(0.04 secs, 4144552 bytes)
+
+ghci&gt; fst (pcmDyV [1..20])
+2658
+(1582.60 secs, 340414297896 bytes)</code></pre>
+<h1 id="árboles-binarios-de-búsqueda-optimales-abbo"><span class="header-section-number">4</span> Árboles binarios de búsqueda optimales (ABBO)</h1>
+<h2 id="descripción-del-problema-de-abbo"><span class="header-section-number">4.1</span> Descripción del problema de ABBO</h2>
+<p><strong>Descripción del problema de ABBO</strong></p>
+<ul>
+<li><p>Para cada clave c(i), sea p(i) la probabilidad de acceso a c(i).</p></li>
+<li><p>Un árbol binario de búsqueda es optimal (ABBO) si la media del número de comparaciones para todas las claves<br />
+ a(T) = Σ d(i)p(i)<br />
+ donde d(i) es la distancia de la clave c(i) a la raíz (es decir, el número de comparaciones necesarias para llegar a c(i)), es mínima.</p></li>
+</ul>
+<h2 id="el-algoritmo-del-abbo"><span class="header-section-number">4.2</span> El algoritmo del ABBO</h2>
+<p><strong>El algoritmo del ABBO</strong></p>
+<ul>
+<li><p>Sea c(i,j) el mínimo valor a(T) cuando el árbol T contiene las claves c(i), ...,c(j).</p></li>
+<li>Relación de recurrencia para calcular c(i,j):
+<ul>
+<li>Si i &gt; j, c(i,j) = 0.</li>
+<li>Si i = j, c(i,j) = p(i).</li>
+<li>Si i &lt; j, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=c%28i%2Cj%29%20%3D%20min_%7Bi%20%5Cleq%20k%20%5Cleq%20j%7D%20%20%28%28c%28i%2Ck-1%29%20%2B%20%5Cdisplaystyle%5Csum_%7Bl%3Di%7D%5E%7Bl%3Dk-1%7Dp%28l%29%29%20%2B%20%20%28c%28k%2B1%2Cj%29%20%2B%20%5Cdisplaystyle%5Csum_%7Bl%3Dk%2B1%7D%5E%7Bl%3Dj%7Dp%28l%29%29%20%2B%20%20p%28k%29%29" alt="c(i,j) = min_{i \leq k \leq j}  ((c(i,k-1) + \displaystyle\sum_{l=i}^{l=k-1}p(l)) +  (c(k+1,j) + \displaystyle\sum_{l=k+1}^{l=j}p(l)) +  p(k))" title="c(i,j) = min_{i \leq k \leq j}  ((c(i,k-1) + \displaystyle\sum_{l=i}^{l=k-1}p(l)) +  (c(k+1,j) + \displaystyle\sum_{l=k+1}^{l=j}p(l)) +  p(k))" /></li>
+</ul></li>
+<li><p>El tercer caso puede simplificarse<br />
+ <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=c%28i%2Cj%29%20%3D%20min_%7Bi%20%5Cleq%20k%20%5Cleq%20j%7D%20%28c%28i%2Ck-1%29%20%2B%20c%28k%2B1%2Cj%29%29%20%2B%20%20%5Cdisplaystyle%5Csum_%7Bl%3Di%7D%5E%7Bl%3Dj%7D%20p%28l%29" alt="c(i,j) = min_{i \leq k \leq j} (c(i,k-1) + c(k+1,j)) +  \displaystyle\sum_{l=i}^{l=j} p(l)" title="c(i,j) = min_{i \leq k \leq j} (c(i,k-1) + c(k+1,j)) +  \displaystyle\sum_{l=i}^{l=j} p(l)" /></p></li>
+</ul>
+<h2 id="solución-del-abbo-mediante-programación-dinámica"><span class="header-section-number">4.3</span> Solución del ABBO mediante programación dinámica</h2>
+<ul>
+<li>En la matriz de cálculo del ABBO el valor <code>(v,k)</code> correspondiente al índice <code>(i,j)</code> indica que <code>v</code> es el mínimo valor <code>a(T)</code> cuando el árbol <code>T</code> contiene las claves c(i), ..., c(j) y que la división óptima se obtiene dividiendo las claves en dos mediante c(k).</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Indice</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>)
+<span class="kw">type</span> <span class="dt">Valor</span>  <span class="fu">=</span> (<span class="dt">Float</span>,<span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li><code>(ABB a)</code> es el tipo de los árboles binarios de búsqueda sobre <code>a</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">ABB</span> a <span class="fu">=</span> <span class="dt">Vacio</span>
+           <span class="fu">|</span> <span class="dt">Nodo</span> a (<span class="dt">ABB</span> a) (<span class="dt">ABB</span> a)
+           <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li><code>(abbo cs ps)</code> es el par formado por un ABBO correspondiente a la lista de claves <code>cs</code> cuyas correspondientes probabilidades de acceso son los elementos de la lista <code>ps</code> y por su valor. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; abbo ejProblema
+(Nodo 4 (Nodo 1 Vacio 
+                (Nodo 3 Vacio Vacio)) 
+        (Nodo 10 
+              (Nodo 8 Vacio Vacio) 
+              (Nodo 15 
+                    (Nodo 11 Vacio Vacio) 
+                    Vacio)),
+2.15)</code></pre>
+<ul>
+<li>Definición de <code>abbo</code>:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">abbo ::</span> <span class="dt">Problema</span>  <span class="ot">-&gt;</span> (<span class="dt">ABB</span> <span class="dt">Int</span>,<span class="dt">Float</span>)
+abbo pb <span class="fu">=</span> (solucion c t (<span class="dv">1</span>,n) , fst (valor t (<span class="dv">1</span>,n)))
+    <span class="kw">where</span> (cs,ps) <span class="fu">=</span> pb
+          n       <span class="fu">=</span> length ps
+          c       <span class="fu">=</span> listArray (<span class="dv">1</span>,n) cs
+          p       <span class="fu">=</span> listArray (<span class="dv">1</span>,n) ps
+          t       <span class="fu">=</span> dinamica (calcula p) (cotas n) </code></pre></div>
+<ul>
+<li><code>(calcula p t (i,j))</code> es el valor del índice <code>(i,j)</code> donde <code>p</code> es el vector de probabilidades y <code>t</code> es la tabla calculada hasta el momento.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">calcula ::</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Float</span> <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Indice</span> <span class="dt">Valor</span> 
+           <span class="ot">-&gt;</span> <span class="dt">Indice</span> <span class="ot">-&gt;</span> <span class="dt">Valor</span>
+calcula p t (i,j) 
+    <span class="fu">|</span> i <span class="fu">&gt;</span> j     <span class="fu">=</span> (<span class="fl">0.0</span>,<span class="dv">0</span>)
+    <span class="fu">|</span> i <span class="fu">==</span> j    <span class="fu">=</span> (p<span class="fu">!</span>i,i)
+    <span class="fu">|</span> otherwise <span class="fu">=</span> suma1 (minimum [(fst(valor t (i,k<span class="fu">-</span><span class="dv">1</span>)) 
+                                  <span class="fu">+</span> fst(valor t (k<span class="fu">+</span><span class="dv">1</span>,j)), k) 
+                                  <span class="fu">|</span> k <span class="ot">&lt;-</span> [i<span class="fu">..</span>j]])
+                        (sumaSegmento i j p)
+                  <span class="kw">where</span> suma1 (x,y) z <span class="fu">=</span> (x<span class="fu">+</span>z,y)</code></pre></div>
+<ul>
+<li><code>(sumaSegmento i j p)</code> es la suma de los valores de los elementos del vector <code>p</code> desde la posición <code>i</code> a la <code>j</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>&gt; sumaSegmento 2 4 (array (1,5) 
+                          [(i,fromIntegral i/2) | i &lt;- [1..5]])
+4.5</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">sumaSegmento ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Float</span> <span class="ot">-&gt;</span> <span class="dt">Float</span>
+sumaSegmento i j p <span class="fu">=</span> sum [p<span class="fu">!</span>l <span class="fu">|</span> l <span class="ot">&lt;-</span> [i<span class="fu">..</span>j]]</code></pre></div>
+<ul>
+<li><code>(cotas n)</code> son las cotas de la matriz revesaria para resolver el problema del árbol de búsqueda minimal óptimo con <code>n</code> claves.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotas ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> ((<span class="dt">Int</span>,<span class="dt">Int</span>),(<span class="dt">Int</span>,<span class="dt">Int</span>))
+cotas n <span class="fu">=</span> ((<span class="dv">1</span>,<span class="dv">0</span>),(n<span class="fu">+</span><span class="dv">1</span>,n))</code></pre></div>
+<ul>
+<li><code>(solucion cs c (i,j))</code> es el ABBO correspondiente a las claves <code>c(i)</code>,...,<code>c(j)</code> a partir de la tabla de cálculo <code>t</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">solucion ::</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Indice</span> <span class="dt">Valor</span> 
+            <span class="ot">-&gt;</span> <span class="dt">Indice</span> <span class="ot">-&gt;</span> <span class="dt">ABB</span> <span class="dt">Int</span>
+solucion cs t (i,j)
+        <span class="fu">|</span> i <span class="fu">&gt;</span> j     <span class="fu">=</span> <span class="dt">Vacio</span>
+        <span class="fu">|</span> i <span class="fu">==</span> j    <span class="fu">=</span> <span class="dt">Nodo</span> c <span class="dt">Vacio</span> <span class="dt">Vacio</span>
+        <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Nodo</span> c (solucion cs t (i,k<span class="fu">-</span><span class="dv">1</span>))
+                             (solucion cs t (k<span class="fu">+</span><span class="dv">1</span>,j))
+        <span class="kw">where</span> (_,k) <span class="fu">=</span> valor t (i,j)
+              c     <span class="fu">=</span> cs <span class="fu">!</span> k</code></pre></div>
+<h1 id="caminos-mínimos-entre-todos-los-pares-de-nodos-de-un-grafocm"><span class="header-section-number">5</span> Caminos mínimos entre todos los pares de nodos de un grafo(CM)</h1>
+<h2 id="descripción-del-problema"><span class="header-section-number">5.1</span> Descripción del problema</h2>
+<ul>
+<li><p>Cálculo de los caminos de coste mínimo entre todos los pares de nodos de un grafo no dirigido.</p></li>
+<li>Notación:
+<ul>
+<li>c(i,j) es el mínimo coste del camino del vértice i al j.</li>
+<li><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=p%28i%2Cj%29%20%3D%20%20%5Cleft%5C%7B%20%20%5Cbegin%7Barray%7D%7Bll%7D%20%200%2C%20%26%20%5Cmbox%7Bsi%20i%3Dj%7D%20%5C%5C%20%20%5Cmbox%7Bpeso%20del%20arco%20entre%20i%20y%20j%2C%7D%20%20%26%20%5Cmbox%7Bsi%20i%5Cnot%3Dj%20y%20hay%20arco%20de%20i%20a%20j%7D%20%5C%5C%20%20%5Cinfty%2C%20%26%5Cmbox%7Ben%20otro%20caso%7D%20%20%5Cend%7Barray%7D%20%20%5Cright." alt="p(i,j) =  \left\{  \begin{array}{ll}  0, &amp; \mbox{si i=j} \\  \mbox{peso del arco entre i y j,}  &amp; \mbox{si i\not=j y hay arco de i a j} \\  \infty, &amp;\mbox{en otro caso}  \end{array}  \right." title="p(i,j) =  \left\{  \begin{array}{ll}  0, &amp; \mbox{si i=j} \\  \mbox{peso del arco entre i y j,}  &amp; \mbox{si i\not=j y hay arco de i a j} \\  \infty, &amp;\mbox{en otro caso}  \end{array}  \right." /></li>
+<li>c(i,j,k) es el mínimo coste del camino del vértice i al j, usando los vértices 1, ...,k.</li>
+</ul></li>
+<li>Relación de recurrencia para calcular c(i,j):
+<ul>
+<li>c(i,j,0) = p(i,j)</li>
+<li>c(i,j,k) = min {c(i,j,k-1)), c(i,k,k-1)+c(k,j,k-1)}</li>
+</ul></li>
+<li><p>El algoritmo se conoce como el algoritmo de Floyd.</p></li>
+</ul>
+<h2 id="solución-del-problema-de-los-caminos-mínimos-cm"><span class="header-section-number">5.2</span> Solución del problema de los caminos mínimos (CM)</h2>
+<ul>
+<li>Importación de librerías auxiliares:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Dinamica</span>
+
+<span class="co">-- Nota: Elegir una implementación de los grafos.</span>
+<span class="kw">import </span><span class="dt">GrafoConVectorDeAdyacencia</span>
+<span class="co">-- import GrafoConMatrizDeAdyacencia</span></code></pre></div>
+<ul>
+<li>Ejemplos de grafos para el problema:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ej1Grafo ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>
+ej1Grafo <span class="fu">=</span> creaGrafo <span class="dt">True</span> (<span class="dv">1</span>,<span class="dv">6</span>) 
+                     [(i,j,(v<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>))<span class="fu">!!</span>(j<span class="fu">-</span><span class="dv">1</span>)) 
+                      <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>], j <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>]]
+
+<span class="ot">v::</span>[[<span class="dt">Int</span>]]
+v <span class="fu">=</span> [[  <span class="dv">0</span>,  <span class="dv">4</span>,  <span class="dv">1</span>,  <span class="dv">6</span>,<span class="dv">100</span>,<span class="dv">100</span>],
+     [  <span class="dv">4</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,<span class="dv">100</span>,  <span class="dv">5</span>,<span class="dv">100</span>],
+     [  <span class="dv">1</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,<span class="dv">100</span>,  <span class="dv">8</span>,  <span class="dv">2</span>],
+     [  <span class="dv">6</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">0</span>,<span class="dv">100</span>,  <span class="dv">2</span>],
+     [<span class="dv">100</span>,  <span class="dv">5</span>,  <span class="dv">8</span>,<span class="dv">100</span>,  <span class="dv">0</span>,  <span class="dv">5</span>],
+     [<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">2</span>,  <span class="dv">2</span>,  <span class="dv">5</span>,  <span class="dv">0</span>]]</code></pre></div>
+<ul>
+<li>Ejemplos de grafos para el problema:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ej2Grafo ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>
+ej2Grafo <span class="fu">=</span> creaGrafo <span class="dt">True</span> (<span class="dv">1</span>,<span class="dv">6</span>) 
+                     [(i,j,(v&#39;<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>))<span class="fu">!!</span>(j<span class="fu">-</span><span class="dv">1</span>)) 
+                     <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>], j <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>]]
+
+<span class="ot">v&#39;::</span>[[<span class="dt">Int</span>]]
+v&#39; <span class="fu">=</span>[[  <span class="dv">0</span>,  <span class="dv">4</span>,<span class="dv">100</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">2</span>],
+     [  <span class="dv">1</span>,  <span class="dv">0</span>,  <span class="dv">3</span>,  <span class="dv">4</span>,<span class="dv">100</span>,<span class="dv">100</span>],
+     [  <span class="dv">6</span>,  <span class="dv">3</span>,  <span class="dv">0</span>,  <span class="dv">7</span>,<span class="dv">100</span>,<span class="dv">100</span>],
+     [  <span class="dv">6</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">0</span>,  <span class="dv">2</span>,<span class="dv">100</span>],
+     [<span class="dv">100</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">5</span>,  <span class="dv">0</span>,<span class="dv">100</span>],
+     [<span class="dv">100</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">2</span>,  <span class="dv">3</span>,  <span class="dv">0</span>]]</code></pre></div>
+<ul>
+<li>En la matriz del cálculo del camino mínimo, los índices son de la forma <code>(i,j,k)</code> y los valores de la forma <code>(v,xs)</code> representando que el camino mínimo desde el vértice <code>i</code> al <code>j</code> usando los vértices <code>1</code>, ..., <code>k</code> tiene un coste <code>v</code> y está fomado por los vértices <code>xs</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">IndiceCM</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Int</span>,<span class="dt">Int</span>)
+<span class="kw">type</span> <span class="dt">ValorCM</span>  <span class="fu">=</span> (<span class="dt">Int</span>,[<span class="dt">Int</span>])</code></pre></div>
+<ul>
+<li><code>(caminosMinimos g)</code> es la lista de los caminos mínimos entre todos los nodos del grafo <code>g</code> junto con sus costes. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; caminosMinimos ej1Grafo
+[((1,2),(2,[1,3,2])),  ((1,3),(1,[1,3])),  ((1,4),(5,[1,3,6,4])),
+ ((1,5),(7,[1,3,2,5])),((1,6),(3,[1,3,6])),((2,3),(1,[2,3])),
+ ((2,4),(5,[2,3,6,4])),((2,5),(5,[2,5])),  ((2,6),(3,[2,3,6])),
+ ((3,4),(4,[3,6,4])),  ((3,5),(6,[3,2,5])),((3,6),(2,[3,6])),
+ ((4,5),(7,[4,6,5])),  ((4,6),(2,[4,6])),  ((5,6),(5,[5,6]))]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">caminosMinimos ::</span> (<span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> [((<span class="dt">Int</span>,<span class="dt">Int</span>), <span class="dt">ValorCM</span>)]
+caminosMinimos g <span class="fu">=</span> 
+    [((i,j), valor t (i,j,n)) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span>n], j <span class="ot">&lt;-</span> [i<span class="fu">+</span><span class="dv">1</span><span class="fu">..</span>n]]
+    <span class="kw">where</span> n <span class="fu">=</span> length (nodos g)
+          t <span class="fu">=</span> dinamica (calculaCM g) (cotasCM n) </code></pre></div>
+<ul>
+<li><code>(calculaCM g t (i,j,k))</code> es el valor del camino mínimo desde el vértice <code>i</code> al <code>j</code> usando los vértices <code>1</code>, , <code>k</code> del grafo <code>g</code> y la tabla <code>t</code> de los valores anteriores al índice <code>(i,j,k)</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">calculaCM ::</span> (<span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">IndiceCM</span> <span class="dt">ValorCM</span> 
+             <span class="ot">-&gt;</span> <span class="dt">IndiceCM</span> <span class="ot">-&gt;</span> <span class="dt">ValorCM</span>
+calculaCM g t (i,j,k)
+  <span class="fu">|</span> k<span class="fu">==</span><span class="dv">0</span>      <span class="fu">=</span> (peso i j g, <span class="kw">if</span> i<span class="fu">==</span>j <span class="kw">then</span> [i] <span class="kw">else</span> [i,j])
+  <span class="fu">|</span> v1<span class="fu">&lt;=</span>v2    <span class="fu">=</span> (v1,p)  
+  <span class="fu">|</span> otherwise <span class="fu">=</span> (v2,p1<span class="fu">++</span>p2)
+  <span class="kw">where</span> (v1,p)   <span class="fu">=</span> valor t (i,j,k<span class="fu">-</span><span class="dv">1</span>)
+        (a,p1)   <span class="fu">=</span> valor t (i,k,k<span class="fu">-</span><span class="dv">1</span>)
+        (b,_<span class="fu">:</span>p2) <span class="fu">=</span> valor t (k,j,k<span class="fu">-</span><span class="dv">1</span>)
+        v2 <span class="fu">=</span> a<span class="fu">+</span>b</code></pre></div>
+<ul>
+<li><code>(cotasCM n)</code> son las cotas de la matriz para resolver el problema de los caminos mínimos en un grafo con <code>n</code> nodos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotasCM ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> ((<span class="dt">Int</span>,<span class="dt">Int</span>,<span class="dt">Int</span>),(<span class="dt">Int</span>,<span class="dt">Int</span>,<span class="dt">Int</span>))
+cotasCM n <span class="fu">=</span> ((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>),(n,n,n))</code></pre></div>
+<h1 id="problema-del-viajante-pv"><span class="header-section-number">6</span> Problema del viajante (PV)</h1>
+<h2 id="descripción-del-problema-1"><span class="header-section-number">6.1</span> Descripción del problema</h2>
+<ul>
+<li><p>Dado un grafo no dirigido con pesos encontrar una camino en el grafo que visite todos los nodos exactamente una vez y cuyo coste sea mínimo.</p></li>
+<li>Notación:
+<ul>
+<li>Los vértices del grafo son 1,2, ...,n.</li>
+<li><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=p%28i%2Cj%29%20%3D%20%20%5Cleft%5C%7B%20%20%5Cbegin%7Barray%7D%7Bll%7D%20%200%2C%20%26%20%5Cmbox%7Bsi%20i%3Dj%7D%20%5C%5C%20%20%5Cmbox%7Bpeso%20del%20arco%20entre%20i%20y%20j%2C%7D%20%20%26%20%5Cmbox%7Bsi%20i%5Cnot%3Dj%20y%20hay%20arco%20de%20i%20a%20j%7D%20%5C%5C%20%20%5Cinfty%2C%20%26%5Cmbox%7Ben%20otro%20caso%7D%20%20%5Cend%7Barray%7D%20%20%5Cright." alt="p(i,j) =  \left\{  \begin{array}{ll}  0, &amp; \mbox{si i=j} \\  \mbox{peso del arco entre i y j,}  &amp; \mbox{si i\not=j y hay arco de i a j} \\  \infty, &amp;\mbox{en otro caso}  \end{array}  \right." title="p(i,j) =  \left\{  \begin{array}{ll}  0, &amp; \mbox{si i=j} \\  \mbox{peso del arco entre i y j,}  &amp; \mbox{si i\not=j y hay arco de i a j} \\  \infty, &amp;\mbox{en otro caso}  \end{array}  \right." /></li>
+<li>El vértice inicial y final es el n.</li>
+<li>c(i,S) es el camino más corto que comienza en i, termina en n y pasa exactamente una vez por cada uno de los vértices del conjunto S.</li>
+</ul></li>
+<li>Relación de recurrencia de c(i,S):
+<ul>
+<li>c(i,∅) = p(i,n(, si i ≠ n.</li>
+<li>c(i,S) = min {p(i,j)+c_(j,S-{j}} : j ∈ S}, si i ≠ n, i ∉ S.</li>
+</ul></li>
+<li><p>La solución es c(n,{1,...,n-1}}.</p></li>
+</ul>
+<h2 id="solución-del-problema-del-viajante-pv"><span class="header-section-number">6.2</span> Solución del problema del viajante (PV)</h2>
+<ul>
+<li>Importación de librerías auxiliares</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Dinamica</span>
+
+<span class="co">-- Nota: Elegir una implementación de los grafos.</span>
+<span class="kw">import </span><span class="dt">GrafoConVectorDeAdyacencia</span>
+<span class="co">-- import GrafoConMatrizDeAdyacencia</span></code></pre></div>
+<ul>
+<li><p>Nota: Para el PV se usará la representación de los de conjuntos de enteros como números enteros que se describe a continuación.</p></li>
+<li><p>Los conjuntos se representan por números enteros.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Conj</span> <span class="fu">=</span> <span class="dt">Int</span></code></pre></div>
+<ul>
+<li><code>(conj2Lista c)</code> es la lista de los elementos del conjunto <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>conj2Lista 24  ==  [3,4]
+conj2Lista 30  ==  [1,2,3,4]
+conj2Lista 22  ==  [1,2,4]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">conj2Lista ::</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>]
+conj2Lista s <span class="fu">=</span> c2l s <span class="dv">0</span>
+    <span class="kw">where</span> 
+      c2l <span class="dv">0</span> _             <span class="fu">=</span> []
+      c2l n i <span class="fu">|</span> odd n     <span class="fu">=</span> i <span class="fu">:</span> c2l (n <span class="ot">`div`</span> <span class="dv">2</span>) (i<span class="fu">+</span><span class="dv">1</span>)
+              <span class="fu">|</span> otherwise <span class="fu">=</span> c2l (n <span class="ot">`div`</span> <span class="dv">2</span>) (i<span class="fu">+</span><span class="dv">1</span>)</code></pre></div>
+<ul>
+<li><code>maxConj</code> es el máximo número que puede pertenecer al conjunto. Depende de la implementación de Haskell.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">maxConj ::</span> <span class="dt">Int</span>
+maxConj <span class="fu">=</span> 
+   truncate (logBase <span class="dv">2</span> (fromIntegral maxInt)) <span class="fu">-</span> <span class="dv">1</span>
+   <span class="kw">where</span> maxInt <span class="fu">=</span><span class="ot"> maxBound::</span><span class="dt">Int</span></code></pre></div>
+<ul>
+<li><code>vacio</code> es el conjunto vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Conj</span>
+vacio <span class="fu">=</span> <span class="dv">0</span></code></pre></div>
+<ul>
+<li><code>(esVacio c)</code> se verifica si <code>c</code> es el conjunto vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esVacio n <span class="fu">=</span> n<span class="fu">==</span><span class="dv">0</span></code></pre></div>
+<ul>
+<li><code>(conjCompleto n)</code> es el conjunto de los números desde 1 hasta n.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">conjCompleto ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span>
+conjCompleto n 
+   <span class="fu">|</span> (n<span class="fu">&gt;=</span><span class="dv">0</span>) <span class="fu">&amp;&amp;</span> (n<span class="fu">&lt;=</span>maxConj) <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>(n<span class="fu">+</span><span class="dv">1</span>)<span class="fu">-</span><span class="dv">2</span>
+   <span class="fu">|</span> otherwise <span class="fu">=</span> error (<span class="st">&quot;conjCompleto:&quot;</span> <span class="fu">++</span> show n)</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es el conjunto obtenido añadiendo el elemento <code>x</code> al conjunto <code>c</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span>
+inserta i s
+    <span class="fu">|</span> i<span class="fu">&gt;=</span><span class="dv">0</span> <span class="fu">&amp;&amp;</span> i<span class="fu">&lt;=</span>maxConj <span class="fu">=</span> d&#39;<span class="fu">*</span>e<span class="fu">+</span>m
+    <span class="fu">|</span> otherwise          <span class="fu">=</span> error (<span class="st">&quot;inserta:&quot;</span> <span class="fu">++</span> show i)
+    <span class="kw">where</span> (d,m) <span class="fu">=</span> divMod s e
+          e     <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>i
+          d&#39;    <span class="fu">=</span> <span class="kw">if</span> odd d <span class="kw">then</span> d <span class="kw">else</span> d<span class="fu">+</span><span class="dv">1</span></code></pre></div>
+<ul>
+<li><code>(elimina x c)</code> es el conjunto obtenido eliminando el elemento <code>x</code> del conjunto <code>c</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elimina ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span> <span class="ot">-&gt;</span> <span class="dt">Conj</span>
+elimina i s <span class="fu">=</span> d&#39;<span class="fu">*</span>e<span class="fu">+</span>m
+    <span class="kw">where</span> (d,m) <span class="fu">=</span> divMod s e
+          e <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>i
+          d&#39; <span class="fu">=</span> <span class="kw">if</span> odd d <span class="kw">then</span> d<span class="fu">-</span><span class="dv">1</span> <span class="kw">else</span> d</code></pre></div>
+<ul>
+<li>Ejemplo de grafo para el problema:</li>
+</ul>
+<pre class="sesion"><code>   4       5
++----- 2 -----+
+|      |1     |
+|  1   |   8  |
+1----- 3 -----5
+|        \2  /
+|  6     2\ /5
++----- 4 --6</code></pre>
+<ul>
+<li>La definición del grafo anterior es</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">ej1 ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span>
+ej1 <span class="fu">=</span> creaGrafo <span class="dt">True</span> (<span class="dv">1</span>,<span class="dv">6</span>) 
+                     [(i,j,(v1<span class="fu">!!</span>(i<span class="fu">-</span><span class="dv">1</span>))<span class="fu">!!</span>(j<span class="fu">-</span><span class="dv">1</span>)) 
+                      <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>], j <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>]]
+<span class="ot">v1::</span>[[<span class="dt">Int</span>]]
+v1 <span class="fu">=</span>[[  <span class="dv">0</span>,  <span class="dv">4</span>,  <span class="dv">1</span>,  <span class="dv">6</span>,<span class="dv">100</span>,<span class="dv">100</span>],
+     [  <span class="dv">4</span>,  <span class="dv">0</span>,  <span class="dv">1</span>,<span class="dv">100</span>,  <span class="dv">5</span>,<span class="dv">100</span>],
+     [  <span class="dv">1</span>,  <span class="dv">1</span>,  <span class="dv">0</span>,<span class="dv">100</span>,  <span class="dv">8</span>,  <span class="dv">2</span>],
+     [  <span class="dv">6</span>,<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">0</span>,<span class="dv">100</span>,  <span class="dv">2</span>],
+     [<span class="dv">100</span>,  <span class="dv">5</span>,  <span class="dv">8</span>,<span class="dv">100</span>,  <span class="dv">0</span>,  <span class="dv">5</span>],
+     [<span class="dv">100</span>,<span class="dv">100</span>,  <span class="dv">2</span>,  <span class="dv">2</span>,  <span class="dv">5</span>,  <span class="dv">0</span>]]</code></pre></div>
+<ul>
+<li>Los índices de la matriz de cálculo son de la forma <code>(i,S)</code> y sus valores <code>(v,xs)</code> donde <code>xs</code> es el camino mínimo desde <code>i</code> hasta <code>n</code> visitando cada vértice de <code>S</code> exactamente una vez y <code>v</code> es el coste de <code>xs</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">IndicePV</span> <span class="fu">=</span> (<span class="dt">Int</span>,<span class="dt">Conj</span>)
+<span class="kw">type</span> <span class="dt">ValorPV</span>  <span class="fu">=</span> (<span class="dt">Int</span>,[<span class="dt">Int</span>])</code></pre></div>
+<ul>
+<li><code>(viajante g)</code> es el par <code>(v,xs)</code> donde <code>xs</code> es el camino de menor coste que pasa exactamente una vez por todos los nodos del grafo <code>g</code> empezando en su último nodo y <code>v</code> es su coste. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; viajante ej1
+(20,[6,4,1,3,2,5,6])</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">viajante ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span>,[<span class="dt">Int</span>])
+viajante g <span class="fu">=</span> valor t (n,conjCompleto (n<span class="fu">-</span><span class="dv">1</span>))
+    <span class="kw">where</span> n <span class="fu">=</span> length (nodos g)
+          t <span class="fu">=</span> dinamica (calculaPV g n) (cotasPV n)</code></pre></div>
+<ul>
+<li><code>(calculaPV g n t (i,k))</code> es el valor del camino mínimo en el grafo <code>g</code> desde <code>i</code> hasta <code>n</code>, calculado usando la tabla <code>t</code>, visitando cada nodo del conjunto <code>k</code> exactamente una vez.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">calculaPV ::</span> <span class="dt">Grafo</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">IndicePV</span> <span class="dt">ValorPV</span> 
+           <span class="ot">-&gt;</span> <span class="dt">IndicePV</span> <span class="ot">-&gt;</span> <span class="dt">ValorPV</span> 
+calculaPV g n t (i,k) 
+    <span class="fu">|</span> esVacio k <span class="fu">=</span> (peso i n g,[i,n])
+    <span class="fu">|</span> otherwise <span class="fu">=</span> minimum [sumaPrim (valor t (j, elimina j k))
+                                    (peso i j g)
+                           <span class="fu">|</span> j <span class="ot">&lt;-</span> conj2Lista k]
+    <span class="kw">where</span> sumaPrim (v,xs) v&#39; <span class="fu">=</span> (v<span class="fu">+</span>v&#39;,i<span class="fu">:</span>xs)</code></pre></div>
+<ul>
+<li><code>(cotasPV n)</code> son las cotas de la matriz de cálculo del problema del viajante en un grafo con <code>n</code> nodos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotasPV ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> ((<span class="dt">Int</span>,<span class="dt">Conj</span>),(<span class="dt">Int</span>,<span class="dt">Conj</span>))
+cotasPV n <span class="fu">=</span> ((<span class="dv">1</span>,vacio),(n,conjCompleto n))</code></pre></div>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

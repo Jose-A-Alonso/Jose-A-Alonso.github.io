@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 12: Analizadores sintácticos funcionales</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 12: Analizadores sintácticos funcionales</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#analizadores-sintácticos"><span class="toc-section-number">1</span> Analizadores sintácticos</a></li>
+<li><a href="#el-tipo-de-los-analizadores-sintácticos"><span class="toc-section-number">2</span> El tipo de los analizadores sintácticos</a></li>
+<li><a href="#analizadores-sintácticos-básicos"><span class="toc-section-number">3</span> Analizadores sintácticos básicos</a></li>
+<li><a href="#composición-de-analizadores-sintácticos"><span class="toc-section-number">4</span> Composición de analizadores sintácticos</a><ul>
+<li><a href="#secuenciación-de-analizadores-sintácticos"><span class="toc-section-number">4.1</span> Secuenciación de analizadores sintácticos</a></li>
+<li><a href="#elección-de-analizadores-sintácticos"><span class="toc-section-number">4.2</span> Elección de analizadores sintácticos</a></li>
+</ul></li>
+<li><a href="#primitivas-derivadas"><span class="toc-section-number">5</span> Primitivas derivadas</a></li>
+<li><a href="#tratamiento-de-los-espacios"><span class="toc-section-number">6</span> Tratamiento de los espacios</a></li>
+<li><a href="#analizador-de-expresiones-aritméticas"><span class="toc-section-number">7</span> Analizador de expresiones aritméticas</a></li>
+<li><a href="#bibliografía"><span class="toc-section-number">8</span> Bibliografía</a></li>
+</ul>
+</nav>
+<p><strong>Librerías auxiliares</strong></p>
+<ul>
+<li>En este tema se usan las siguientes librerías:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Data.Char</span></code></pre></div>
+<h1 id="analizadores-sintácticos"><span class="header-section-number">1</span> Analizadores sintácticos</h1>
+<p><strong>Analizadores sintácticos</strong></p>
+<ul>
+<li><p>Un <em>analizador sintáctico</em> es un programa que analiza textos para determinar su <em>estructura sintáctica</em>.</p></li>
+<li><p>Ejemplo de análisis sintáctico aritmético: La estructura sintáctica de la cadena <code>&quot;2*3+4&quot;</code> es el árbol</p></li>
+</ul>
+<figure>
+<img src="fig/tema-12-fig-1.png" alt="" />
+</figure>
+<ul>
+<li>El análisis sintáctico forma parte del preprocesamiento en la mayoría de las aplicaciones reales.</li>
+</ul>
+<h1 id="el-tipo-de-los-analizadores-sintácticos"><span class="header-section-number">2</span> El tipo de los analizadores sintácticos</h1>
+<p><strong>Opciones para el tipo de los analizadores sintácticos</strong></p>
+<ul>
+<li>Opción inicial:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Analizador</span> <span class="fu">=</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Tree</span> </code></pre></div>
+<ul>
+<li>Con la parte no analizada:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Analizador</span> <span class="fu">=</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">Tree</span>,<span class="dt">String</span>)</code></pre></div>
+<ul>
+<li>Con todos los análisis:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Analizador</span> <span class="fu">=</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(<span class="dt">Tree</span>,<span class="dt">String</span>)]</code></pre></div>
+<ul>
+<li>Con estructuras arbitrarias:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Analizador</span> a <span class="fu">=</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(a,<span class="dt">String</span>)] </code></pre></div>
+<ul>
+<li>Simplificación: analizadores que fallan o sólo dan un análisis.</li>
+</ul>
+<h1 id="analizadores-sintácticos-básicos"><span class="header-section-number">3</span> Analizadores sintácticos básicos</h1>
+<p><strong>Analizadores sintácticos básicos: resultado</strong></p>
+<ul>
+<li><code>(analiza a cs)</code> analiza la cadena <code>cs</code> mediante el analizador <code>a</code>. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">analiza ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(a,<span class="dt">String</span>)]
+analiza a cs <span class="fu">=</span> a cs</code></pre></div>
+<ul>
+<li>El analizador <code>resultado v</code> siempre tiene éxito, devuelve <code>v</code> y no consume nada. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza (resultado 1) &quot;abc&quot;
+[(1,&quot;abc&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">resultado ::</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> a
+resultado v <span class="fu">=</span>  \xs <span class="ot">-&gt;</span> [(v,xs)]</code></pre></div>
+<p><strong>Analizadores sintácticos básicos: fallo</strong></p>
+<ul>
+<li>El analizador <code>fallo</code> siempre falla. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza fallo &quot;abc&quot;
+[]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">fallo ::</span> <span class="dt">Analizador</span> a
+fallo <span class="fu">=</span>  \xs <span class="ot">-&gt;</span> []</code></pre></div>
+<p><strong>Analizadores sintácticos básicos: elemento</strong></p>
+<ul>
+<li>El analizador <code>elemento</code> falla si la cadena es vacía y consume el primer elemento en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza elemento &quot;&quot;
+[]
+ghci&gt; analiza elemento &quot;abc&quot;
+[(&#39;a&#39;,&quot;bc&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">elemento ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+elemento <span class="fu">=</span>  \xs <span class="ot">-&gt;</span> <span class="kw">case</span> xs <span class="kw">of</span>
+                     [] <span class="ot">-&gt;</span> []
+                     (x<span class="fu">:</span>xs) <span class="ot">-&gt;</span> [(x , xs)]</code></pre></div>
+<h1 id="composición-de-analizadores-sintácticos"><span class="header-section-number">4</span> Composición de analizadores sintácticos</h1>
+<h2 id="secuenciación-de-analizadores-sintácticos"><span class="header-section-number">4.1</span> Secuenciación de analizadores sintácticos</h2>
+<ul>
+<li><code>((p &gt;*&gt; f) e)</code> falla si el análisis de <code>e</code> por <code>p</code> falla, en caso contrario, se obtiene un valor (<code>v</code>) y una salida (<code>s</code>), se aplica la función <code>f</code> al valor <code>v</code> obteniéndose un nuevo analizador con el que se analiza la salida <code>s</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">infixr</span> <span class="dv">5</span> <span class="fu">&gt;*&gt;</span>
+<span class="ot">(&gt;*&gt;) ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> b) <span class="ot">-&gt;</span> 
+         <span class="dt">Analizador</span> b
+p <span class="fu">&gt;*&gt;</span> f <span class="fu">=</span> \ent <span class="ot">-&gt;</span> <span class="kw">case</span> analiza p ent <span class="kw">of</span>
+                       []        <span class="ot">-&gt;</span> []
+                       [(v,sal)] <span class="ot">-&gt;</span> analiza (f v) sal</code></pre></div>
+<ul>
+<li><code>primeroTercero</code> es un analizador que devuelve los caracteres primero y tercero de la cadena. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primeroTercero &quot;abel&quot;  ==  [((&#39;a&#39;,&#39;e&#39;),&quot;l&quot;)]
+primeroTercero &quot;ab&quot;    ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">primeroTercero ::</span> <span class="dt">Analizador</span> (<span class="dt">Char</span>,<span class="dt">Char</span>)
+primeroTercero <span class="fu">=</span> 
+    elemento <span class="fu">&gt;*&gt;</span> \x <span class="ot">-&gt;</span>
+    elemento <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+    elemento <span class="fu">&gt;*&gt;</span> \y <span class="ot">-&gt;</span>
+    resultado (x,y)</code></pre></div>
+<h2 id="elección-de-analizadores-sintácticos"><span class="header-section-number">4.2</span> Elección de analizadores sintácticos</h2>
+<ul>
+<li><code>((p +++ q) e)</code> analiza <code>e</code> con <code>p</code> y si falla analiza <code>e</code> con <code>q</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>Main*&gt; analiza (elemento +++ resultado &#39;d&#39;) &quot;abc&quot;  
+[(&#39;a&#39;,&quot;bc&quot;)]
+Main*&gt; analiza (fallo +++ resultado &#39;d&#39;) &quot;abc&quot;     
+[(&#39;d&#39;,&quot;abc&quot;)]
+Main*&gt; analiza (fallo +++ fallo) &quot;abc&quot;             
+[]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">(+++) ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> a
+p <span class="fu">+++</span> q <span class="fu">=</span> \ent <span class="ot">-&gt;</span> <span class="kw">case</span> analiza p ent <span class="kw">of</span>
+                    []        <span class="ot">-&gt;</span> analiza q ent
+                    [(v,sal)] <span class="ot">-&gt;</span> [(v,sal)]</code></pre></div>
+<h1 id="primitivas-derivadas"><span class="header-section-number">5</span> Primitivas derivadas</h1>
+<ul>
+<li><code>(sat p)</code> es el analizador que consume un elemento si dicho elemento cumple la propiedad <code>p</code> y falla en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza (sat isLower) &quot;hola&quot;  ==  [(&#39;h&#39;,&quot;ola&quot;)]
+analiza (sat isLower) &quot;Hola&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">sat ::</span> (<span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+sat p <span class="fu">=</span> elemento <span class="fu">&gt;*&gt;</span> \x <span class="ot">-&gt;</span>
+        <span class="kw">if</span> p x <span class="kw">then</span> resultado x <span class="kw">else</span> fallo</code></pre></div>
+<ul>
+<li><code>digito</code> analiza si el primer carácter es un dígito. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza digito &quot;123&quot;  ==  [(&#39;1&#39;,&quot;23&quot;)]
+analiza digito &quot;uno&quot;  ==  []  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">digito ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+digito <span class="fu">=</span> sat isDigit</code></pre></div>
+<ul>
+<li><code>minuscula</code> analiza si el primer carácter es una letra minúscula. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza minuscula &quot;eva&quot;  ==  [(&#39;e&#39;,&quot;va&quot;)]
+analiza minuscula &quot;Eva&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">minuscula ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+minuscula <span class="fu">=</span> sat isLower</code></pre></div>
+<ul>
+<li><code>mayuscula</code> analiza si el primer carácter es una letra mayúscula. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza mayuscula &quot;Eva&quot;  ==  [(&#39;E&#39;,&quot;va&quot;)]
+analiza mayuscula &quot;eva&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">mayuscula ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+mayuscula <span class="fu">=</span> sat isUpper</code></pre></div>
+<ul>
+<li><code>letra</code> analiza si el primer carácter es una letra. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza letra &quot;Eva&quot;  ==  [(&#39;E&#39;,&quot;va&quot;)]
+analiza letra &quot;eva&quot;  ==  [(&#39;e&#39;,&quot;va&quot;)]
+analiza letra &quot;123&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">letra ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+letra <span class="fu">=</span> sat isAlpha</code></pre></div>
+<ul>
+<li><code>alfanumerico</code> analiza si el primer carácter es una letra o un número. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza alfanumerico &quot;Eva&quot;   ==  [(&#39;E&#39;,&quot;va&quot;)]
+analiza alfanumerico &quot;eva&quot;   ==  [(&#39;e&#39;,&quot;va&quot;)]
+analiza alfanumerico &quot;123&quot;   ==  [(&#39;1&#39;,&quot;23&quot;)]
+analiza alfanumerico &quot; 123&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">alfanumerico ::</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+alfanumerico <span class="fu">=</span> sat isAlphaNum</code></pre></div>
+<ul>
+<li><code>(caracter x)</code> analiza si el primer carácter es igual al carácter <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza (caracter &#39;E&#39;) &quot;Eva&quot;  ==  [(&#39;E&#39;,&quot;va&quot;)]
+analiza (caracter &#39;E&#39;) &quot;eva&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">caracter ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Analizador</span> <span class="dt">Char</span>
+caracter x <span class="fu">=</span> sat (<span class="fu">==</span> x)</code></pre></div>
+<ul>
+<li><code>(cadena c)</code> analiza si empieza con la cadena <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza (cadena &quot;abc&quot;) &quot;abcdef&quot;  ==  [(&quot;abc&quot;,&quot;def&quot;)]
+analiza (cadena &quot;abc&quot;) &quot;abdcef&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">cadena ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Analizador</span> <span class="dt">String</span>
+cadena []     <span class="fu">=</span> resultado []
+cadena (x<span class="fu">:</span>xs) <span class="fu">=</span> caracter x <span class="fu">&gt;*&gt;</span> \x  <span class="ot">-&gt;</span>
+                cadena xs  <span class="fu">&gt;*&gt;</span> \xs <span class="ot">-&gt;</span>
+                resultado (x<span class="fu">:</span>xs)</code></pre></div>
+<ul>
+<li><code>varios p</code> aplica el analizador <code>p</code> cero o más veces. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza (varios digito) &quot;235abc&quot;  ==  [(&quot;235&quot;,&quot;abc&quot;)]
+analiza (varios digito) &quot;abc235&quot;  ==  [(&quot;&quot;,&quot;abc235&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">varios ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> [a]
+varios p  <span class="fu">=</span> varios1 p <span class="fu">+++</span> resultado []</code></pre></div>
+<ul>
+<li><code>varios1 p</code> aplica el analizador <code>p</code> una o más veces. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza (varios1 digito) &quot;235abc&quot;  ==  [(&quot;235&quot;,&quot;abc&quot;)]
+analiza (varios1 digito) &quot;abc235&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">varios1 ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> [a]
+varios1 p <span class="fu">=</span> p        <span class="fu">&gt;*&gt;</span> \v  <span class="ot">-&gt;</span>
+            varios p <span class="fu">&gt;*&gt;</span> \vs <span class="ot">-&gt;</span>
+            resultado (v<span class="fu">:</span>vs)</code></pre></div>
+<ul>
+<li><code>ident</code> analiza si comienza con un identificador (i.e. una cadena que comienza con una letra minúscula seguida por caracteres alfanuméricos). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza ident &quot;lunes12 de Ene&quot;  
+[(&quot;lunes12&quot;,&quot; de Ene&quot;)]
+ghci&gt; analiza ident &quot;Lunes12 de Ene&quot;  
+[]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">ident ::</span> <span class="dt">Analizador</span> <span class="dt">String</span>
+ident <span class="fu">=</span>  minuscula           <span class="fu">&gt;*&gt;</span> \x  <span class="ot">-&gt;</span>
+         varios alfanumerico <span class="fu">&gt;*&gt;</span> \xs <span class="ot">-&gt;</span>
+         resultado (x<span class="fu">:</span>xs)</code></pre></div>
+<ul>
+<li><code>nat</code> analiza si comienza con un número natural. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza nat &quot;14DeAbril&quot;   ==  [(14,&quot;DeAbril&quot;)]
+analiza nat &quot; 14DeAbril&quot;  ==  []</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">nat ::</span> <span class="dt">Analizador</span> <span class="dt">Int</span>
+nat <span class="fu">=</span> varios1 digito <span class="fu">&gt;*&gt;</span> \xs <span class="ot">-&gt;</span>
+      resultado (read xs)</code></pre></div>
+<ul>
+<li><code>espacio</code> analiza si comienza con espacios en blanco. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza espacio &quot;    a b c&quot;  ==  [((),&quot;a b c&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">espacio ::</span> <span class="dt">Analizador</span> ()
+espacio <span class="fu">=</span> varios (sat isSpace) <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span> 
+          resultado ()</code></pre></div>
+<h1 id="tratamiento-de-los-espacios"><span class="header-section-number">6</span> Tratamiento de los espacios</h1>
+<ul>
+<li><code>unidad p</code> ignora los espacios en blanco y aplica el analizador <code>p</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza (unidad nat) &quot; 14DeAbril&quot;     
+[(14,&quot;DeAbril&quot;)]
+ghci&gt; analiza (unidad nat) &quot; 14   DeAbril&quot;  
+[(14,&quot;DeAbril&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">unidad ::</span> <span class="dt">Analizador</span> a <span class="ot">-&gt;</span> <span class="dt">Analizador</span> a
+unidad p <span class="fu">=</span> espacio <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           p       <span class="fu">&gt;*&gt;</span> \v <span class="ot">-&gt;</span>
+           espacio <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           resultado v</code></pre></div>
+<ul>
+<li><code>identificador</code> analiza un identificador ignorando los espacios delante y detrás. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza identificador &quot;  lunes12  de Ene&quot;
+[(&quot;lunes12&quot;,&quot;de Ene&quot;)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">identificador ::</span> <span class="dt">Analizador</span> <span class="dt">String</span>
+identificador <span class="fu">=</span> unidad ident</code></pre></div>
+<ul>
+<li><code>natural</code> analiza un número natural ignorando los espacios delante y detrás. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza natural &quot;  14DeAbril&quot;  ==  [(14,&quot;DeAbril&quot;)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">natural ::</span> <span class="dt">Analizador</span> <span class="dt">Int</span>
+natural <span class="fu">=</span>  unidad nat</code></pre></div>
+<ul>
+<li><code>(simbolo xs)</code> analiza la cadena <code>xs</code> ignorando los espacios delante y detrás. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza (simbolo &quot;abc&quot;) &quot;  abcdef&quot;  
+[(&quot;abc&quot;,&quot;def&quot;)]  </code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">simbolo ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Analizador</span> <span class="dt">String</span>
+simbolo xs <span class="fu">=</span>  unidad (cadena xs)</code></pre></div>
+<ul>
+<li><code>listaNat</code> analiza una lista de naturales ignorando los espacios. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; analiza listaNat &quot; [  2,  3, 5   ]&quot;  
+[([2,3,5],&quot;&quot;)]
+ghci&gt; analiza listaNat &quot; [  2,  3,]&quot;       
+[]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">listaNat ::</span> <span class="dt">Analizador</span> [<span class="dt">Int</span>]
+listaNat <span class="fu">=</span> simbolo <span class="st">&quot;[&quot;</span>          <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           natural              <span class="fu">&gt;*&gt;</span> \n <span class="ot">-&gt;</span>
+           varios (simbolo <span class="st">&quot;,&quot;</span>  <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+                   natural)     <span class="fu">&gt;*&gt;</span> \ns <span class="ot">-&gt;</span>
+           simbolo <span class="st">&quot;]&quot;</span>          <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           resultado (n<span class="fu">:</span>ns)</code></pre></div>
+<h1 id="analizador-de-expresiones-aritméticas"><span class="header-section-number">7</span> Analizador de expresiones aritméticas</h1>
+<p><strong>Expresiones aritméticas</strong></p>
+<ul>
+<li>Consideramos expresiones aritméticas:
+<ul>
+<li>construidas con números, operaciones (<code>+</code> y <code>*</code>) y paréntesis.</li>
+<li><code>+</code> y <code>*</code> asocian por la derecha.</li>
+<li><code>*</code> tiene más prioridad que <code>+</code>.</li>
+</ul></li>
+<li>Ejemplos:
+<ul>
+<li><code>2+3+5</code> representa a <code>2+(3+5)</code>.</li>
+<li><code>2*3+5</code> representa a <code>(2*3)+5</code>.</li>
+</ul></li>
+</ul>
+<p><strong>Gramáticas de las expresiones aritméticas: Gramática 1</strong></p>
+<ul>
+<li>Gramática 1 de las expresiones aritméticas:</li>
+</ul>
+<pre class="sesion"><code>expr ::=  expr + expr | expr * expr | (expr) | nat 
+nat  ::=  0 | 1 | 2 | ...</code></pre>
+<ul>
+<li><p>La gramática 1 no considera prioridad: acepta <code>2+3*5</code> como <code>(2+3)*5</code> y como <code>2+(3*5)</code></p></li>
+<li><p>La gramática 1 no considera asociatividad: acepta <code>2+3+5</code> como <code>(2+3)+5</code> y como <code>2+(3+5)</code></p></li>
+<li><p>La gramática 1 es ambigua.</p></li>
+</ul>
+<p><strong>Gramáticas de las expresiones aritméticas: Gramática 2</strong></p>
+<ul>
+<li>Gramática 2 de las expresiones aritméticas (con prioridad):</li>
+</ul>
+<pre class="sesion"><code>expr    ::=  expr + expr | term 
+term    ::=  term * term | factor 
+factor  ::=  (expr) | nat 
+nat     ::=  0 | 1 | 2 | dots</code></pre>
+<ul>
+<li><p>La gramática 2 sí considera prioridad: acepta <code>2+3*5</code> sólo como <code>2+(3*5)</code></p></li>
+<li><p>La gramática 2 no considera asociatividad: acepta <code>2+3+5</code> como <code>(2+3)+5</code> y como <code>2+(3+5)</code></p></li>
+<li><p>La gramática 2 es ambigua.</p></li>
+</ul>
+<p><strong>Árbol de análisis sintáctico de <code>2*3+5</code> con la gramática 2</strong></p>
+<figure>
+<img src="fig/tema-12-fig-2.png" alt="" />
+</figure>
+<p><strong>Gramáticas de las expresiones aritméticas: Gramática 3</strong></p>
+<ul>
+<li>Gramática 3 de las expresiones aritméticas:</li>
+</ul>
+<pre class="sesion"><code>expr   ::= term + expr | term 
+term   ::= factor * term | factor 
+factor ::= (expr) | nat 
+nat    ::= 0 | 1 | 2 | dots</code></pre>
+<ul>
+<li><p>La gramática 3 sí considera prioridad: acepta <code>2+3*5</code> sólo como <code>2+(3*5)</code></p></li>
+<li><p>La gramática 3 sí considera asociatividad: acepta <code>2+3+5</code> como <code>2+(3+5)</code></p></li>
+<li><p>La gramática 3 no es ambigua (i.e. es libre de contexto).</p></li>
+</ul>
+<p><strong>Árbol de análisis sintáctico de <code>2+3+5</code> con la gramática 3</strong></p>
+<figure>
+<img src="fig/tema-12-fig-3.png" alt="" />
+</figure>
+<p><strong>Gramáticas de las expresiones aritméticas: Gramática 4</strong></p>
+<ul>
+<li>La gramática 4 se obtiene simplificando la gramática 3:</li>
+</ul>
+<pre class="sesion"><code>expr   ::= term (+ expr | epsilon) 
+term   ::= factor (* term | epsilon) 
+factor ::= (expr) | nat 
+nat    ::= 0 | 1 | 2 | dots</code></pre>
+<p class="indent">
+donde ε es la cadena vacía.
+</p>
+<ul>
+<li><p>La gramática 4 no es ambigua.</p></li>
+<li><p>La gramática 4 es la que se usará para escribir el analizador de expresiones aritméticas.</p></li>
+</ul>
+<p><strong>Analizador de expresiones aritméticas</strong></p>
+<ul>
+<li><code>expr</code> analiza una expresión aritmética devolviendo su valor. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza expr &quot;2*3+5&quot;     ==  [(11,&quot;&quot;)]
+analiza expr &quot;2*(3+5)&quot;   ==  [(16,&quot;&quot;)]
+analiza expr &quot;2+3*5&quot;     ==  [(17,&quot;&quot;)]
+analiza expr &quot;2*3+5abc&quot;  ==  [(11,&quot;abc&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">expr ::</span> <span class="dt">Analizador</span> <span class="dt">Int</span>
+expr <span class="fu">=</span> term              <span class="fu">&gt;*&gt;</span> \t <span class="ot">-&gt;</span>
+       (simbolo <span class="st">&quot;+&quot;</span>      <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>              
+        expr             <span class="fu">&gt;*&gt;</span> \e <span class="ot">-&gt;</span>
+        resultado (t<span class="fu">+</span>e))
+       <span class="fu">+++</span> resultado t</code></pre></div>
+<ul>
+<li><code>term</code> analiza un término de una expresión aritmética devolviendo su valor. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza term &quot;2*3+5&quot;      ==  [(6,&quot;+5&quot;)]
+analiza term &quot;2+3*5&quot;      ==  [(2,&quot;+3*5&quot;)]
+analiza term &quot;(2+3)*5+7&quot;  ==  [(25,&quot;+7&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">term ::</span> <span class="dt">Analizador</span> <span class="dt">Int</span>
+term <span class="fu">=</span>  factor            <span class="fu">&gt;*&gt;</span> \f <span class="ot">-&gt;</span>
+        (simbolo <span class="st">&quot;*&quot;</span>      <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+         term             <span class="fu">&gt;*&gt;</span> \t <span class="ot">-&gt;</span>
+         resultado (f<span class="fu">*</span>t))
+        <span class="fu">+++</span> resultado f</code></pre></div>
+<ul>
+<li><code>factor</code> analiza un factor de una expresión aritmética devolviendo su valor. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>analiza factor &quot;2*3+5&quot;      ==  [(2,&quot;*3+5&quot;)]
+analiza factor &quot;(2+3)*5&quot;    ==  [(5,&quot;*5&quot;)]
+analiza factor &quot;(2+3*7)*5&quot;  ==  [(23,&quot;*5&quot;)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">factor ::</span> <span class="dt">Analizador</span> <span class="dt">Int</span>
+factor <span class="fu">=</span>  (simbolo <span class="st">&quot;(&quot;</span>  <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           expr         <span class="fu">&gt;*&gt;</span> \e <span class="ot">-&gt;</span>
+           simbolo <span class="st">&quot;)&quot;</span>  <span class="fu">&gt;*&gt;</span> \_ <span class="ot">-&gt;</span>
+           resultado e)
+          <span class="fu">+++</span> natural</code></pre></div>
+<ul>
+<li><code>(valor cs)</code> analiza la cadena <code>cs</code> devolviendo su valor si es una expresión aritmética y un mensaje de error en caso contrario. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor &quot;2*3+5&quot;      ==  11
+valor &quot;2*(3+5)&quot;    ==  16
+valor &quot;2 * 3 + 5&quot;  ==  11
+valor &quot;2*3x&quot;       ==  *** Exception: sin usar x
+valor &quot;-1&quot;         ==  *** Exception: entrada no valida</code></pre>
+<div class="sourceCode"><pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>
+valor xs <span class="fu">=</span> <span class="kw">case</span> (analiza expr xs) <span class="kw">of</span>
+             [(n,[])]  <span class="ot">-&gt;</span> n
+             [(_,sal)] <span class="ot">-&gt;</span> error (<span class="st">&quot;sin usar &quot;</span> <span class="fu">++</span> sal)
+             []        <span class="ot">-&gt;</span> error <span class="st">&quot;entrada no valida&quot;</span></code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">8</span> Bibliografía</h1>
+<ul>
+<li>R. Bird. <em>Introducción a la programación funcional con Haskell</em>. Prentice Hall, 2000.
+<ul>
+<li>Cap. 11: Análisis sintáctico.</li>
+</ul></li>
+<li>G. Hutton. <em>Programming in Haskell</em>. Cambridge University Press, 2007.
+<ul>
+<li>Cap. 8: Functional parsers.</li>
+</ul></li>
+<li><p>G. Hutton y E. Meijer. <a href="http://www.cs.nott.ac.uk/~gmh/monparsing.pdf">Monadic parser combinators</a>. Technical Report NOTTCS-TR-96-4, Department of Computer Science, University of Nottingham, 1996.</p></li>
+<li><p>G. Hutton y E. Meijer. <a href="http://www.cs.nott.ac.uk/~gmh/pearl.pdf">Monadic parsing in Haskell</a>. Journal of Functional Programming, 8(4): 437-444, 1998.</p></li>
+<li>B.C. Ruiz, F. Gutiérrez, P. Guerrero y J.E. Gallardo. <em>Razonando con Haskell</em>. Thompson, 2004.
+<ul>
+<li>Cap. 14: Analizadores.</li>
+</ul></li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

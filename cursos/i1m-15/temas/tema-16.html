@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 16: El TAD de las colas de prioridad</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 16: El TAD de las colas de prioridad</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-las-colas-de-prioridad"><span class="toc-section-number">1</span> Especificación del TAD de las colas de prioridad</a><ul>
+<li><a href="#signatura-del-tad-colas-de-prioridad"><span class="toc-section-number">1.1</span> Signatura del TAD colas de prioridad</a></li>
+<li><a href="#propiedades-del-tad-de-las-colas-de-prioridad"><span class="toc-section-number">1.2</span> Propiedades del TAD de las colas de prioridad</a></li>
+</ul></li>
+<li><a href="#implementaciones-del-tad-de-las-colas-de-prioridad"><span class="toc-section-number">2</span> Implementaciones del TAD de las colas de prioridad</a><ul>
+<li><a href="#las-colas-de-prioridad-como-listas"><span class="toc-section-number">2.1</span> Las colas de prioridad como listas</a></li>
+<li><a href="#las-colas-de-prioridad-como-montículos"><span class="toc-section-number">2.2</span> Las colas de prioridad como montículos</a></li>
+</ul></li>
+<li><a href="#comprobación-de-las-implementaciones-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de las implementaciones con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-colas-de-prioridad"><span class="toc-section-number">3.2</span> Generador de colas de prioridad</a></li>
+<li><a href="#especificación-de-las-propiedades-de-las-colas-de-prioridad"><span class="toc-section-number">3.3</span> Especificación de las propiedades de las colas de prioridad</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-las-colas-de-prioridad"><span class="header-section-number">1</span> Especificación del TAD de las colas de prioridad</h1>
+<h2 id="signatura-del-tad-colas-de-prioridad"><span class="header-section-number">1.1</span> Signatura del TAD colas de prioridad</h2>
+<p><strong>Descripción de las colas de prioridad</strong></p>
+<ul>
+<li><p>Una <em>cola de prioridad</em> es una cola en la que cada elemento tiene asociada una prioridad. La operación de extracción siempre elige el elemento de menor prioridad.</p></li>
+<li>Ejemplos:
+<ul>
+<li>La cola de las ciudades ordenadas por su distancia al destino final.</li>
+<li>Las colas de las tareas pendientes ordenadas por su fecha de terminación.</li>
+</ul></li>
+</ul>
+<p><strong>Signatura de las colas de prioridad</strong></p>
+<ul>
+<li>Signatura:</li>
+</ul>
+<pre class="sesion"><code>vacia,   :: Ord a =&gt; CPrioridad a 
+inserta, :: Ord a =&gt; a -&gt; CPrioridad a -&gt; CPrioridad a 
+primero, :: Ord a =&gt; CPrioridad a -&gt; a
+resto,   :: Ord a =&gt; CPrioridad a -&gt; CPrioridad a
+esVacia, :: Ord a =&gt; CPrioridad a -&gt; Bool 
+valida   :: Ord a =&gt; CPrioridad a -&gt; Bool</code></pre>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>vacia</code> es la cola de prioridad vacía.</li>
+<li><code>(inserta x c)</code> añade el elemento <code>x</code> a la cola de prioridad <code>c</code>.</li>
+<li><code>(primero c)</code> es el primer elemento de la cola de prioridad <code>c</code>.</li>
+<li><code>(resto c)</code> es el resto de la cola de prioridad <code>c</code>.</li>
+<li><code>(esVacia c)</code> se verifica si la cola de prioridad <code>c</code> es vacía.</li>
+<li><code>(valida c)</code> se verifica si <code>c</code> es una cola de prioridad válida.</li>
+</ul></li>
+</ul>
+<h2 id="propiedades-del-tad-de-las-colas-de-prioridad"><span class="header-section-number">1.2</span> Propiedades del TAD de las colas de prioridad</h2>
+<ul>
+<li><p><code>inserta x (inserta y c) == inserta y (inserta x c)</code></p></li>
+<li><p><code>primero (inserta x vacia) == x</code></p></li>
+<li><p>Si <code>x &lt;= y</code>, entonces<br />
+ <code>primero (inserta y (inserta x c)) == primero (inserta x c)</code></p></li>
+<li><p><code>resto (inserta x vacia) == vacia</code></p></li>
+<li><p>Si <code>x &lt;= y</code>, entonces<br />
+ <code>resto (inserta y (inserta x c)) == inserta y (resto (inserta x c))</code></p></li>
+<li><p><code>esVacia vacia</code></p></li>
+<li><p><code>not (esVacia (inserta x c))</code> 2</p></li>
+</ul>
+<h1 id="implementaciones-del-tad-de-las-colas-de-prioridad"><span class="header-section-number">2</span> Implementaciones del TAD de las colas de prioridad</h1>
+<h2 id="las-colas-de-prioridad-como-listas"><span class="header-section-number">2.1</span> Las colas de prioridad como listas</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ColaDePrioridadConListas</span>
+    (<span class="dt">CPrioridad</span>,
+     vacia,   <span class="co">-- Ord a =&gt; CPrioridad a </span>
+     inserta, <span class="co">-- Ord a =&gt; a -&gt; CPrioridad a -&gt; CPrioridad a </span>
+     primero, <span class="co">-- Ord a =&gt; CPrioridad a -&gt; a</span>
+     resto,   <span class="co">-- Ord a =&gt; CPrioridad a -&gt; CPrioridad a</span>
+     esVacia, <span class="co">-- Ord a =&gt; CPrioridad a -&gt; Bool </span>
+     valida   <span class="co">-- Ord a =&gt; CPrioridad a -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Colas de prioridad mediante listas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">CPrioridad</span> a <span class="fu">=</span> <span class="dt">CP</span> [a]
+    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</code></pre></div>
+<ul>
+<li>Ejemplo de cola de prioridad: <code>cp1</code> es la cola de prioridad obtenida añadiéndole a la cola vacía los elementos 3, 1, 7, 2 y 9.</li>
+</ul>
+<pre class="sesion"><code>cp1  == CP [1,2,3,7,9]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cp1 ::</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span>
+cp1 <span class="fu">=</span> foldr inserta vacia [<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">7</span>,<span class="dv">2</span>,<span class="dv">9</span>]</code></pre></div>
+<ul>
+<li><code>(valida c)</code> se verifica si <code>c</code> es una cola de prioridad válida; es decir, está ordenada crecientemente. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valida (CP [1,3,5])  ==  True
+valida (CP [1,5,3])  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valida ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida (<span class="dt">CP</span> xs) <span class="fu">=</span> ordenada xs
+    <span class="kw">where</span> ordenada (x<span class="fu">:</span>y<span class="fu">:</span>zs) <span class="fu">=</span> x <span class="fu">&lt;=</span> y <span class="fu">&amp;&amp;</span> ordenada (y<span class="fu">:</span>zs)
+          ordenada _        <span class="fu">=</span> <span class="dt">True</span></code></pre></div>
+<ul>
+<li><code>vacia</code> es la cola de prioridad vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>vacia  ==  CP []</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacia ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a 
+vacia <span class="fu">=</span> <span class="dt">CP</span> []</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> es la cola obtenida añadiendo el elemento <code>x</code> a la cola de prioridad <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>cp1            ==  CP [1,2,3,7,9]
+inserta 5 cp1  ==  CP [1,2,3,5,7,9]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a 
+inserta x (<span class="dt">CP</span> q) <span class="fu">=</span> <span class="dt">CP</span> (ins x q)
+    <span class="kw">where</span> ins x []                   <span class="fu">=</span> [x]
+          ins x r<span class="fu">@</span>(e<span class="fu">:</span>r&#39;) <span class="fu">|</span> x <span class="fu">&lt;</span> e     <span class="fu">=</span> x<span class="fu">:</span>r
+                         <span class="fu">|</span> otherwise <span class="fu">=</span> e<span class="fu">:</span>ins x r&#39;</code></pre></div>
+<ul>
+<li><code>(primero c)</code> es el primer elemento de la cola de prioridad <code>c</code>.</li>
+</ul>
+<pre class="sesion"><code>cp1          ==  CP [1,2,3,7,9]
+primero cp1  ==  1</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">primero ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> a
+primero (<span class="dt">CP</span>(x<span class="fu">:</span>_)) <span class="fu">=</span> x
+primero _         <span class="fu">=</span> error <span class="st">&quot;primero: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(resto c)</code> es la cola de prioridad obtenida eliminando el primer elemento de la cola de prioridad <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>cp1        ==  CP [1,2,3,7,9]
+resto cp1  ==  CP [2,3,7,9]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">resto ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a
+resto (<span class="dt">CP</span> (_<span class="fu">:</span>xs)) <span class="fu">=</span> <span class="dt">CP</span> xs
+resto _           <span class="fu">=</span> error <span class="st">&quot;resto: cola vacia&quot;</span></code></pre></div>
+<ul>
+<li><code>(esVacia c)</code> se verifica si la cola de prioridad <code>c</code> es vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacia cp1    ==  False
+esVacia vacia  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacia ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span> 
+esVacia (<span class="dt">CP</span> xs) <span class="fu">=</span> null xs</code></pre></div>
+<h2 id="las-colas-de-prioridad-como-montículos"><span class="header-section-number">2.2</span> Las colas de prioridad como montículos</h2>
+<p>La implementación de las colas de prioridad como montículos (<code>ColaDePrioridadConMonticulos.hs</code>) se encuentra en en el <a href="tema-20.html">tema 20</a> (El TAD de los montículos).</p>
+<h1 id="comprobación-de-las-implementaciones-con-quickcheck"><span class="header-section-number">3</span> Comprobación de las implementaciones con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación de colas de prioridad que se desea verificar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">ColaDePrioridadConListas</span>
+<span class="co">-- ColaDePrioridadConMonticulos.hs</span></code></pre></div>
+<ul>
+<li>Importación de las librerías de comprobación</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-colas-de-prioridad"><span class="header-section-number">3.2</span> Generador de colas de prioridad</h2>
+<ul>
+<li><code>genCPrioridad</code> es un generador de colas de prioridad. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genCPrioridad
+CP [-4]
+CP [-2,-1,-1,2,5]
+...</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genCPrioridad ::</span> (<span class="dt">Arbitrary</span> a, <span class="dt">Num</span> a, <span class="dt">Ord</span> a) 
+                 <span class="ot">=&gt;</span>  <span class="dt">Gen</span> (<span class="dt">CPrioridad</span> a)
+genCPrioridad <span class="fu">=</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> listOf arbitrary
+                   return (foldr inserta vacia xs)
+
+<span class="kw">instance</span> (<span class="dt">Arbitrary</span> a, <span class="dt">Num</span> a, <span class="dt">Ord</span> a) 
+         <span class="ot">=&gt;</span> <span class="dt">Arbitrary</span> (<span class="dt">CPrioridad</span> a) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genCPrioridad</code></pre></div>
+<p><strong>Corrección del generador de colas de prioridad</strong></p>
+<ul>
+<li>Las colas de prioridad producidas por <code>genCPrioridad</code> son válidas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_genCPrioridad_correcto ::</span>  <span class="dt">CPrioridad</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_genCPrioridad_correcto c <span class="fu">=</span> valida c</code></pre></div>
+<ul>
+<li>Comprobación.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_genCPrioridad_correcto
++++ OK, passed 100 tests.</code></pre>
+<h2 id="especificación-de-las-propiedades-de-las-colas-de-prioridad"><span class="header-section-number">3.3</span> Especificación de las propiedades de las colas de prioridad</h2>
+<ul>
+<li>Si se añade dos elementos a una cola de prioridad se obtiene la misma cola de prioridad idependientemente del orden en que se añadan los elementos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_conmuta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span> 
+                        <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_conmuta x y c <span class="fu">=</span>
+    inserta x (inserta y c) <span class="fu">==</span> inserta y (inserta x c)</code></pre></div>
+<ul>
+<li>La cabeza de la cola de prioridad obtenida anadiendo un elemento <code>x</code> a la cola de prioridad vacía es <code>x</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_primero_inserta_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_primero_inserta_vacia x c <span class="fu">=</span>
+    primero (inserta x vacia) <span class="fu">==</span> x</code></pre></div>
+<ul>
+<li>El primer elemento de una cola de prioridad <code>c</code> no cambia cuando se le añade un elemento mayor o igual que algún elemento de <code>c</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_primero_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span> 
+                        <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_primero_inserta x y c <span class="fu">=</span>
+    x <span class="fu">&lt;=</span> y <span class="fu">==&gt;</span> 
+    primero (inserta y c&#39;) <span class="fu">==</span> primero c&#39;
+    <span class="kw">where</span> c&#39; <span class="fu">=</span> inserta x c</code></pre></div>
+<ul>
+<li>El resto de añadir un elemento a la cola de prioridad vacía es la cola vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_inserta_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_resto_inserta_vacia x <span class="fu">=</span>
+    resto (inserta x vacia) <span class="fu">==</span> vacia</code></pre></div>
+<ul>
+<li>El resto de la cola de prioridad obtenida añadiendo un elemento <code>y</code> a una cola <code>c'</code> (que tiene algún elemento menor o igual que <code>y</code>) es la cola que se obtiene añadiendo <code>y</code> al resto de <code>c'</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span> 
+                      <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_resto_inserta x y c <span class="fu">=</span>
+    x <span class="fu">&lt;=</span> y <span class="fu">==&gt;</span> 
+    resto (inserta y c&#39;) <span class="fu">==</span> inserta y (resto c&#39;)
+    <span class="kw">where</span> c&#39; <span class="fu">=</span> inserta x c</code></pre></div>
+<ul>
+<li><code>vacia</code> es una cola vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacia_es_vacia ::</span> <span class="dt">Bool</span>
+prop_vacia_es_vacia <span class="fu">=</span> esVacia (<span class="ot">vacia ::</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li>Si se añade un elemento a una cola de prioridad se obtiene una cola no vacía.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_no_es_vacia ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span> 
+                            <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_no_es_vacia x c <span class="fu">=</span>
+    not (esVacia (inserta x c))</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Corrección del generador&quot;</span> 
+          [testProperty <span class="st">&quot;P0&quot;</span> prop_genCPrioridad_correcto],
+         testGroup <span class="st">&quot;Propiedade de colas de prioriad:&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span> prop_inserta_conmuta,
+           testProperty <span class="st">&quot;P2&quot;</span> prop_primero_inserta_vacia,
+           testProperty <span class="st">&quot;P3&quot;</span> prop_primero_inserta,
+           testProperty <span class="st">&quot;P4&quot;</span> prop_resto_inserta_vacia,
+           testProperty <span class="st">&quot;P5&quot;</span> prop_resto_inserta,
+           testProperty <span class="st">&quot;P6&quot;</span> prop_vacia_es_vacia,
+           testProperty <span class="st">&quot;P7&quot;</span> prop_inserta_no_es_vacia]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de las colas de prioridad</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades
+Corrección del generador:
+  P0: [OK, passed 100 tests]
+Propiedades de colas de prioridad:
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+  P7: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  8           8          
+ Failed  0           0          
+ Total   8           8  </code></pre>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

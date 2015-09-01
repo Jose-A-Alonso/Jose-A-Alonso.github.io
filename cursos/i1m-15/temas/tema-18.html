@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 18: El TAD de las tablas</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 18: El TAD de las tablas</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#el-tipo-predefinido-de-las-tablas-arrays"><span class="toc-section-number">1</span> El tipo predefinido de las tablas (&quot;arrays&quot;)</a><ul>
+<li><a href="#la-clase-de-los-índices-de-las-tablas"><span class="toc-section-number">1.1</span> La clase de los índices de las tablas</a></li>
+<li><a href="#el-tipo-predefinido-de-las-tablas-arrays-1"><span class="toc-section-number">1.2</span> El tipo predefinido de las tablas (&quot;arrays&quot;)</a></li>
+</ul></li>
+<li><a href="#especificación-del-tad-de-las-tablas"><span class="toc-section-number">2</span> Especificación del TAD de las tablas</a><ul>
+<li><a href="#signatura-del-tad-de-las-tablas"><span class="toc-section-number">2.1</span> Signatura del TAD de las tablas</a></li>
+<li><a href="#propiedades-del-tad-de-las-tablas"><span class="toc-section-number">2.2</span> Propiedades del TAD de las tablas</a></li>
+</ul></li>
+<li><a href="#implementaciones-del-tad-de-las-tablas"><span class="toc-section-number">3</span> Implementaciones del TAD de las tablas</a><ul>
+<li><a href="#las-tablas-como-funciones"><span class="toc-section-number">3.1</span> Las tablas como funciones</a></li>
+<li><a href="#las-tablas-como-listas-de-asociación"><span class="toc-section-number">3.2</span> Las tablas como listas de asociación</a></li>
+<li><a href="#las-tablas-como-matrices"><span class="toc-section-number">3.3</span> Las tablas como matrices</a></li>
+</ul></li>
+<li><a href="#comprobación-de-las-implementaciones-con-quickcheck"><span class="toc-section-number">4</span> Comprobación de las implementaciones con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">4.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-tablas"><span class="toc-section-number">4.2</span> Generador de tablas</a></li>
+<li><a href="#especificación-de-las-propiedades-de-las-tablas"><span class="toc-section-number">4.3</span> Especificación de las propiedades de las tablas</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">4.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="el-tipo-predefinido-de-las-tablas-arrays"><span class="header-section-number">1</span> El tipo predefinido de las tablas (&quot;arrays&quot;)</h1>
+<h2 id="la-clase-de-los-índices-de-las-tablas"><span class="header-section-number">1.1</span> La clase de los índices de las tablas</h2>
+<ul>
+<li><p>La clase de los índices de las tablas es <code>Ix</code>.</p></li>
+<li><p><code>Ix</code> se encuentra en la librería <code>Data.Ix</code></p></li>
+<li><p>Información de la clase <code>Ix</code>:</p></li>
+</ul>
+<pre class="sesion"><code>ghci&gt; :info Ix
+class (Ord a) =&gt; Ix a where
+  range :: (a, a) -&gt; [a]
+  index :: (a, a) -&gt; a -&gt; Int
+  inRange :: (a, a) -&gt; a -&gt; Bool
+  rangeSize :: (a, a) -&gt; Int
+instance Ix Ordering -- Defined in GHC.Arr
+instance Ix Integer -- Defined in GHC.Arr
+instance Ix Int -- Defined in GHC.Arr
+instance Ix Char -- Defined in GHC.Arr
+instance Ix Bool -- Defined in GHC.Arr
+instance (Ix a, Ix b) =&gt; Ix (a, b)</code></pre>
+<ul>
+<li><code>(range m n)</code> es la lista de los índices desde <code>m</code> hasta <code>n</code>, en el orden del índice. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>range (0,4)          ==  [0,1,2,3,4]
+range (3,9)          ==  [3,4,5,6,7,8,9]
+range (&#39;b&#39;,&#39;f&#39;)      ==  &quot;bcdef&quot;
+range ((0,0),(1,2))  ==  [(0,0),(0,1),(0,2),(1,0),(1,1),(1,2)]</code></pre>
+<ul>
+<li><code>(index (m,n) i)</code> es el ordinal del índice <code>i</code> dentro del rango <code>(m,n)</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>index (3,9) 5              ==  2
+index (&#39;b&#39;,&#39;f&#39;) &#39;e&#39;        ==  3
+index ((0,0),(1,2)) (1,1)  ==  4</code></pre>
+<ul>
+<li><code>(inRange (m,n) i)</code> se verifica si el índice <code>i</code> está dentro del rango limitado por <code>m</code> y <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>inRange (0,4) 3              ==  True
+inRange (0,4) 7              ==  False
+inRange ((0,0),(1,2)) (1,1)  ==  True
+inRange ((0,0),(1,2)) (1,5)  ==  False</code></pre>
+<ul>
+<li><code>(rangeSize (m,n))</code> es el número de elementos en el rango limitado por <code>m</code> y <code>n</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>rangeSize (3,9)          ==  7
+rangeSize (&#39;b&#39;,&#39;f&#39;)      ==  5
+rangeSize ((0,0),(1,2))  ==  6</code></pre>
+<h2 id="el-tipo-predefinido-de-las-tablas-arrays-1"><span class="header-section-number">1.2</span> El tipo predefinido de las tablas (&quot;arrays&quot;)</h2>
+<ul>
+<li><p>La librería de las tablas es <code>Data.Array</code>.</p></li>
+<li><p>Para usar las tablas hay que escribir al principio del fichero</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Array</span></code></pre></div>
+<ul>
+<li><p>Al importar <code>Data.Array</code> también se importa <code>Data.Ix</code>.</p></li>
+<li><p><code>(Array i v)</code> es el tipo de las tablas con índice en <code>i</code> y valores en <code>v</code>.</p></li>
+</ul>
+<p><strong>Creación de tablas</strong></p>
+<ul>
+<li><code>(array (m,n) ivs)</code> es la tabla de índices en el rango limitado por <code>m</code> y <code>n</code> definida por la lista de asociación <code>ivs</code> (cuyos elementos son pares de la forma (índice, valor)). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; array (1,3) [(3,6),(1,2),(2,4)]
+array (1,3) [(1,2),(2,4),(3,6)]
+ghci&gt; array (1,3) [(i,2*i) | i &lt;- [1..3]]
+array (1,3) [(1,2),(2,4),(3,6)]</code></pre>
+<p><strong>Ejemplos de definiciones de tablas</strong></p>
+<ul>
+<li><code>(cuadrados n)</code> es un vector de n+1 elementos tal que su elemento i-ésimo es x². Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; cuadrados 5
+array (0,5) [(0,0),(1,1),(2,4),(3,9),(4,16),(5,25)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cuadrados ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Int</span>
+cuadrados n <span class="fu">=</span> array (<span class="dv">0</span>,n) [(i,i<span class="fu">^</span><span class="dv">2</span>) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="fu">..</span>n]]</code></pre></div>
+<ul>
+<li><code>v</code> es un vector con 4 elementos de tipo carácter. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">v ::</span> <span class="dt">Array</span> <span class="dt">Integer</span> <span class="dt">Char</span>
+v <span class="fu">=</span> array (<span class="dv">1</span>,<span class="dv">4</span>) [(<span class="dv">3</span>,<span class="ch">&#39;c&#39;</span>),(<span class="dv">2</span>,<span class="ch">&#39;a&#39;</span>), (<span class="dv">1</span>,<span class="ch">&#39;f&#39;</span>), (<span class="dv">4</span>,<span class="ch">&#39;e&#39;</span>)]</code></pre></div>
+<ul>
+<li><code>m</code> es la matriz con 2 filas y 3 columnas tal que el elemento de la posición (i,j) es el producto de i por j.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">m ::</span> <span class="dt">Array</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="dt">Int</span>
+m <span class="fu">=</span> array ((<span class="dv">1</span>,<span class="dv">1</span>),(<span class="dv">2</span>,<span class="dv">3</span>)) [((i,j),i<span class="fu">*</span>j)) <span class="fu">|</span> i<span class="ot">&lt;-</span>[<span class="dv">1</span><span class="fu">..</span><span class="dv">2</span>],j<span class="ot">&lt;-</span>[<span class="dv">1</span><span class="fu">..</span><span class="dv">3</span>]]</code></pre></div>
+<ul>
+<li>Una tabla está indefinida si algún índice está fuera de rango.</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; array (1,4) [(i , i*i) | i &lt;- [1..4]]
+array (1,4) [(1,1),(2,4),(3,9),(4,16)]
+ghci&gt; array (1,4) [(i , i*i) | i &lt;- [1..5]]
+array *** Exception: Error in array index
+ghci&gt; array (1,4) [(i , i*i) | i &lt;- [1..3]]
+array (1,4) [(1,1),(2,4),(3,9),(4,*** 
+Exception: (Array.!): undefined array element</code></pre>
+<p><strong>Descomposición de tablas</strong></p>
+<ul>
+<li><code>(t ! i)</code> es el valor del índice <code>i</code> en la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; v
+array (1,4) [(1,&#39;f&#39;),(2,&#39;a&#39;),(3,&#39;c&#39;),(4,&#39;e&#39;)]
+ghci&gt; v!3
+&#39;c&#39;
+ghci&gt; m
+array ((1,1),(2,3)) [((1,1),1),((1,2),2),((1,3),3),
+                     ((2,1),2),((2,2),4),((2,3),6)]
+ghci&gt; m!(2,3)
+6</code></pre>
+<ul>
+<li><code>(bounds t)</code> es el rango de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>bounds m  ==  ((1,1),(2,3))</code></pre>
+<ul>
+<li><code>(indices t)</code> es la lista de los índices de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>indices m  ==  [(1,1),(1,2),(1,3),(2,1),(2,2),(2,3)]</code></pre>
+<ul>
+<li><code>(elems t)</code> es la lista de los elementos de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>elems m  ==  [1,2,3,2,4,6]</code></pre>
+<ul>
+<li><code>(assocs t)</code> es la lista de asociaciones de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; assocs m
+[((1,1),1),((1,2),2),((1,3),3),
+ ((2,1),2),((2,2),4),((2,3),6)]</code></pre>
+<p><strong>Modificación de tablas</strong></p>
+<ul>
+<li><code>(t // ivs)</code> es la tabla <code>t</code> asignándole a los índices de la lista de asociación <code>ivs</code> sus correspondientes valores. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; m // [((1,1),4), ((2,2),8)]
+array ((1,1),(2,3)) 
+      [((1,1),4),((1,2),2),((1,3),3),
+       ((2,1),2),((2,2),8),((2,3),6)]
+ghci&gt; m
+array ((1,1),(2,3)) 
+      [((1,1),1),((1,2),2),((1,3),3),
+       ((2,1),2),((2,2),4),((2,3),6)]</code></pre>
+<p><strong>Definición de tabla por recursión</strong></p>
+<ul>
+<li><code>(fibs n)</code> es el vector formado por los <code>n</code> primeros términos de la sucesión de Fibonacci. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; fibs 7
+array (0,7) [(0,1),(1,1),(2,2),(3,3),
+             (4,5),(5,8),(6,13),(7,21)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fibs ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Array</span> <span class="dt">Int</span> <span class="dt">Int</span>
+fibs n <span class="fu">=</span> a <span class="kw">where</span> 
+    a <span class="fu">=</span> array (<span class="dv">0</span>,n) 
+              ([(<span class="dv">0</span>,<span class="dv">1</span>),(<span class="dv">1</span>,<span class="dv">1</span>)] <span class="fu">++</span> 
+               [(i,a<span class="fu">!</span>(i<span class="fu">-</span><span class="dv">1</span>)<span class="fu">+</span>a<span class="fu">!</span>(i<span class="fu">-</span><span class="dv">2</span>)) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">2</span><span class="fu">..</span>n]])</code></pre></div>
+<p><strong>Otras funciones de creación de tablas</strong></p>
+<ul>
+<li><code>(listArray (m,n) vs)</code> es la tabla cuyo rango es <code>(m,n)</code> y cuya lista de valores es <code>vs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; listArray (2,5) &quot;Roma&quot;
+array (2,5) [(2,&#39;R&#39;),(3,&#39;o&#39;),(4,&#39;m&#39;),(5,&#39;a&#39;)]
+ghci&gt; listArray ((1,2),(2,4)) [5..12] 
+array ((1,2),(2,4)) [((1,2),5),((1,3),6),((1,4),7),
+                     ((2,2),8),((2,3),9),((2,4),10)]</code></pre>
+<p><strong>Construcción acumulativa de tablas</strong></p>
+<ul>
+<li><code>(accumArray f v (m,n) ivs)</code> es la tabla de rango <code>(m,n)</code> tal que el valor del índice <code>i</code> se obtiene acumulando la aplicación de la función <code>f</code> al valor inicial <code>v</code> y a los valores de la lista de asociación <code>ivs</code> cuyo índice es <code>i</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; accumArray (+) 0 (1,3) [(1,4),(2,5),(1,2)]
+array (1,3) [(1,6),(2,5),(3,0)]
+ghci&gt; accumArray (*) 1 (1,3) [(1,4),(2,5),(1,2)]
+array (1,3) [(1,8),(2,5),(3,1)]</code></pre>
+<ul>
+<li><code>(histograma r is)</code> es el vector formado contando cuantas veces aparecen los elementos del rango r en la lista de índices is. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; histograma (0,5) [3,1,4,1,5,4,2,7]
+array (0,5) [(0,0),(1,2),(2,1),(3,1),(4,2),(5,1)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">histograma ::</span> (<span class="dt">Ix</span> a, <span class="dt">Num</span> b) <span class="ot">=&gt;</span> (a,a) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">Array</span> a b
+histograma r is <span class="fu">=</span> 
+    accumArray (<span class="fu">+</span>) <span class="dv">0</span> r [(i,<span class="dv">1</span>) <span class="fu">|</span> i <span class="ot">&lt;-</span> is, inRange r i]</code></pre></div>
+<h1 id="especificación-del-tad-de-las-tablas"><span class="header-section-number">2</span> Especificación del TAD de las tablas</h1>
+<h2 id="signatura-del-tad-de-las-tablas"><span class="header-section-number">2.1</span> Signatura del TAD de las tablas</h2>
+<ul>
+<li>Signatura:</li>
+</ul>
+<pre class="sesion"><code>tabla    :: Eq i =&gt; [(i,v)] -&gt; Tabla i v           
+valor    :: Eq i =&gt; Tabla i v -&gt; i -&gt; v            
+modifica :: Eq i =&gt; (i,v) -&gt; Tabla i v -&gt; Tabla i v</code></pre>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>(tabla ivs)</code> es la tabla correspondiente a la lista de asociación <code>ivs</code> (que es una lista de pares formados por los índices y los valores).</li>
+<li><code>(valor t i)</code> es el valor del índice <code>i</code> en la tabla <code>t</code>.</li>
+<li><code>(modifica (i,v) t)</code> es la tabla obtenida modificando en la tabla <code>t</code> el valor de <code>i</code> por <code>v</code>.</li>
+</ul></li>
+</ul>
+<h2 id="propiedades-del-tad-de-las-tablas"><span class="header-section-number">2.2</span> Propiedades del TAD de las tablas</h2>
+<ul>
+<li><p><code>modifica (i,v') (modifica (i,v) t) = modifica (i,v') t</code></p></li>
+<li><p>Si <code>i /= i'</code>, entonces<br />
+ <code>modifica (i',v') (modifica (i,v) t) = modifica (i,v) (modifica (i',v') t)</code></p></li>
+<li><p><code>valor (modifica (i,v) t) i = v</code></p></li>
+<li><p>Si <code>i /= i'</code>, entonces<br />
+ <code>valor (modifica (i,v) (modifica (k',v') t)) i' = valor (modifica (k',v') t) i'</code></p></li>
+</ul>
+<h1 id="implementaciones-del-tad-de-las-tablas"><span class="header-section-number">3</span> Implementaciones del TAD de las tablas</h1>
+<h2 id="las-tablas-como-funciones"><span class="header-section-number">3.1</span> Las tablas como funciones</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">TablaConFunciones</span>  
+    (<span class="dt">Tabla</span>,
+     tabla,   <span class="co">-- Eq i =&gt; [(i,v)] -&gt; Tabla i v           </span>
+     valor,   <span class="co">-- Eq i =&gt; Tabla i v -&gt; i -&gt; v            </span>
+     modifica <span class="co">-- Eq i =&gt; (i,v) -&gt; Tabla i v -&gt; Tabla i v</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Las tablas como funciones.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Tabla</span> i v <span class="fu">=</span> <span class="dt">Tbl</span> (i <span class="ot">-&gt;</span> v)</code></pre></div>
+<ul>
+<li>Procedimiento de escritura.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Show</span> (<span class="dt">Tabla</span> i v) <span class="kw">where</span>
+    showsPrec _ _ cad <span class="fu">=</span> showString <span class="st">&quot;&lt;&lt;Una tabla&gt;&gt;&quot;</span> cad</code></pre></div>
+<ul>
+<li>Ejemplos de tablas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">t1 <span class="fu">=</span> tabla [(i,f i) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>] ] 
+     <span class="kw">where</span> f x <span class="fu">|</span> x <span class="fu">&lt;</span> <span class="dv">3</span>     <span class="fu">=</span> x
+               <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dv">3</span><span class="fu">-</span>x
+
+t2 <span class="fu">=</span> tabla [(<span class="dv">4</span>,<span class="dv">89</span>), (<span class="dv">1</span>,<span class="dv">90</span>), (<span class="dv">2</span>,<span class="dv">67</span>)]</code></pre></div>
+<ul>
+<li><code>(valor t i)</code> es el valor del índice <code>i</code> en la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor t1 6  ==  -3
+valor t2 2  ==  67
+valor t2 5  ==  *** Exception: fuera de rango</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> v
+valor (<span class="dt">Tbl</span> f) i <span class="fu">=</span> f i</code></pre></div>
+<ul>
+<li><code>(modifica (i,v) t)</code> es la tabla obtenida modificando en la tabla <code>t</code> el valor de <code>i</code> por <code>v</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor (modifica (6,9) t1) 6  ==  9</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">modifica ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> (i,v) <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+modifica (i,v) (<span class="dt">Tbl</span> f) <span class="fu">=</span> <span class="dt">Tbl</span> g
+    <span class="kw">where</span> g j <span class="fu">|</span> j <span class="fu">==</span> i    <span class="fu">=</span> v
+              <span class="fu">|</span> otherwise <span class="fu">=</span> f j</code></pre></div>
+<ul>
+<li><code>(tabla ivs)</code> es la tabla correspondiente a la lista de asociación <code>ivs</code> (que es una lista de pares formados por los índices y los valores). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; tabla [(4,89), (1,90), (2,67)]
+&lt;&lt;Una tabla&gt;&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">tabla ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> [(i,v)] <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+tabla ivs <span class="fu">=</span> 
+    foldr modifica 
+          (<span class="dt">Tbl</span> (\_ <span class="ot">-&gt;</span> error <span class="st">&quot;fuera de rango&quot;</span>))
+          ivs</code></pre></div>
+<h2 id="las-tablas-como-listas-de-asociación"><span class="header-section-number">3.2</span> Las tablas como listas de asociación</h2>
+<ul>
+<li>Cabecera del módulo</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">TablaConListasDeAsociacion</span> 
+    (<span class="dt">Tabla</span>,
+     tabla,   <span class="co">-- Eq i =&gt; [(i,v)] -&gt; Tabla i v           </span>
+     valor,   <span class="co">-- Eq i =&gt; Tabla i v -&gt; i -&gt; v            </span>
+     modifica <span class="co">-- Eq i =&gt; (i,v) -&gt; Tabla i v -&gt; Tabla i v</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Las tablas como listas de asociación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Tabla</span> i v <span class="fu">=</span> <span class="dt">Tbl</span> [(i,v)]
+    <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li>Ejemplos definición de tablas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">t1 <span class="fu">=</span> tabla [(i,f i) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>] ] 
+     <span class="kw">where</span> f x <span class="fu">|</span> x <span class="fu">&lt;</span> <span class="dv">3</span>     <span class="fu">=</span> x
+               <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dv">3</span><span class="fu">-</span>x
+
+t2 <span class="fu">=</span> tabla [(<span class="dv">4</span>,<span class="dv">89</span>), (<span class="dv">1</span>,<span class="dv">90</span>), (<span class="dv">2</span>,<span class="dv">67</span>)]</code></pre></div>
+<ul>
+<li>Ejemplos de evaluación de tablas:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; t1
+Tbl [(1,1),(2,2),(3,0),(4,-1),(5,-2),(6,-3)]
+
+ghci&gt; t2
+Tbl [(4,89),(1,90),(2,67)]</code></pre>
+<ul>
+<li><code>(tabla ivs)</code> es la tabla correspondiente a la lista de asociación <code>ivs</code> (que es una lista de pares formados por los índices y los valores). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; tabla [(4,89),(1,90),(2,67)]
+Tbl [(4,89),(1,90),(2,67)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">tabla ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> [(i,v)] <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+tabla ivs <span class="fu">=</span> <span class="dt">Tbl</span> ivs</code></pre></div>
+<ul>
+<li><code>(valor t i)</code> es el valor del índice <code>i</code> en la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor t1 6  ==  -3
+valor t2 2  ==  67
+valor t2 5  ==  *** Exception: fuera de rango</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> v
+valor (<span class="dt">Tbl</span> []) i <span class="fu">=</span> error <span class="st">&quot;fuera de rango&quot;</span>
+valor (<span class="dt">Tbl</span> ((j,v)<span class="fu">:</span>r)) i
+     <span class="fu">|</span> i <span class="fu">==</span> j    <span class="fu">=</span> v
+     <span class="fu">|</span> otherwise <span class="fu">=</span> valor (<span class="dt">Tbl</span> r) i </code></pre></div>
+<ul>
+<li><code>(modifica (i,x) t)</code> es la tabla obtenida modificando en la tabla <code>t</code> el valor de <code>i</code> por <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor t1 6                   ==  -3
+valor (modifica (6,9) t1) 6  ==  9</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">modifica ::</span> <span class="dt">Eq</span> i <span class="ot">=&gt;</span> (i,v) <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+modifica p (<span class="dt">Tbl</span> []) <span class="fu">=</span> (<span class="dt">Tbl</span> [p])
+modifica p&#39;<span class="fu">@</span>(i,_) (<span class="dt">Tbl</span> (p<span class="fu">@</span>(j,_)<span class="fu">:</span>r))
+     <span class="fu">|</span> i <span class="fu">==</span> j     <span class="fu">=</span> <span class="dt">Tbl</span> (p&#39;<span class="fu">:</span>r)
+     <span class="fu">|</span> otherwise  <span class="fu">=</span> <span class="dt">Tbl</span> (p<span class="fu">:</span>r&#39;)
+     <span class="kw">where</span> <span class="dt">Tbl</span> r&#39; <span class="fu">=</span> modifica p&#39; (<span class="dt">Tbl</span> r)</code></pre></div>
+<h2 id="las-tablas-como-matrices"><span class="header-section-number">3.3</span> Las tablas como matrices</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">TablaConMatrices</span> 
+    (<span class="dt">Tabla</span>,
+     tabla,     <span class="co">-- Eq i =&gt; [(i,v)] -&gt; Tabla i v           </span>
+     valor,     <span class="co">-- Eq i =&gt; Tabla i v -&gt; i -&gt; v            </span>
+     modifica,  <span class="co">-- Eq i =&gt; (i,v) -&gt; Tabla i v -&gt; Tabla i v</span>
+     tieneValor <span class="co">-- Ix i =&gt; Tabla i v -&gt; i -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Importación de la librería auxiliar:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.Array</span></code></pre></div>
+<ul>
+<li>Las tablas como matrices.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">Tabla</span> i v <span class="fu">=</span> <span class="dt">Tbl</span> (<span class="dt">Array</span> i v) <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
+<ul>
+<li>Ejemplos de definición de tablas:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">t1 <span class="fu">=</span> tabla [(i,f i) <span class="fu">|</span> i <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">6</span>] ] 
+     <span class="kw">where</span> f x <span class="fu">|</span> x <span class="fu">&lt;</span> <span class="dv">3</span>     <span class="fu">=</span> x
+               <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dv">3</span><span class="fu">-</span>x
+
+t2 <span class="fu">=</span> tabla [(<span class="dv">1</span>,<span class="dv">5</span>),(<span class="dv">2</span>,<span class="dv">4</span>),(<span class="dv">3</span>,<span class="dv">7</span>)]</code></pre></div>
+<ul>
+<li>Ejemplos de evaluación de tablas:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; t1
+Tbl (array (1,6) [(1,1),(2,2),(3,0),
+                  (4,-1),(5,-2),(6,-3)])
+
+ghci&gt; t2
+Tbl (array (1,3) [(1,5),(2,4),(3,7)])</code></pre>
+<ul>
+<li><code>(tabla ivs)</code> es la tabla correspondiente a la lista de asociación <code>ivs</code> (que es una lista de pares formados por los índices y los valores). Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; tabla [(1,5),(3,7),(2,4)]
+Tbl (array (1,3) [(1,5),(2,4),(3,7)])</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">tabla ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> [(i,v)] <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+tabla ivs <span class="fu">=</span> <span class="dt">Tbl</span> (array (m,n) ivs)
+    <span class="kw">where</span> indices <span class="fu">=</span> [i <span class="fu">|</span> (i,_) <span class="ot">&lt;-</span> ivs]
+          m       <span class="fu">=</span> minimum indices
+          n       <span class="fu">=</span> maximum indices</code></pre></div>
+<ul>
+<li><code>(valor t i)</code> es el valor del índice <code>i</code> en la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor t1 6  ==  -3
+valor t2 2  ==  67
+valor t2 5  ==  *** Exception: fuera de rango</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valor ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> v
+valor (<span class="dt">Tbl</span> t) i <span class="fu">=</span> t <span class="fu">!</span> i</code></pre></div>
+<ul>
+<li><code>(modifica (i,x) t)</code> es la tabla obtenida modificando en la tabla <code>t</code> el valor de <code>i</code> por <code>x</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valor t1 6                   ==  -3
+valor (modifica (6,9) t1) 6  ==  9</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">modifica ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> (i,v) <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> <span class="dt">Tabla</span> i v
+modifica p (<span class="dt">Tbl</span> t) <span class="fu">=</span> <span class="dt">Tbl</span> (t <span class="fu">//</span> [p])</code></pre></div>
+<ul>
+<li><code>(cotas t)</code> son las cotas de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>t2        ==  Tbl (array (1,3) [(1,5),(2,4),(3,7)])
+cotas t2  ==  (1,3)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cotas ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> (i,i)
+cotas (<span class="dt">Tbl</span> t) <span class="fu">=</span> bounds t</code></pre></div>
+<ul>
+<li><code>(tieneValor t x)</code> se verifica si <code>x</code> es una clave de la tabla <code>t</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>tieneValor t2 3  ==  True
+tieneValor t2 4  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">tieneValor ::</span> <span class="dt">Ix</span> i <span class="ot">=&gt;</span> <span class="dt">Tabla</span> i v <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+tieneValor t <span class="fu">=</span> inRange (cotas t)</code></pre></div>
+<h1 id="comprobación-de-las-implementaciones-con-quickcheck"><span class="header-section-number">4</span> Comprobación de las implementaciones con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">4.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación de las tablas que se desea verificar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">TablaConListasDeAsociacion</span></code></pre></div>
+<ul>
+<li>Importación de las librerías de comprobación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-tablas"><span class="header-section-number">4.2</span> Generador de tablas</h2>
+<ul>
+<li><code>genTabla</code> es un generador de tablas. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genTabla
+Tbl [(1,0)]
+Tbl [(1,-1)]
+Tbl [(1,0),(2,-1),(3,1),(4,1),(5,0)]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genTabla ::</span> <span class="dt">Gen</span> (<span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span>)
+genTabla <span class="fu">=</span> 
+    <span class="kw">do</span> x <span class="ot">&lt;-</span> arbitrary
+       xs <span class="ot">&lt;-</span> listOf arbitrary
+       return (tabla (zip [<span class="dv">1</span><span class="fu">..</span>] (x<span class="fu">:</span>xs)))
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genTabla</code></pre></div>
+<h2 id="especificación-de-las-propiedades-de-las-tablas"><span class="header-section-number">4.3</span> Especificación de las propiedades de las tablas</h2>
+<ul>
+<li>Al modificar una tabla dos veces con la misma clave se obtiene el mismos resultado que modificarla una vez con el último valor.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_modifica_modifica_1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                            <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_modifica_modifica_1 i v v&#39; t <span class="fu">=</span>
+    modifica (i,v&#39;) (modifica (i,v) t) 
+    <span class="fu">==</span> modifica (i,v&#39;) t </code></pre></div>
+<ul>
+<li>Al modificar una tabla con dos pares con claves distintas no importa el orden en que se añadan los pares.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_modifica_modifica_2 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                            <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_modifica_modifica_2 i i&#39; v v&#39; t <span class="fu">=</span>
+    i <span class="fu">/=</span> i&#39; <span class="fu">==&gt;</span>
+    modifica (i&#39;,v&#39;) (modifica (i,v) t) 
+    <span class="fu">==</span> modifica (i,v) (modifica (i&#39;,v&#39;) t) </code></pre></div>
+<ul>
+<li>El valor de la clave <code>i</code> en la tabla obtenida añadiéndole el par <code>(i,v)</code> a la tabla <code>t</code> es <code>v</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_valor_modifica_1 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                         <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_valor_modifica_1 i v t <span class="fu">=</span>
+    valor (modifica (i,v) t) i <span class="fu">==</span> v</code></pre></div>
+<ul>
+<li>Sean <code>i</code> e <code>j</code> dos claves distintas. El valor de la clave <code>j</code> en la tabla obtenida añadiéndole el par <code>(i,v)</code> a la tabla <code>t'</code> (que contiene la clave <code>j</code>) es el valor de <code>j</code> en <code>t'</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_valor_modifica_2 ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> 
+                         <span class="ot">-&gt;</span> <span class="dt">Tabla</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_valor_modifica_2 i v j v&#39; t <span class="fu">=</span>
+    i <span class="fu">/=</span> j <span class="fu">==&gt;</span>
+    valor (modifica (i,v) t&#39;) j <span class="fu">==</span> valor t&#39; j
+    <span class="kw">where</span> t&#39; <span class="fu">=</span> modifica (j,v&#39;) t</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">4.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación. Por ejemplo,</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del TAD tabla&quot;</span>
+          [testProperty <span class="st">&quot;P1&quot;</span> prop_modifica_modifica_1,
+           testProperty <span class="st">&quot;P2&quot;</span> prop_modifica_modifica_2,
+           testProperty <span class="st">&quot;P3&quot;</span> prop_valor_modifica_1,
+           testProperty <span class="st">&quot;P4&quot;</span> prop_valor_modifica_2]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de las tablas</strong></p>
+<pre class="sesion"><code>Propiedades del TAD tabla:
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  4           4          
+ Failed  0           0          
+ Total   4           4  </code></pre>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tema 20: El TAD de los montículos</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header>
+<h1 class="title">Tema 20: El TAD de los montículos</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#especificación-del-tad-de-los-montículos"><span class="toc-section-number">1</span> Especificación del TAD de los montículos</a><ul>
+<li><a href="#signatura-del-tad-de-los-montículos"><span class="toc-section-number">1.1</span> Signatura del TAD de los montículos</a></li>
+<li><a href="#propiedades-del-tad-de-los-montículos"><span class="toc-section-number">1.2</span> Propiedades del TAD de los montículos</a></li>
+</ul></li>
+<li><a href="#implementación-del-tad-de-los-montículos"><span class="toc-section-number">2</span> Implementación del TAD de los montículos</a><ul>
+<li><a href="#los-montículos-como-tipo-de-dato-algebraico"><span class="toc-section-number">2.1</span> Los montículos como tipo de dato algebraico</a></li>
+</ul></li>
+<li><a href="#comprobación-de-la-implementación-con-quickcheck"><span class="toc-section-number">3</span> Comprobación de la implementación con QuickCheck</a><ul>
+<li><a href="#librerías-auxiliares"><span class="toc-section-number">3.1</span> Librerías auxiliares</a></li>
+<li><a href="#generador-de-montículos"><span class="toc-section-number">3.2</span> Generador de montículos</a></li>
+<li><a href="#especificación-de-las-propiedades-de-los-montículos"><span class="toc-section-number">3.3</span> Especificación de las propiedades de los montículos</a></li>
+<li><a href="#comprobación-de-las-propiedades"><span class="toc-section-number">3.4</span> Comprobación de las propiedades</a></li>
+</ul></li>
+<li><a href="#implementación-de-las-colas-de-prioridad-mediante-montículos"><span class="toc-section-number">4</span> Implementación de las colas de prioridad mediante montículos</a><ul>
+<li><a href="#las-colas-de-prioridad-como-montículos"><span class="toc-section-number">4.1</span> Las colas de prioridad como montículos</a></li>
+</ul></li>
+<li><a href="#bibliografía"><span class="toc-section-number">5</span> Bibliografía</a></li>
+</ul>
+</nav>
+<h1 id="especificación-del-tad-de-los-montículos"><span class="header-section-number">1</span> Especificación del TAD de los montículos</h1>
+<h2 id="signatura-del-tad-de-los-montículos"><span class="header-section-number">1.1</span> Signatura del TAD de los montículos</h2>
+<p><strong>Descripción de los montículos</strong></p>
+<p>Un montículo es un árbol binario en el que los valores de cada nodo es menor o igual que los valores de sus hijos. Por ejemplo,</p>
+<pre class="sesion"><code>        1              1     
+       / \            / \    
+      /   \          /   \   
+     2     6        3     6  
+    / \   / \      / \   / \ 
+   3   8 9   7    4   2 9   7</code></pre>
+<p>el de la izquierda es un montículo, pero el de la derecha no lo es.</p>
+<p><strong>Signatura del TAD de los montículos</strong></p>
+<pre class="sesion"><code>vacio   :: Ord a =&gt; Monticulo a
+inserta :: Ord a =&gt; a -&gt; Monticulo a -&gt; Monticulo a
+menor   :: Ord a =&gt; Monticulo a -&gt; a
+resto   :: Ord a =&gt; Monticulo a -&gt; Monticulo a
+esVacio :: Ord a =&gt; Monticulo a -&gt; Bool
+valido  :: Ord a =&gt; Monticulo a -&gt; Bool</code></pre>
+<p>Descripción de las operaciones:</p>
+<ul>
+<li><p><code>vacio</code> es el montículo vacío.</p></li>
+<li><p><code>(inserta x m)</code> es el montículo obtenido añadiendo el elemento <code>x</code> al montículo <code>m</code>.</p></li>
+<li><p><code>(menor m)</code> es el menor elemento del montículo <code>m</code>.</p></li>
+<li><p><code>(resto m)</code> es el montículo obtenido eliminando el menor elemento del montículo <code>m</code>.</p></li>
+<li><p><code>(esVacio m)</code> se verifica si <code>m</code> es el montículo vacío.</p></li>
+<li><p><code>(valido m)</code> se verifica si <code>m</code> es un montículo; es decir, es un árbol binario en el que los valores de cada nodo es menor o igual que los valores de sus hijos.</p></li>
+</ul>
+<h2 id="propiedades-del-tad-de-los-montículos"><span class="header-section-number">1.2</span> Propiedades del TAD de los montículos</h2>
+<ul>
+<li><p><code>esVacio vacio</code></p></li>
+<li><p><code>valido (inserta x m)</code></p></li>
+<li><p><code>not (esVacio (inserta x m))</code></p></li>
+<li><p><code>not (esVacio m) ==&gt; valido (resto m)</code></p></li>
+<li><p><code>resto (inserta x vacio) == vacio</code></p></li>
+<li><p><code>x &lt;= menor m ==&gt; resto (inserta x m) == m</code></p></li>
+<li><p>Si <code>m</code> es no vacío y <code>x &gt; menor m</code>, entonces<br />
+ <code>resto (inserta x m) == inserta x (resto m)</code></p></li>
+<li><p><code>esVacio m || esVacio (resto m) || menor m &lt;= menor (resto m)</code></p></li>
+</ul>
+<h1 id="implementación-del-tad-de-los-montículos"><span class="header-section-number">2</span> Implementación del TAD de los montículos</h1>
+<h2 id="los-montículos-como-tipo-de-dato-algebraico"><span class="header-section-number">2.1</span> Los montículos como tipo de dato algebraico</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">Monticulo</span>
+    (<span class="dt">Monticulo</span>,
+     vacio,   <span class="co">-- Ord a =&gt; Monticulo a</span>
+     inserta, <span class="co">-- Ord a =&gt; a -&gt; Monticulo a -&gt; Monticulo a</span>
+     menor,   <span class="co">-- Ord a =&gt; Monticulo a -&gt; a</span>
+     resto,   <span class="co">-- Ord a =&gt; Monticulo a -&gt; Monticulo a</span>
+     esVacio, <span class="co">-- Ord a =&gt; Monticulo a -&gt; Bool</span>
+     valido   <span class="co">-- Ord a =&gt; Monticulo a -&gt; Bool</span>
+    ) <span class="kw">where</span> </code></pre></div>
+<ul>
+<li>Librería auxiliar:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Data.List</span> (sort)</code></pre></div>
+<ul>
+<li>Los montículos como tipo de dato algebraico</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a 
+                <span class="fu">=</span> <span class="dt">Vacio</span>
+                <span class="fu">|</span> <span class="dt">M</span> a <span class="dt">Int</span> (<span class="dt">Monticulo</span> a) (<span class="dt">Monticulo</span> a)
+                <span class="kw">deriving</span> <span class="dt">Show</span></code></pre></div>
+<ul>
+<li>La forma de los montículos no vacío es (M v r i d) donde
+<ul>
+<li>v es el valor de la raíz del montículo.</li>
+<li>r es el rango del montículo; es decir, la menor distancia de la raíz a un montículo vacío.</li>
+<li>i es el submontículo izquierdo y</li>
+<li>f es el submontículo derecho.</li>
+</ul></li>
+<li>Ejemplos de montículos</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">m1, m2,<span class="ot"> m3 ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span>
+m1 <span class="fu">=</span> foldr inserta vacio [<span class="dv">6</span>,<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>]
+m2 <span class="fu">=</span> foldr inserta vacio [<span class="dv">7</span>,<span class="dv">5</span>]
+m3 <span class="fu">=</span> mezcla m1 m2</code></pre></div>
+<ul>
+<li><p>Representación:</p>
+<pre class="sesion"><code>    m1             m2                m3
+                                     (1,2) 
+    (1,2)          (5,1)            /     \
+   /     \        /                /       \
+(4,1)   (6,1)  (7,1)           (5,2)        (4,1)
+   /                              /     \       /
+(8,1)                          (7,1)   (6,1)  (8,1)</code></pre></li>
+<li><p><code>vacio</code> es el montículo vacío.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacio ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a
+vacio <span class="fu">=</span> <span class="dt">Vacio</span></code></pre></div>
+<ul>
+<li><code>(rango m)</code> es el rango del montículo <code>m</code>; es decir, la menor distancia a un montículo vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>rango m1  ==  2
+rango m2  ==  1</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">rango ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span>
+rango <span class="dt">Vacio</span>       <span class="fu">=</span> <span class="dv">0</span>
+rango (<span class="dt">M</span> _ r _ _) <span class="fu">=</span> r</code></pre></div>
+<ul>
+<li><code>(creaM x a b)</code> es el montículo creado a partir del elemento <code>x</code> y los montículos <code>a</code> y <code>b</code>. Se supone que <code>x</code> es menor o igual que el mínimo de <code>a</code> y de <code>b</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; m1
+M 1 2 (M 4 1 (M 8 1 Vacio Vacio) Vacio) (M 6 1 Vacio Vacio)
+ghci&gt; m2
+M 5 1 (M 7 1 Vacio Vacio) Vacio
+ghci&gt; creaM 0 m1 m2
+M 0 2 (M 1 2 (M 4 1 (M 8 1 Vacio Vacio) Vacio) (M 6 1 Vacio Vacio)) 
+      (M 5 1 (M 7 1 Vacio Vacio) Vacio)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">creaM ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a
+creaM x a b <span class="fu">|</span> rango a <span class="fu">&gt;=</span> rango b <span class="fu">=</span> <span class="dt">M</span> x (rango b <span class="fu">+</span> <span class="dv">1</span>) a b
+            <span class="fu">|</span> otherwise          <span class="fu">=</span> <span class="dt">M</span> x (rango a <span class="fu">+</span> <span class="dv">1</span>) b a</code></pre></div>
+<ul>
+<li><code>(mezcla m1 m2)</code> es el montículo obtenido mezclando los montículos <code>m1</code> y <code>m2</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; mezcla m1 m2
+M 1 2 (M 5 2 (M 7 1 Vacio Vacio) (M 6 1 Vacio Vacio)) 
+      (M 4 1 (M 8 1 Vacio Vacio) Vacio)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">mezcla ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span>  <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a 
+                    <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a
+mezcla m <span class="dt">Vacio</span> <span class="fu">=</span> m
+mezcla <span class="dt">Vacio</span> m <span class="fu">=</span> m
+mezcla m1<span class="fu">@</span>(<span class="dt">M</span> x _ a1 b1) m2<span class="fu">@</span>(<span class="dt">M</span> y _ a2 b2)
+      <span class="fu">|</span> x <span class="fu">&lt;=</span> y    <span class="fu">=</span> creaM x a1 (mezcla b1 m2)
+      <span class="fu">|</span> otherwise <span class="fu">=</span> creaM y a2 (mezcla m1 b2)</code></pre></div>
+<ul>
+<li><code>(inserta x m)</code> es el montículo obtenido añadiendo el elemento <code>x</code> al montículo <code>m</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; m1
+M 1 2 (M 4 1 (M 8 1 Vacio Vacio) Vacio) 
+      (M 6 1 Vacio Vacio)
+ghci&gt; inserta 3 m1
+M 1 2 
+  (M 4 1 (M 8 1 Vacio Vacio) Vacio) 
+  (M 3 1 (M 6 1 Vacio Vacio) Vacio)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a
+inserta x m <span class="fu">=</span> mezcla (<span class="dt">M</span> x <span class="dv">1</span> <span class="dt">Vacio</span> <span class="dt">Vacio</span>) m</code></pre></div>
+<ul>
+<li><code>(menor m)</code> es el menor elemento del montículo <code>m</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>menor m1  ==  1
+menor m2  ==  5</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">menor  ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> a
+menor (<span class="dt">M</span> x _ _ _) <span class="fu">=</span> x
+menor <span class="dt">Vacio</span>       <span class="fu">=</span> error <span class="st">&quot;menor: monticulo vacio&quot;</span></code></pre></div>
+<ul>
+<li><code>(resto m)</code> es el montículo obtenido eliminando el menor elemento del montículo <code>m</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; resto m1
+M 4 2 (M 8 1 Vacio Vacio) (M 6 1 Vacio Vacio)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">resto ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a
+resto <span class="dt">Vacio</span>       <span class="fu">=</span> error <span class="st">&quot;resto: monticulo vacio&quot;</span>
+resto (<span class="dt">M</span> x _ a b) <span class="fu">=</span> mezcla a b</code></pre></div>
+<ul>
+<li><code>(esVacio m)</code> se verifica si m es el montículo vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacio ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+esVacio <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">True</span>
+esVacio _     <span class="fu">=</span> <span class="dt">False</span></code></pre></div>
+<ul>
+<li><code>(valido m)</code> se verifica si <code>m</code> es un montículo; es decir, es un árbol binario en el que los valores de cada nodo es menor o igual que los valores de sus hijos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>valido m1  ==  True
+valido (M 3 5 (M 2 1 Vacio Vacio) Vacio)  ==  False</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valido ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valido <span class="dt">Vacio</span> <span class="fu">=</span> <span class="dt">True</span>
+valido (<span class="dt">M</span> x _ <span class="dt">Vacio</span> <span class="dt">Vacio</span>) <span class="fu">=</span> <span class="dt">True</span>
+valido (<span class="dt">M</span> x _ m1<span class="fu">@</span>(<span class="dt">M</span> x1 n1 a1 b1) <span class="dt">Vacio</span>) <span class="fu">=</span> 
+    x <span class="fu">&lt;=</span> x1 <span class="fu">&amp;&amp;</span> valido m1
+valido (<span class="dt">M</span> x _ <span class="dt">Vacio</span> m2<span class="fu">@</span>(<span class="dt">M</span> x2 n2 a2 b2)) <span class="fu">=</span> 
+    x <span class="fu">&lt;=</span> x2 <span class="fu">&amp;&amp;</span> valido m2
+valido (<span class="dt">M</span> x _ m1<span class="fu">@</span>(<span class="dt">M</span> x1 n1 a1 b1) m2<span class="fu">@</span>(<span class="dt">M</span> x2 n2 a2 b2)) <span class="fu">=</span> 
+    x <span class="fu">&lt;=</span> x1 <span class="fu">&amp;&amp;</span> valido m1 <span class="fu">&amp;&amp;</span>
+    x <span class="fu">&lt;=</span> x2 <span class="fu">&amp;&amp;</span> valido m2</code></pre></div>
+<ul>
+<li><code>(elementos m)</code> es la lista de los elementos del montículo <code>m</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>elementos m1  ==  [1,4,8,6]</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">elementos ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> [a]
+elementos <span class="dt">Vacio</span>       <span class="fu">=</span> []
+elementos (<span class="dt">M</span> x _ a b) <span class="fu">=</span> x <span class="fu">:</span> elementos a <span class="fu">++</span> elementos b</code></pre></div>
+<ul>
+<li><code>(equivMonticulos m1 m2)</code> se verifica si los montículos <code>m1</code> y <code>m2</code> tienen los mismos elementos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; m1
+M 1 2 (M 4 1 (M 8 1 Vacio Vacio) Vacio) 
+      (M 6 1 Vacio Vacio)
+ghci&gt; let m1&#39; = foldr inserta vacio [6,8,4,1]
+M 1 2 (M 4 1 Vacio Vacio) 
+      (M 6 1 (M 8 1 Vacio Vacio) Vacio)
+ghci&gt; equivMonticulos m1 m1&#39;
+True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">equivMonticulos ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Monticulo</span> a <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> a 
+                   <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+equivMonticulos m1 m2 <span class="fu">=</span> 
+    sort (elementos m1) <span class="fu">==</span> sort (elementos m2)</code></pre></div>
+<ul>
+<li>Los montículos son comparables por igualdad.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">instance</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">Eq</span> (<span class="dt">Monticulo</span> a) <span class="kw">where</span>
+   (<span class="fu">==</span>) <span class="fu">=</span> equivMonticulos</code></pre></div>
+<h1 id="comprobación-de-la-implementación-con-quickcheck"><span class="header-section-number">3</span> Comprobación de la implementación con QuickCheck</h1>
+<h2 id="librerías-auxiliares"><span class="header-section-number">3.1</span> Librerías auxiliares</h2>
+<ul>
+<li>Importación de la implementación a verificar.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Monticulo</span></code></pre></div>
+<ul>
+<li>Importación de librerías auxiliares.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import </span><span class="dt">Test.QuickCheck</span>
+<span class="kw">import </span><span class="dt">Test.Framework</span>
+<span class="kw">import </span><span class="dt">Test.Framework.Providers.QuickCheck2</span></code></pre></div>
+<h2 id="generador-de-montículos"><span class="header-section-number">3.2</span> Generador de montículos</h2>
+<ul>
+<li><code>(creaMonticulo xs)</code> es el montículo correspondiente a la lista <code>xs</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; creaMonticulo [6,1,4,8]
+M 1 2 (M 4 1 (M 8 1 Vacio Vacio) Vacio) 
+      (M 6 1 Vacio Vacio)
+ghci&gt; creaMonticulo [6,8,4,1]
+M 1 2 (M 4 1 Vacio Vacio) 
+      (M 6 1 (M 8 1 Vacio Vacio) Vacio)</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">creaMonticulo ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> <span class="dt">Int</span>
+creaMonticulo <span class="fu">=</span> foldr inserta vacio</code></pre></div>
+<ul>
+<li><code>genMonticulo</code> es un generador de montículos. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample genMonticulo
+VacioM
+M (-1) 1 (M 1 1 VacioM VacioM) VacioM
+...</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">genMonticulo ::</span> <span class="dt">Gen</span> (<span class="dt">Monticulo</span> <span class="dt">Int</span>)
+genMonticulo <span class="fu">=</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> listOf arbitrary
+                  return (creaMonticulo xs)
+
+<span class="kw">instance</span> <span class="dt">Arbitrary</span> (<span class="dt">Monticulo</span> <span class="dt">Int</span>) <span class="kw">where</span>
+    arbitrary <span class="fu">=</span> genMonticulo</code></pre></div>
+<p><strong>Corrección del generador de montículos</strong></p>
+<ul>
+<li>Prop.: <code>genMonticulo</code> genera montículos válidos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_genMonticulo ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_genMonticulo m <span class="fu">=</span> valido m</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_genMonticulo
++++ OK, passed 100 tests.</code></pre>
+<p><strong>Generador de montículos no vacíos</strong></p>
+<ul>
+<li><code>monticuloNV</code> es un generador de montículos no vacío. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; sample monticuloNV
+M 0 1 VacioM VacioM
+M 1 1 (M 1 1 (M 1 1 VacioM VacioM) VacioM) VacioM
+...</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">monticuloNV ::</span> <span class="dt">Gen</span> (<span class="dt">Monticulo</span> <span class="dt">Int</span>)
+monticuloNV <span class="fu">=</span> <span class="kw">do</span> xs <span class="ot">&lt;-</span> listOf arbitrary
+                 x <span class="ot">&lt;-</span> arbitrary
+                 return (creaMonticulo (x<span class="fu">:</span>xs))</code></pre></div>
+<p><strong>Corrección del generador de montículos no vacíos</strong></p>
+<ul>
+<li>Prop.: <code>monticuloNV</code> genera montículos no vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_monticuloNV ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_monticuloNV m <span class="fu">=</span>
+    forAll monticuloNV 
+           (\m <span class="ot">-&gt;</span> (valido m) <span class="fu">&amp;&amp;</span> not (esVacio m))</code></pre></div>
+<ul>
+<li>Comprobación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; quickCheck prop_monticuloNV
++++ OK, passed 100 tests.</code></pre>
+<h2 id="especificación-de-las-propiedades-de-los-montículos"><span class="header-section-number">3.3</span> Especificación de las propiedades de los montículos</h2>
+<ul>
+<li><code>vacio</code> es un montículo.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_vacio_es_monticulo ::</span> <span class="dt">Bool</span>
+prop_vacio_es_monticulo <span class="fu">=</span> 
+    esVacio (<span class="ot">vacio ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span>)</code></pre></div>
+<ul>
+<li><code>inserta</code> produce montículos válidos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_es_valida ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_es_valida x m <span class="fu">=</span>
+    valido (inserta x m)</code></pre></div>
+<ul>
+<li>Los montículos creados con <code>inserta</code> son no vacío.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_inserta_no_vacio ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_inserta_no_vacio x m <span class="fu">=</span>
+    not (esVacio (inserta x m))</code></pre></div>
+<ul>
+<li>Al borrar el menor elemento de un montículo no vacío se obtiene un montículo válido.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_es_valida ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Property</span>
+prop_resto_es_valida m <span class="fu">=</span>
+    forAll monticuloNV  (\m <span class="ot">-&gt;</span> valido (resto m))</code></pre></div>
+<ul>
+<li>El resto de <code>(inserta x m)</code> es <code>m</code> si <code>m</code> es el montículo vacío o <code>x</code> es menor o igual que el menor elemento de <code>m</code> y es <code>(inserta x (resto m))</code>, en caso contrario.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_resto_inserta ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_resto_inserta x m <span class="fu">=</span>
+    resto (inserta x m)
+    <span class="fu">==</span> <span class="kw">if</span> esVacio m <span class="fu">||</span> x <span class="fu">&lt;=</span> menor m <span class="kw">then</span> m
+       <span class="kw">else</span> inserta x (resto m)</code></pre></div>
+<ul>
+<li><code>(menor m)</code> es el menor elemento del montículo <code>m</code>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">prop_menor_es_minimo ::</span> <span class="dt">Monticulo</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+prop_menor_es_minimo m <span class="fu">=</span>
+    esVacio m <span class="fu">||</span> esVacio (resto m) <span class="fu">||</span>
+    menor m <span class="fu">&lt;=</span> menor (resto m)</code></pre></div>
+<h2 id="comprobación-de-las-propiedades"><span class="header-section-number">3.4</span> Comprobación de las propiedades</h2>
+<p><strong>Definición del procedimiento de comprobación</strong></p>
+<ul>
+<li><code>compruebaPropiedades</code> comprueba todas las propiedades con la plataforma de verificación.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">compruebaPropiedades <span class="fu">=</span> 
+    defaultMain 
+        [testGroup <span class="st">&quot;Propiedades del TAD monticulo&quot;</span>
+         [testProperty <span class="st">&quot;P1&quot;</span> prop_genMonticulo,
+          testProperty <span class="st">&quot;P2&quot;</span> prop_monticuloNV,
+          testProperty <span class="st">&quot;P3&quot;</span> prop_vacio_es_monticulo,
+          testProperty <span class="st">&quot;P4&quot;</span> prop_inserta_es_valida,
+          testProperty <span class="st">&quot;P5&quot;</span> prop_inserta_no_vacio,
+          testProperty <span class="st">&quot;P6&quot;</span> prop_resto_es_valida,
+          testProperty <span class="st">&quot;P7&quot;</span> prop_resto_inserta,
+          testProperty <span class="st">&quot;P8&quot;</span> prop_menor_es_minimo]]</code></pre></div>
+<p><strong>Comprobación de las propiedades de los montículos</strong></p>
+<pre class="sesion"><code>ghci&gt; compruebaPropiedades 
+Propiedades del TAD monticulo:
+  P1: [OK, passed 100 tests]
+  P2: [OK, passed 100 tests]
+  P3: [OK, passed 100 tests]
+  P4: [OK, passed 100 tests]
+  P5: [OK, passed 100 tests]
+  P6: [OK, passed 100 tests]
+  P7: [OK, passed 100 tests]
+  P8: [OK, passed 100 tests]
+
+         Properties  Total      
+ Passed  8           8          
+ Failed  0           0          
+ Total   8           8 </code></pre>
+<h1 id="implementación-de-las-colas-de-prioridad-mediante-montículos"><span class="header-section-number">4</span> Implementación de las colas de prioridad mediante montículos</h1>
+<h2 id="las-colas-de-prioridad-como-montículos"><span class="header-section-number">4.1</span> Las colas de prioridad como montículos</h2>
+<ul>
+<li>Cabecera del módulo:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">module</span> <span class="dt">ColaDePrioridadConMonticulos</span> 
+    (<span class="dt">CPrioridad</span>,
+     vacia,   <span class="co">-- Ord a =&gt; CPrioridad a </span>
+     inserta, <span class="co">-- Ord a =&gt; a -&gt; CPrioridad a -&gt; CPrioridad a </span>
+     primero, <span class="co">-- Ord a =&gt; CPrioridad a -&gt; a</span>
+     resto,   <span class="co">-- Ord a =&gt; CPrioridad a -&gt; CPrioridad a</span>
+     esVacia, <span class="co">-- Ord a =&gt; CPrioridad a -&gt; Bool </span>
+     valida   <span class="co">-- Ord a =&gt; CPrioridad a -&gt; Bool</span>
+    ) <span class="kw">where</span></code></pre></div>
+<ul>
+<li>Importación cualificada:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">import qualified</span> <span class="dt">Monticulo</span> <span class="kw">as</span> <span class="dt">M</span></code></pre></div>
+<ul>
+<li>Descripción de las operaciones:
+<ul>
+<li><code>vacia</code> es la cola de prioridad vacía.</li>
+<li><code>(inserta x c)</code> añade el elemento <code>x</code> a la cola de prioridad <code>c</code>.</li>
+<li><code>(primero c)</code> es el primer elemento de la cola de prioridad <code>c</code>.</li>
+<li><code>(resto c)</code> es el resto de la cola de prioridad <code>c</code>.</li>
+<li><code>(esVacia c)</code> se verifica si la cola de prioridad <code>c</code> es vacía.</li>
+<li><code>(valida c)</code> se verifica si <code>c</code> es una cola de prioridad válida.</li>
+</ul></li>
+<li>Las colas de prioridad como montículos.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">newtype</span> <span class="dt">CPrioridad</span> a <span class="fu">=</span> <span class="dt">CP</span> (<span class="dt">M.Monticulo</span> a)
+    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</code></pre></div>
+<ul>
+<li>Ejemplo de cola de prioridad:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">cp1 ::</span> <span class="dt">CPrioridad</span> <span class="dt">Int</span>
+cp1 <span class="fu">=</span> foldr inserta vacia [<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">7</span>,<span class="dv">2</span>,<span class="dv">9</span>]</code></pre></div>
+<ul>
+<li>Evaluación:</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; cp1
+CP (M 1 2 
+      (M 2 2 
+         (M 9 1 VacioM VacioM) 
+         (M 7 1 VacioM VacioM)) 
+      (M 3 1 VacioM VacioM))</code></pre>
+<ul>
+<li><code>vacia</code> es la cola de prioridad vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>vacia  == CP Vacio</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">vacia ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a 
+vacia <span class="fu">=</span> <span class="dt">CP</span> M.vacio</code></pre></div>
+<ul>
+<li><code>(inserta x c)</code> añade el elemento <code>x</code> a la cola de prioridad <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; inserta 5 cp1
+CP (M 1 2 
+      (M 2 2 
+         (M 9 1 VacioM VacioM) 
+         (M 7 1 VacioM VacioM)) 
+      (M 3 1 
+         (M 5 1 VacioM VacioM) VacioM))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">inserta ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a 
+inserta v (<span class="dt">CP</span> c) <span class="fu">=</span> <span class="dt">CP</span> (M.inserta v c)</code></pre></div>
+<ul>
+<li><code>(primero c)</code> es la cabeza de la cola de prioridad <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>primero cp1  ==  1</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">primero ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> a
+primero (<span class="dt">CP</span> c) <span class="fu">=</span> M.menor c</code></pre></div>
+<ul>
+<li><code>(resto c)</code> elimina la cabeza de la cola de prioridad <code>c</code>. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>ghci&gt; resto cp1
+CP (M 2 2 
+      (M 9 1 VacioM VacioM) 
+      (M 3 1 
+         (M 7 1 VacioM VacioM) VacioM))</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">resto ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">CPrioridad</span> a
+resto (<span class="dt">CP</span> c) <span class="fu">=</span> <span class="dt">CP</span> (M.resto c)</code></pre></div>
+<ul>
+<li><code>(esVacia c)</code> se verifica si la cola de prioridad <code>c</code> es vacía. Por ejemplo,</li>
+</ul>
+<pre class="sesion"><code>esVacia cp1    ==  False
+esVacia vacia  ==  True</code></pre>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">esVacia ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span> 
+esVacia (<span class="dt">CP</span> c) <span class="fu">=</span> M.esVacio c</code></pre></div>
+<ul>
+<li><code>(valida c)</code> se verifica si <code>c</code> es una cola de prioridad válida. En la representación mediante montículo todas las colas de prioridad son válidas.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">valida ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> <span class="dt">CPrioridad</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
+valida _ <span class="fu">=</span> <span class="dt">True</span></code></pre></div>
+<h1 id="bibliografía"><span class="header-section-number">5</span> Bibliografía</h1>
+<ul>
+<li><a href="http://bit.ly/1CddfTX">Functional heap - Leftist tree</a>.</li>
+</ul>
+<hr />
+<div id="nav">
+<p>
+<strong>I1M2015</strong>: <a href="../index.php">Inicial</a> | <a href="../temas.php">Temas</a> | <a href="../ejercicios.php">Ejercicios</a> | <a href="../doc.php">Documentación</a> | <a href="../sistemas.php">Sistemas</a> | <a href="../examenes.php">Exámenes</a>
+</p>
+</div>
+<hr />
+<div id="foto">
+<p><a href="http://www.us.es/"> <img src="sello-us.jpg"  
+      alt="Universidad de Sevilla" wclassth="140" height="140" border="0"></a></p>
+</div>
+<div id="firma">
+<p><a href="/~jalonso">José A. Alonso Jiménez</a><br />
+ <a href="http://www.glc.us.es/">Grupo de Lógica Computacional</a><br />
+ <a href="http://www.cs.us.es">Dpto. de Ciencias de la Computación e I.A.</a><br />
+ <a href="http://www.us.es">Universidad de Sevilla</a></p>
+</div>
+</body>
+</html>
